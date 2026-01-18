@@ -1,0 +1,406 @@
+{
+  "dramaEvents": [
+    {
+      "title": "Band Drama: Personality Clash!",
+      "description": "Your guitarist and drummer are arguing about the band's direction.",
+      "choices": [
+        { "text": "Side with guitarist", "money": -50, "morale": -10, "fame": 5 },
+        { "text": "Side with drummer", "money": 0, "morale": -5, "fame": 0 },
+        { "text": "Call a band meeting", "money": -100, "morale": 10, "fame": 0 }
+      ]
+    },
+    {
+      "title": "Equipment Failure!",
+      "description": "Your amp died right before a show. What do you do?",
+      "choices": [
+        { "text": "Rent expensive gear ($300)", "money": -300, "morale": 0, "fame": 5 },
+        { "text": "Cancel the show", "money": -200, "morale": -20, "fame": -10 },
+        { "text": "Play acoustic", "money": 0, "morale": -5, "fame": 10 }
+      ]
+    },
+    {
+      "title": "Record Label Interest!",
+      "description": "A small label wants to sign you, but the deal is rough.",
+      "choices": [
+        { "text": "Sign the deal", "money": 500, "morale": 10, "fame": 20 },
+        { "text": "Negotiate better terms", "money": 200, "morale": 5, "fame": 10 },
+        { "text": "Stay independent", "money": 0, "morale": 15, "fame": 5 }
+      ]
+    },
+    {
+      "title": "Media Scandal!",
+      "description": "Tabloids are spreading rumors about the band. How do you respond?",
+      "choices": [
+        { "text": "Ignore it", "money": 0, "morale": -10, "fame": 5 },
+        { "text": "Fight back publicly", "money": -100, "morale": 5, "fame": 15 },
+        { "text": "Hire PR ($500)", "money": -500, "morale": 10, "fame": 10 }
+      ]
+    },
+    {
+      "title": "Band Member Burnout!",
+      "description": "Your bassist is exhausted and threatening to quit.",
+      "choices": [
+        { "text": "Take a break", "money": -200, "morale": 20, "fame": -5 },
+        { "text": "Push through", "money": 100, "morale": -15, "fame": 5 },
+        { "text": "Replace them", "money": -500, "morale": -20, "fame": 0 }
+      ]
+    },
+    {
+      "title": "Drugs at the Party!",
+      "description": "Someone's passing around drugs backstage. The whole scene is watching...",
+      "choices": [
+        { "text": "Just say no", "money": 0, "morale": 5, "fame": -5, "special": "drugRefuse" },
+        { "text": "Take some (risky)", "money": 0, "morale": 10, "fame": 10, "special": "drugUse" },
+        { "text": "Buy your own stash ($500)", "money": -500, "morale": 20, "fame": 5, "special": "drugBuy" }
+      ]
+    },
+    {
+      "title": "Radio Interview Opportunity!",
+      "description": "A popular radio station wants to interview the band.",
+      "choices": [
+        { "text": "Do the interview", "money": 0, "morale": 5, "fame": 20 },
+        { "text": "Demand payment ($300)", "money": 300, "morale": 0, "fame": 10 },
+        { "text": "Too busy", "money": 0, "morale": 0, "fame": -5 }
+      ]
+    },
+    {
+      "title": "Song Royalties!",
+      "description": "Your songs are getting radio play! Royalty check arrived.",
+      "choices": [
+        { "text": "Collect check", "money": 500, "morale": 10, "fame": 5, "special": "royalties" }
+      ]
+    },
+    {
+      "title": "Tour Offer!",
+      "description": "A bigger band wants you to open for them on tour. 5 cities, 3 weeks.",
+      "choices": [
+        { "text": "Accept tour ($1500 upfront)", "money": -1500, "morale": -10, "fame": 50, "special": "tour" },
+        { "text": "Decline - focus local", "money": 0, "morale": 5, "fame": 0 }
+      ]
+    },
+    {
+      "title": "Creative Differences!",
+      "description": "Your songwriter wants to experiment with new sounds, but the rest of the band disagrees.",
+      "choices": [
+        { "text": "Support the songwriter", "money": 0, "morale": -5, "fame": 15 },
+        { "text": "Stick to proven formula", "money": 0, "morale": 10, "fame": 5 },
+        { "text": "Compromise on one track", "money": -100, "morale": 5, "fame": 10 }
+      ]
+    },
+    {
+      "title": "Fan Mail Crisis!",
+      "description": "A fan sent you a marriage proposal and a lock of hair. The press got wind of it.",
+      "choices": [
+        { "text": "Respond politely", "money": 0, "morale": 5, "fame": 10 },
+        { "text": "Ignore it completely", "money": 0, "morale": -5, "fame": -5 },
+        { "text": "Use it for publicity", "money": 0, "morale": 0, "fame": 20 }
+      ]
+    },
+    {
+      "title": "Studio Overrun!",
+      "description": "Recording is taking longer than expected. The studio wants extra payment.",
+      "choices": [
+        { "text": "Pay the extra ($800)", "money": -800, "morale": 5, "fame": 0 },
+        { "text": "Cut corners on mixing", "money": 0, "morale": -10, "fame": -10 },
+        { "text": "Negotiate down to $500", "money": -500, "morale": 0, "fame": 5 }
+      ]
+    },
+    {
+      "title": "Rival Band Sabotage!",
+      "description": "A jealous rival band spread rumors that you're breaking up.",
+      "choices": [
+        { "text": "Deny publicly", "money": -200, "morale": 10, "fame": 5 },
+        { "text": "Ignore and focus on music", "money": 0, "morale": -5, "fame": 0 },
+        { "text": "Start a feud", "money": -100, "morale": 5, "fame": 15 }
+      ]
+    },
+    {
+      "title": "Manager Problems!",
+      "description": "Your manager is skimming money and booking bad gigs.",
+      "choices": [
+        { "text": "Fire them immediately", "money": -300, "morale": 15, "fame": -5 },
+        { "text": "Confront but keep them", "money": 0, "morale": -10, "fame": 0 },
+        { "text": "Hire a lawyer ($1000)", "money": -1000, "morale": 10, "fame": 10 }
+      ]
+    },
+    {
+      "title": "Drug Addiction Crisis!",
+      "description": "One band member has developed a serious drug problem affecting performances.",
+      "choices": [
+        { "text": "Stage an intervention", "money": -500, "morale": 10, "fame": -10 },
+        { "text": "Replace them quietly", "money": -800, "morale": -15, "fame": -5 },
+        { "text": "Support their recovery", "money": -200, "morale": 20, "fame": 5 }
+      ]
+    },
+    {
+      "title": "Chart Success Party!",
+      "description": "You hit the charts! The label wants you to celebrate at an expensive party.",
+      "choices": [
+        { "text": "Throw the party ($1000)", "money": -1000, "morale": 20, "fame": 15 },
+        { "text": "Low-key celebration", "money": 0, "morale": 10, "fame": 5 },
+        { "text": "Skip it, focus on touring", "money": 0, "morale": 5, "fame": 10 }
+      ]
+    },
+    {
+      "title": "Creative Block!",
+      "description": "The band can't write new material. Inspiration is gone.",
+      "choices": [
+        { "text": "Take time off", "money": -300, "morale": 15, "fame": -10 },
+        { "text": "Push through anyway", "money": 0, "morale": -15, "fame": 0 },
+        { "text": "Try experimental techniques", "money": -200, "morale": 5, "fame": 10 }
+      ]
+    },
+    {
+      "title": "Equipment Theft!",
+      "description": "Your instruments were stolen from the van overnight.",
+      "choices": [
+        { "text": "Buy replacements ($1500)", "money": -1500, "morale": -10, "fame": 0 },
+        { "text": "Borrow from friends", "money": 0, "morale": 5, "fame": -5 },
+        { "text": "Cancel upcoming shows", "money": -400, "morale": -20, "fame": -15 }
+      ]
+    },
+    {
+      "title": "Fan Club Opportunity!",
+      "description": "Fans want to start an official fan club. They need startup funds.",
+      "choices": [
+        { "text": "Fund it ($300)", "money": -300, "morale": 10, "fame": 20 },
+        { "text": "Let them handle it", "money": 0, "morale": 5, "fame": 10 },
+        { "text": "Charge membership fees", "money": 200, "morale": 0, "fame": 5 }
+      ]
+    },
+    {
+      "title": "Band Member Romance!",
+      "description": "Two band members are dating, causing tension in the group.",
+      "choices": [
+        { "text": "Support their relationship", "money": 0, "morale": 15, "fame": 5 },
+        { "text": "Ask them to keep it private", "money": 0, "morale": -5, "fame": 0 },
+        { "text": "Intervene to prevent drama", "money": -100, "morale": 10, "fame": -5 }
+      ]
+    },
+    {
+      "title": "Radio Tinpot Session!",
+      "description": "The famous Radio Tinpot wants to do a live session with you.",
+      "choices": [
+        { "text": "Accept enthusiastically", "money": 0, "morale": 15, "fame": 30 },
+        { "text": "Accept but be nervous", "money": 0, "morale": -5, "fame": 20 },
+        { "text": "Decline - not ready", "money": 0, "morale": 5, "fame": -10 }
+      ]
+    },
+    {
+      "title": "Interviews on Local Radio!",
+      "description": "Local radio stations in America want interviews. It's a big opportunity.",
+      "choices": [
+        { "text": "Do all the interviews", "money": 0, "morale": 10, "fame": 25 },
+        { "text": "Pick the biggest ones", "money": 0, "morale": 5, "fame": 15 },
+        { "text": "Send the manager instead", "money": 0, "morale": 0, "fame": 5 }
+      ]
+    },
+    {
+      "title": "Major Festival Offer!",
+      "description": "You've been invited to play a major music festival as an opening act.",
+      "choices": [
+        { "text": "Accept the slot", "money": 500, "morale": 10, "fame": 40 },
+        { "text": "Negotiate for better billing", "money": 200, "morale": 5, "fame": 30 },
+        { "text": "Decline - want headliner status", "money": 0, "morale": -5, "fame": -5 }
+      ]
+    },
+    {
+      "title": "Songwriter's Muse!",
+      "description": "Your songwriter found inspiration after a wild night out.",
+      "choices": [
+        { "text": "Encourage the creative process", "money": 0, "morale": 10, "fame": 15 },
+        { "text": "Worry about their health", "money": 0, "morale": -5, "fame": 5 },
+        { "text": "Capitalize on the momentum", "money": 0, "morale": 5, "fame": 20 }
+      ]
+    },
+    {
+      "title": "Equipment Upgrade Windfall!",
+      "description": "A fan donated professional-grade equipment to the band.",
+      "choices": [
+        { "text": "Accept gratefully", "money": 0, "morale": 20, "fame": 10 },
+        { "text": "Sell it for cash", "money": 1000, "morale": -10, "fame": -5 },
+        { "text": "Use it but stay humble", "money": 0, "morale": 15, "fame": 5 }
+      ]
+    },
+    {
+      "title": "Creative Breakthrough!",
+      "description": "The band had an amazing jam session and wrote three great songs.",
+      "choices": [
+        { "text": "Record them immediately", "money": -500, "morale": 15, "fame": 20 },
+        { "text": "Save for the next album", "money": 0, "morale": 10, "fame": 10 },
+        { "text": "Release as singles first", "money": -200, "morale": 5, "fame": 25 }
+      ]
+    },
+    {
+      "title": "Band Chemistry Issues!",
+      "description": "The band members aren't gelling well. Rehearsals are tense.",
+      "choices": [
+        { "text": "Team-building activities", "money": -300, "morale": 20, "fame": 0 },
+        { "text": "Give them space", "money": 0, "morale": -5, "fame": -5 },
+        { "text": "Replace the weakest link", "money": -600, "morale": -10, "fame": 5 }
+      ]
+    },
+    {
+      "title": "Unexpected Hit Single!",
+      "description": "One of your B-sides became a surprise hit on college radio.",
+      "choices": [
+        { "text": "Push it to mainstream", "money": -300, "morale": 10, "fame": 35 },
+        { "text": "Let it grow organically", "money": 0, "morale": 5, "fame": 20 },
+        { "text": "Re-record it professionally", "money": -800, "morale": 15, "fame": 25 }
+      ]
+    },
+    {
+      "title": "Tour Van Breakdown!",
+      "description": "Your tour van broke down in the middle of nowhere.",
+      "choices": [
+        { "text": "Call a tow truck ($400)", "money": -400, "morale": -10, "fame": -5 },
+        { "text": "Fix it yourselves", "money": -100, "morale": 5, "fame": 5 },
+        { "text": "Turn it into a publicity stunt", "money": 0, "morale": 10, "fame": 15 }
+      ]
+    },
+    {
+      "title": "Industry Party Invitation!",
+      "description": "You've been invited to an exclusive industry networking party.",
+      "choices": [
+        { "text": "Attend and network", "money": -200, "morale": 10, "fame": 15 },
+        { "text": "Go but keep it low-key", "money": -100, "morale": 5, "fame": 10 },
+        { "text": "Skip it - focus on music", "money": 0, "morale": 0, "fame": -5 }
+      ]
+    },
+    {
+      "title": "Songwriter's Block!",
+      "description": "Your main songwriter is completely blocked and can't create.",
+      "choices": [
+        { "text": "Bring in outside writers", "money": -500, "morale": -10, "fame": 10 },
+        { "text": "Give them unlimited time", "money": -400, "morale": 15, "fame": -10 },
+        { "text": "Try collaborative writing", "money": -200, "morale": 10, "fame": 5 }
+      ]
+    },
+    {
+      "title": "Fan Petition!",
+      "description": "Fans started a petition demanding you release a live album.",
+      "choices": [
+        { "text": "Record and release it", "money": -1000, "morale": 15, "fame": 20 },
+        { "text": "Release existing live tracks", "money": -200, "morale": 10, "fame": 15 },
+        { "text": "Ignore the petition", "money": 0, "morale": -5, "fame": -10 }
+      ]
+    },
+    {
+      "title": "Studio Magic!",
+      "description": "The recording session exceeded all expectations. The album sounds incredible.",
+      "choices": [
+        { "text": "Celebrate the success", "money": -300, "morale": 25, "fame": 15 },
+        { "text": "Stay humble", "money": 0, "morale": 20, "fame": 10 },
+        { "text": "Push for even better results", "money": -500, "morale": 15, "fame": 20 }
+      ]
+    },
+    {
+      "title": "Rival Band Collaboration?",
+      "description": "A rival band approached you about a collaboration track.",
+      "choices": [
+        { "text": "Accept the collaboration", "money": 0, "morale": 10, "fame": 25 },
+        { "text": "Decline politely", "money": 0, "morale": 5, "fame": 0 },
+        { "text": "Turn it into a competition", "money": 0, "morale": -5, "fame": 15 }
+      ]
+    },
+    {
+      "title": "Mental Health Break!",
+      "description": "The constant touring is taking a toll on everyone's mental health.",
+      "choices": [
+        { "text": "Take a month off", "money": -800, "morale": 30, "fame": -15 },
+        { "text": "Short break only", "money": -300, "morale": 20, "fame": -5 },
+        { "text": "Push through", "money": 0, "morale": -20, "fame": 5 }
+      ]
+    },
+    {
+      "title": "Viral Social Media Moment!",
+      "description": "A fan video of your show went viral on early internet forums.",
+      "choices": [
+        { "text": "Embrace the attention", "money": 0, "morale": 15, "fame": 30 },
+        { "text": "Stay grounded", "money": 0, "morale": 10, "fame": 20 },
+        { "text": "Distance from the hype", "money": 0, "morale": 5, "fame": 10 }
+      ]
+    },
+    {
+      "title": "Equipment Obsession!",
+      "description": "One member wants to spend all the money on the latest gear.",
+      "choices": [
+        { "text": "Indulge their passion", "money": -1000, "morale": 15, "fame": 10 },
+        { "text": "Compromise on some upgrades", "money": -500, "morale": 10, "fame": 5 },
+        { "text": "Stick to the budget", "money": 0, "morale": -5, "fame": 0 }
+      ]
+    },
+    {
+      "title": "Unexpected Pregnancy!",
+      "description": "A band member's partner is pregnant, complicating the tour schedule.",
+      "choices": [
+        { "text": "Support family time", "money": -400, "morale": 20, "fame": -5 },
+        { "text": "Continue touring", "money": 0, "morale": -15, "fame": 5 },
+        { "text": "Bring family on tour", "money": -600, "morale": 10, "fame": 10 }
+      ]
+    },
+    {
+      "title": "Creative Renaissance!",
+      "description": "After a rough patch, the band is creating their best work yet.",
+      "choices": [
+        { "text": "Ride the wave", "money": 0, "morale": 25, "fame": 20 },
+        { "text": "Document the process", "money": -300, "morale": 20, "fame": 25 },
+        { "text": "Don't jinx it", "money": 0, "morale": 15, "fame": 15 }
+      ]
+    },
+    {
+      "title": "Fan Art Inspiration!",
+      "description": "Amazing fan art inspired you to create a concept album.",
+      "choices": [
+        { "text": "Pursue the concept", "money": -700, "morale": 20, "fame": 15 },
+        { "text": "Use it for album art only", "money": -100, "morale": 10, "fame": 10 },
+        { "text": "Credit the fan publicly", "money": 0, "morale": 15, "fame": 20 }
+      ]
+    },
+    {
+      "title": "Industry Mentor!",
+      "description": "A legendary musician offered to mentor the band.",
+      "choices": [
+        { "text": "Accept eagerly", "money": 0, "morale": 20, "fame": 25 },
+        { "text": "Be respectful but independent", "money": 0, "morale": 10, "fame": 15 },
+        { "text": "Politely decline", "money": 0, "morale": 5, "fame": -5 }
+      ]
+    },
+    {
+      "title": "Tour Bus Upgrade!",
+      "description": "Your current transportation is falling apart. Time for an upgrade.",
+      "choices": [
+        { "text": "Luxury bus ($5000)", "money": -5000, "morale": 25, "fame": 10 },
+        { "text": "Basic tour bus ($2000)", "money": -2000, "morale": 15, "fame": 5 },
+        { "text": "Stick with vans", "money": 0, "morale": -10, "fame": -5 }
+      ]
+    },
+    {
+      "title": "Songwriting Retreat!",
+      "description": "The band rented a remote cabin for a songwriting retreat.",
+      "choices": [
+        { "text": "Amazing results!", "money": -600, "morale": 25, "fame": 20 },
+        { "text": "Good but expensive", "money": -600, "morale": 15, "fame": 15 },
+        { "text": "Creative block strikes", "money": -600, "morale": -10, "fame": -5 }
+      ]
+    }
+  ],
+  "interviewQuestions": [
+    "What inspires your music?",
+    "How did the band form?",
+    "What's your message to the fans?",
+    "Any upcoming tours?",
+    "Who are your influences?",
+    "What's your creative process?",
+    "How do you handle success?",
+    "What's the wildest show you've played?",
+    "What's next for the band?",
+    "How has the industry changed?",
+    "What's your favorite song to play live?",
+    "How do you stay creative?",
+    "What's the biggest challenge you've faced?",
+    "What's your relationship with your fans?",
+    "How do you balance art and commerce?"
+  ],
+  "tourCities": ["New York", "Los Angeles", "Chicago", "Boston", "Seattle", "Austin", "Nashville", "Portland", "Denver", "Atlanta", "Miami", "Detroit", "Minneapolis", "Vancouver", "Montreal"]
+}
