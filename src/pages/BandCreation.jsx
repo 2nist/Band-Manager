@@ -2,15 +2,15 @@ import React, { useState, useCallback } from 'react';
 import { getAvatarUrl } from '../utils/helpers';
 
 const ROLES = [
-  { id: 'vocalist', name: '🎤 Vocals', color: '#ff6b6b' },
-  { id: 'lead-guitar', name: '🎸 Lead Guitar', color: '#4ecdc4' },
-  { id: 'rhythm-guitar', name: '🎸 Rhythm Guitar', color: '#00d2fc' },
-  { id: 'bassist', name: '🎸 Bass', color: '#45b7d1' },
-  { id: 'drummer', name: '🥁 Drums', color: '#f9ca24' },
-  { id: 'keyboardist', name: '🎹 Keys', color: '#6c5ce7' },
-  { id: 'synth', name: '🎹 Synth', color: '#a29bfe' },
-  { id: 'percussion', name: '🥁 Percussion', color: '#fdcb6e' },
-  { id: 'dj', name: '🎚️ DJ', color: '#ff7675' },
+  { id: 'vocalist', name: '🎤 Vocals' },
+  { id: 'lead-guitar', name: '🎸 Lead Guitar' },
+  { id: 'rhythm-guitar', name: '🎸 Rhythm Guitar' },
+  { id: 'bassist', name: '🎸 Bass' },
+  { id: 'drummer', name: '🥁 Drums' },
+  { id: 'keyboardist', name: '🎹 Keys' },
+  { id: 'synth', name: '🎹 Synth' },
+  { id: 'percussion', name: '🥁 Percussion' },
+  { id: 'dj', name: '🎚️ DJ' },
 ];
 
 // Pre-made band candidates
@@ -103,27 +103,27 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
   // Rehearsal Phase UI
   if (phase === 'rehearsal') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
         <div className="max-w-4xl w-full">
           {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="text-5xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-red-400">
+            <h1 className="text-5xl font-black mb-4 text-primary">
               Rehearsal
             </h1>
-            <p className="text-gray-300 text-lg">
-              Scout talented musicians for <span className="font-bold text-purple-300">{bandName}</span>
+            <p className="text-foreground/70 text-lg">
+              Scout talented musicians for <span className="font-bold text-primary">{bandName}</span>
             </p>
           </div>
 
           {/* Main Card */}
-          <div className="bg-slate-800/50 backdrop-blur border border-purple-500/30 rounded-2xl p-8 shadow-2xl">
+          <div className="bg-card text-card-foreground rounded-2xl p-8 shadow-lg border border-border/20">
             {/* Logo Display */}
             {logo && (
-              <div className="mb-8 p-6 bg-slate-900/50 rounded-xl border border-purple-400/20">
-                <p className="text-xs text-gray-400 mb-3 uppercase tracking-wider">Band Logo</p>
+              <div className="mb-8 p-6 bg-muted/30 rounded-xl border border-border/20">
+                <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider">Band Logo</p>
                 <div
                   style={logo.style}
-                  className="text-center py-4 rounded-lg bg-gradient-to-b from-slate-800 to-slate-900"
+                  className="text-center py-4 rounded-lg bg-muted/20"
                 >
                   {bandName}
                 </div>
@@ -133,29 +133,29 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
             {/* Selected Members */}
             {selectedCandidates.length > 0 && (
               <div className="mb-8">
-                <p className="text-xs text-gray-400 mb-4 uppercase tracking-wider">
+                <p className="text-xs text-muted-foreground mb-4 uppercase tracking-wider">
                   Selected Members ({selectedCandidates.length})
                 </p>
                 <div className="space-y-2">
                   {selectedCandidates.map((member, idx) => {
                     const role = ROLES.find(r => r.id === member.role);
                     return (
-                      <div key={idx} className="p-4 rounded-lg bg-slate-700/30 border border-purple-500/30 flex items-center justify-between">
+                      <div key={idx} className="p-4 rounded-lg bg-muted/30 border border-border/20 flex items-center justify-between">
                         <div className="flex items-center gap-4">
                           <img
                             src={getAvatarUrl(member.name, 'open-peeps')}
                             alt={member.name}
-                            className="w-10 h-10 rounded-full border-2 border-purple-500"
+                            className="w-10 h-10 rounded-full border-2 border-primary"
                             onError={(e) => e.target.style.display = 'none'}
                           />
                           <div>
-                            <p className="text-white font-bold">{member.name}</p>
-                            <p className="text-xs text-gray-400">{role.name}</p>
+                            <p className="font-bold">{member.name}</p>
+                            <p className="text-xs text-muted-foreground">{role.name}</p>
                           </div>
                         </div>
                         <button
                           onClick={() => handleRemoveSelected(idx)}
-                          className="px-3 py-1 text-xs bg-red-600/30 text-red-300 rounded hover:bg-red-600/50 transition-colors"
+                          className="px-3 py-1 text-xs bg-destructive/20 text-destructive rounded hover:bg-destructive/30 transition-colors"
                         >
                           Remove
                         </button>
@@ -168,7 +168,7 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
 
             {/* Candidates Grid */}
             <div className="mb-8">
-              <p className="text-xs text-gray-400 mb-4 uppercase tracking-wider">Available Musicians</p>
+              <p className="text-xs text-muted-foreground mb-4 uppercase tracking-wider">Available Musicians</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {BAND_CANDIDATES.map((candidate, idx) => {
                   const isSelected = selectedCandidates.some(m => m.name === candidate.name);
@@ -179,23 +179,23 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
                       disabled={isSelected}
                       className={`p-4 rounded-lg border-2 transition-all text-left ${
                         isSelected
-                          ? 'bg-purple-600/30 border-purple-500 opacity-60 cursor-not-allowed'
-                          : 'bg-slate-700/30 border-slate-600/50 hover:border-purple-500/70 hover:bg-slate-700/50'
+                          ? 'bg-primary/20 border-primary opacity-60 cursor-not-allowed'
+                          : 'bg-muted/20 border-border/30 hover:border-primary/50 hover:bg-muted/40'
                       }`}
                     >
                       <div className="flex items-center gap-4">
                         <img
                           src={getAvatarUrl(candidate.name, 'open-peeps')}
                           alt={candidate.name}
-                          className="w-12 h-12 rounded-full border-2 border-slate-600"
+                          className="w-12 h-12 rounded-full border-2 border-border/50"
                           onError={(e) => e.target.style.display = 'none'}
                         />
                         <div className="flex-1">
-                          <p className="font-bold text-white">{candidate.name}</p>
-                          <p className="text-xs text-gray-400 mb-1">
+                          <p className="font-bold">{candidate.name}</p>
+                          <p className="text-xs text-muted-foreground mb-1">
                             {ROLES.find(r => r.id === candidate.specialty)?.name}
                           </p>
-                          <p className="text-xs text-gray-500">{candidate.bio}</p>
+                          <p className="text-xs text-muted-foreground/70">{candidate.bio}</p>
                         </div>
                         {isSelected && <span className="text-lg">✓</span>}
                       </div>
@@ -209,12 +209,12 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
             <button
               onClick={handleStartAssembly}
               disabled={selectedCandidates.length < 2}
-              className="w-full py-4 px-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-all transform hover:scale-105 active:scale-95 shadow-lg"
+              className="w-full py-4 px-6 bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed font-bold rounded-lg transition-all transform hover:scale-105 active:scale-95 shadow-lg"
             >
               Assemble Your Band ({selectedCandidates.length}/∞)
             </button>
 
-            <p className="text-xs text-gray-500 text-center mt-4">
+            <p className="text-xs text-muted-foreground text-center mt-4">
               Select at least 2 musicians to proceed • You can customize their roles next
             </p>
           </div>
@@ -225,27 +225,27 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
 
   // Assembly Phase UI
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-red-400">
+          <h1 className="text-5xl font-black mb-4 text-primary">
             Assemble Your Band
           </h1>
-          <p className="text-gray-300 text-lg">
-            Finalize your musical crew for <span className="font-bold text-purple-300">{bandName}</span>
+          <p className="text-foreground/70 text-lg">
+            Finalize your musical crew for <span className="font-bold text-primary">{bandName}</span>
           </p>
         </div>
 
         {/* Main Card */}
-        <div className="bg-slate-800/50 backdrop-blur border border-purple-500/30 rounded-2xl p-8 shadow-2xl">
+        <div className="bg-card text-card-foreground rounded-2xl p-8 shadow-lg border border-border/20">
           {/* Logo Display */}
           {logo && (
-            <div className="mb-8 p-6 bg-slate-900/50 rounded-xl border border-purple-400/20">
-              <p className="text-xs text-gray-400 mb-3 uppercase tracking-wider">Band Logo</p>
+            <div className="mb-8 p-6 bg-muted/30 rounded-xl border border-border/20">
+              <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider">Band Logo</p>
               <div
                 style={logo.style}
-                className="text-center py-4 rounded-lg bg-gradient-to-b from-slate-800 to-slate-900"
+                className="text-center py-4 rounded-lg bg-muted/20"
               >
                 {bandName}
               </div>
@@ -254,7 +254,7 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
 
           {/* Member Editor */}
           <div className="mb-8">
-            <p className="text-xs text-gray-400 mb-4 uppercase tracking-wider">
+            <p className="text-xs text-muted-foreground mb-4 uppercase tracking-wider">
               Member {currentIndex + 1} of {members.length}
             </p>
 
@@ -264,10 +264,10 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
                 <img
                   src={getAvatarUrl(currentMember.name || 'member', 'open-peeps')}
                   alt={currentMember.name}
-                  className="w-24 h-24 rounded-full border-4 border-purple-500 shadow-lg"
+                  className="w-24 h-24 rounded-full border-4 border-primary shadow-lg"
                   onError={(e) => e.target.style.opacity = '0.3'}
                 />
-                <div className="absolute -bottom-2 -right-2 bg-purple-600 rounded-full px-3 py-1 text-xs font-bold text-white border-2 border-slate-800">
+                <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-bold border-2 border-card">
                   {ROLES.find(r => r.id === currentMember.role)?.name.split(' ')[0]}
                 </div>
               </div>
@@ -275,7 +275,7 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
 
             {/* Role Selector */}
             <div className="mb-6">
-              <label className="text-sm font-semibold text-gray-300 mb-3 block">
+              <label className="text-sm font-semibold mb-3 block">
                 Instrument
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -285,8 +285,8 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
                     onClick={() => updateMember('role', role.id)}
                     className={`py-3 px-2 rounded-lg text-xs font-bold transition-all ${
                       currentMember.role === role.id
-                        ? 'bg-purple-600 text-white ring-2 ring-purple-400 scale-105'
-                        : 'bg-slate-700/50 text-gray-300 hover:bg-slate-600/50'
+                        ? 'bg-primary text-primary-foreground ring-2 ring-primary scale-105'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
                     }`}
                     title={role.name}
                   >
@@ -298,7 +298,7 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
 
             {/* Name Input */}
             <div className="mb-6">
-              <label className="text-sm font-semibold text-gray-300 mb-3 block">
+              <label className="text-sm font-semibold mb-3 block">
                 Member Name
               </label>
               <input
@@ -306,20 +306,17 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
                 value={currentMember.name}
                 onChange={(e) => updateMember('name', e.target.value)}
                 placeholder="e.g., Alex Storm"
-                className="w-full px-4 py-3 bg-slate-700 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-input text-card-foreground border border-border rounded-lg placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 autoFocus
               />
             </div>
 
             {/* Current Role Display */}
-            <div className="p-4 bg-slate-900/50 rounded-lg border border-purple-400/20 mb-6">
-              <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Current Position</p>
+            <div className="p-4 bg-muted/30 rounded-lg border border-border/20 mb-6">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Current Position</p>
               <div className="flex items-center gap-3">
-                <div
-                  className="w-4 h-4 rounded-full"
-                  style={{ backgroundColor: currentRole.color }}
-                />
-                <p className="text-lg font-bold text-white">{currentRole.name}</p>
+                <div className="w-4 h-4 rounded-full bg-primary" />
+                <p className="text-lg font-bold text-primary">{currentRole.name}</p>
               </div>
             </div>
 
@@ -328,14 +325,14 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
               <button
                 onClick={handlePrevious}
                 disabled={currentIndex === 0}
-                className="flex-1 py-3 px-4 bg-slate-700/50 text-gray-300 rounded-lg hover:bg-slate-600/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
+                className="flex-1 py-3 px-4 bg-muted text-muted-foreground rounded-lg hover:bg-muted/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
               >
                 ← Previous
               </button>
               <button
                 onClick={handleNext}
                 disabled={currentIndex === members.length - 1}
-                className="flex-1 py-3 px-4 bg-slate-700/50 text-gray-300 rounded-lg hover:bg-slate-600/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
+                className="flex-1 py-3 px-4 bg-muted text-muted-foreground rounded-lg hover:bg-muted/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
               >
                 Next →
               </button>
@@ -343,7 +340,7 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
 
             {/* Member Roster */}
             <div className="mb-8">
-              <p className="text-xs text-gray-400 mb-3 uppercase tracking-wider">Band Roster</p>
+              <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider">Band Roster</p>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {members.map((member, idx) => {
                   const role = ROLES.find(r => r.id === member.role);
@@ -354,21 +351,21 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
                       onClick={() => setCurrentIndex(idx)}
                       className={`p-3 rounded-lg cursor-pointer transition-all flex items-center gap-3 ${
                         isActive
-                          ? 'bg-purple-600/30 border border-purple-500 ring-1 ring-purple-400'
-                          : 'bg-slate-700/30 border border-slate-600/50 hover:bg-slate-700/50'
+                          ? 'bg-primary/20 border border-primary ring-1 ring-primary'
+                          : 'bg-muted/20 border border-border/30 hover:bg-muted/40'
                       }`}
                     >
                       <img
                         src={getAvatarUrl(member.name || 'member', 'open-peeps')}
                         alt={member.name}
-                        className="w-8 h-8 rounded-full border border-slate-600"
+                        className="w-8 h-8 rounded-full border border-border/50"
                         onError={(e) => e.target.style.display = 'none'}
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-white truncate">
+                        <p className="text-sm font-bold truncate">
                           {member.name || '(Empty)'}
                         </p>
-                        <p className="text-xs text-gray-400">{role.name}</p>
+                        <p className="text-xs text-muted-foreground">{role.name}</p>
                       </div>
                       {members.length > 2 && (
                         <button
@@ -378,7 +375,7 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
                             setMembers(newMembers);
                             setCurrentIndex(Math.min(currentIndex, newMembers.length - 1));
                           }}
-                          className="text-xs px-2 py-1 bg-red-600/30 text-red-300 rounded hover:bg-red-600/50 transition-colors whitespace-nowrap"
+                          className="text-xs px-2 py-1 bg-destructive/20 text-destructive rounded hover:bg-destructive/30 transition-colors whitespace-nowrap"
                         >
                           Remove
                         </button>
@@ -392,7 +389,7 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
             {/* Add Member Button */}
             <button
               onClick={addMember}
-              className="w-full py-3 px-4 mb-6 bg-slate-700/50 border border-dashed border-purple-500/50 rounded-lg text-gray-300 hover:bg-slate-700/70 hover:border-purple-500 transition-all font-semibold"
+              className="w-full py-3 px-4 mb-6 bg-muted text-muted-foreground border border-dashed border-muted-foreground rounded-lg hover:bg-muted/80 hover:border-primary transition-all font-semibold"
             >
               + Add New Member
             </button>
@@ -401,19 +398,19 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
             <div className="flex gap-4">
               <button
                 onClick={() => setPhase('rehearsal')}
-                className="flex-1 py-3 px-6 bg-slate-700/50 text-gray-300 rounded-lg hover:bg-slate-700/70 font-bold transition-all"
+                className="flex-1 py-3 px-6 bg-muted text-muted-foreground rounded-lg hover:bg-muted/80 font-bold transition-all"
               >
                 Back to Rehearsal
               </button>
               <button
                 onClick={handleComplete}
-                className="flex-1 py-3 px-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-lg transition-all transform hover:scale-105 active:scale-95 shadow-lg"
+                className="flex-1 py-3 px-6 bg-primary text-primary-foreground hover:opacity-90 font-bold rounded-lg transition-all transform hover:scale-105 active:scale-95 shadow-lg"
               >
                 Start Your Career
               </button>
             </div>
 
-            <p className="text-xs text-gray-500 text-center mt-4">
+            <p className="text-xs text-muted-foreground text-center mt-4">
               Minimum 2 members required • You can customize their roles here
             </p>
           </div>
