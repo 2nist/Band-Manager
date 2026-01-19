@@ -352,6 +352,7 @@ export const FIRST_NAMES = ['Alex','Sam','Jordan','Taylor','Riley','Casey','Jami
 export const LAST_NAMES = ['Stone','Vale','Hart','Kade','Rex','Wilde','Fox','Storm','Ray','Knight','Cross','Shade','Frost','Voss','Lake'];
 
 export const initialState = {
+  step: 'landing',
   week: 1,
   money: 1000,
   fame: 0,
