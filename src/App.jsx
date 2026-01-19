@@ -55,7 +55,7 @@ function App() {
   const gameLogic = useGameLogic(gameState.state, gameState.updateGameState, gameState.addLog, gameData);
   const dialogueState = useEnhancedDialogue(gameState.state, gameState.updateGameState);
   const eventGen = useEventGeneration(
-    gameData,
+    gameState.state,
     dialogueState.psychologicalState,
     dialogueState.narrativeState
   );
@@ -148,6 +148,12 @@ function App() {
           dialogueState={dialogueState}
           eventGen={eventGen}
           onReturnToLanding={() => gameState.updateGameState({ step: 'landing' })}
+          onNavigate={() => {}}
+          onSave={() => modalState.openSaveModal()}
+          onQuit={() => gameState.updateGameState({ step: 'landing' })}
+          onEventChoice={() => {
+            modalState.closeEventPopup();
+          }}
         />
       )}
 
