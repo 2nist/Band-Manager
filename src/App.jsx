@@ -53,7 +53,7 @@ function App() {
   const uiState = useUIState();
   const modalState = useModalState();
   const gameLogic = useGameLogic(gameState.state, gameState.updateGameState, gameState.addLog, gameData);
-  const dialogueState = useEnhancedDialogue();
+  const dialogueState = useEnhancedDialogue(gameState.state, gameState.updateGameState);
   const eventGen = useEventGeneration(
     gameData,
     dialogueState.psychologicalState,
@@ -128,7 +128,7 @@ function App() {
     <div className="app">
       {gameState.state.step === 'landing' || !gameState.state.step ? (
         <LandingPage
-          onStartNewGame={(bandName) => {
+          onNewGame={(bandName) => {
             gameState.updateGameState({ bandName, step: 'game' });
           }}
           onLoadGame={(saveName) => {
