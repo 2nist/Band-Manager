@@ -13,6 +13,7 @@ import './styles.css';
 
 // Import hooks
 import {
+  useGameData,
   useGameState,
   useUIState,
   useModalState,
@@ -44,14 +45,17 @@ import BandStatsModal from './components/Modals/BandStatsModal';
  * - useEventGeneration: Procedural events
  */
 function App() {
+  // Load game data first
+  const { data: gameData, loading, error } = useGameData();
+  
   // Initialize hooks
   const gameState = useGameState();
   const uiState = useUIState();
   const modalState = useModalState();
-  const gameLogic = useGameLogic(gameState);
+  const gameLogic = useGameLogic(gameState.state, gameState.updateGameState, gameState.addLog, gameData);
   const dialogueState = useEnhancedDialogue();
   const eventGen = useEventGeneration(
-    gameState.gameData,
+    gameData,
     dialogueState.psychologicalState,
     dialogueState.narrativeState
   );
@@ -67,30 +71,83 @@ function App() {
     }
   }, [uiState.theme, uiState.darkMode]);
 
+  // Handle loading state
+  if (loading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '100vh', 
+        backgroundColor: '#1a1a2e', 
+        color: '#fff',
+        fontSize: '1.2rem'
+      }}>
+        Loading game data...
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column',
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '100vh', 
+        backgroundColor: '#1a1a2e', 
+        color: '#fff',
+        textAlign: 'center',
+        padding: '2rem'
+      }}>
+        <h1 style={{ color: '#ef4444', marginBottom: '1rem' }}>Error Loading Game</h1>
+        <p style={{ color: '#aaa' }}>{error.message}</p>
+        <button 
+          onClick={() => window.location.reload()} 
+          style={{ 
+            marginTop: '1rem', 
+            padding: '0.5rem 1rem', 
+            backgroundColor: '#8338ec', 
+            color: '#fff', 
+            border: 'none', 
+            borderRadius: '0.375rem', 
+            cursor: 'pointer' 
+          }}
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+
   // Render based on current step
   return (
     <div className="app">
-      {gameState.step === 'landing' ? (
+      {gameState.state.step === 'landing' || !gameState.state.step ? (
         <LandingPage
           onStartNewGame={(bandName) => {
-            gameState.setBandName(bandName);
-            gameState.setStep('game');
+            gameState.updateGameState({ bandName, step: 'game' });
           }}
           onLoadGame={(saveName) => {
-            // Load game logic handled by GamePage
-            gameState.setStep('game');
+            // Load game logic
+            gameState.loadGame(saveName);
+            gameState.updateGameState({ step: 'game' });
           }}
           onSettings={() => uiState.setShowSettings(true)}
         />
       ) : (
         <GamePage
+          gameData={gameState.state}
           gameState={gameState}
           uiState={uiState}
           modalState={modalState}
           gameLogic={gameLogic}
           dialogueState={dialogueState}
           eventGen={eventGen}
-          onReturnToLanding={() => gameState.setStep('landing')}
+          onReturnToLanding={() => gameState.updateGameState({ step: 'landing' })}
         />
       )}
 
@@ -118,7 +175,7 @@ function App() {
 
       {modalState.showAlbumBuilderModal && (
         <AlbumBuilderModal
-          songs={gameState.gameData.songs}
+          songs={gameState.state.songs}
           onCreateAlbum={(albumData) => {
             gameLogic.recordAlbum(albumData);
             modalState.setShowAlbumBuilderModal(false);
@@ -129,7 +186,7 @@ function App() {
 
       {modalState.showSaveModal && (
         <SaveModal
-          currentSave={gameState.gameName}
+          currentSave={gameState.state.bandName}
           onSave={(saveName) => {
             gameState.saveGame(saveName);
             modalState.setShowSaveModal(false);
@@ -140,7 +197,7 @@ function App() {
 
       {modalState.showLoadModal && (
         <LoadModal
-          saves={gameState.getSaveSlots()}
+          saves={gameState.saveSlots}
           onLoad={(saveName) => {
             gameState.loadGame(saveName);
             modalState.setShowLoadModal(false);
