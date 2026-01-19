@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Music, Users, Zap, TrendingUp, Settings, Save, LogOut } from 'lucide-react';
+import { Music, Users, Zap, TrendingUp, Settings, Save, LogOut, ChevronRight } from 'lucide-react';
 import { EnhancedEventModal } from '../components/EnhancedEventModal';
 import { 
   DashboardTab, 
@@ -25,6 +25,7 @@ import {
  * 7. Log - Game history
  * 
  * Phase 2: Integrated consequence tracking system
+ * Phase 2 Enhancement: Full event generation and choice handling
  */
 export const GamePage = ({
   gameData,
@@ -44,28 +45,74 @@ export const GamePage = ({
 }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [autoSaving, setAutoSaving] = useState(false);
+  const [pendingEvent, setPendingEvent] = useState(null);
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [eventQueue, setEventQueue] = useState([]);
 
-  // Handle week advancement with consequence processing
+  // Trigger a random event from event generation
+  const triggerEvent = useCallback(() => {
+    if (eventGen?.generateEvent) {
+      const newEvent = eventGen.generateEvent();
+      if (newEvent) {
+        setPendingEvent(newEvent);
+        setShowEventModal(true);
+        return newEvent;
+      }
+    }
+  }, [eventGen]);
+
+  // Handle week advancement with consequence processing and event generation
   const handleAdvanceWeek = useCallback(() => {
+    // Process consequences from Phase 2 system
     if (onAdvanceWeek) {
       const { escalations, resurfaced } = onAdvanceWeek();
       
       // Queue escalations as events
       if (escalations && escalations.length > 0) {
         escalations.forEach(esc => {
-          // These will be shown in the event modal
-          console.log(`Consequence escalated: ${esc.consequenceId}`);
+          setEventQueue(prev => [...prev, {
+            type: 'consequence',
+            data: esc,
+            title: `Consequence Escalated: ${esc.consequenceId}`,
+            description: esc.description || 'A past decision has caught up with you...'
+          }]);
         });
       }
       
       // Queue resurfaced consequences as events
       if (resurfaced && resurfaced.length > 0) {
         resurfaced.forEach(res => {
-          console.log(`Consequence resurfaced: ${res.consequenceId}`);
+          setEventQueue(prev => [...prev, {
+            type: 'consequence',
+            data: res,
+            title: `Consequence Resurfaced: ${res.consequenceId}`,
+            description: res.description || 'The past returns to haunt you...'
+          }]);
         });
       }
     }
-  }, [onAdvanceWeek]);
+
+    // Generate a random event from Enhanced Dialogue system (50% chance)
+    if (Math.random() > 0.5 && eventGen?.generateEvent) {
+      const newEvent = eventGen.generateEvent();
+      if (newEvent) {
+        setEventQueue(prev => [...prev, newEvent]);
+      }
+    }
+
+    // Update game state (week advancement is handled by gameLogic)
+    if (gameState?.updateGameState) {
+      gameState.updateGameState({
+        week: (gameState.state?.week || 0) + 1
+      });
+    }
+
+    // Show first queued event if exists
+    if (eventQueue.length > 0) {
+      setPendingEvent(eventQueue[0]);
+      setShowEventModal(true);
+    }
+  }, [onAdvanceWeek, eventGen, gameState, eventQueue]);
 
   // Auto-save every 5 minutes
   useEffect(() => {
@@ -200,7 +247,9 @@ export const GamePage = ({
       <div style={{
         flex: 1,
         padding: '2rem',
-        overflow: 'auto'
+        overflow: 'auto',
+        display: 'flex',
+        flexDirection: 'column'
       }}>
         <TabContent
           tabId={activeTab}
@@ -208,24 +257,114 @@ export const GamePage = ({
           dialogueState={dialogueState}
           modalState={modalState}
           uiState={uiState}
+          gameState={gameState}
+          gameLogic={gameLogic}
+          onAdvanceWeek={handleAdvanceWeek}
+          onTriggerEvent={triggerEvent}
         />
       </div>
 
+      {/* Week Advancement Button */}
+      {activeTab === 'dashboard' && (
+        <div style={{
+          padding: '1rem 2rem',
+          backgroundColor: '#16213e',
+          borderTop: '2px solid rgba(131, 56, 236, 0.3)',
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: '1rem'
+        }}>
+          <button
+            onClick={triggerEvent}
+            style={{
+              padding: '0.75rem 1.5rem',
+              backgroundColor: 'rgba(131, 56, 236, 0.3)',
+              color: '#fff',
+              border: '2px solid rgba(131, 56, 236, 0.5)',
+              borderRadius: '0.5rem',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              fontWeight: 'bold',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(131, 56, 236, 0.6)'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(131, 56, 236, 0.3)'}
+          >
+            Trigger Event
+          </button>
+
+          <button
+            onClick={handleAdvanceWeek}
+            style={{
+              padding: '0.75rem 1.5rem',
+              backgroundColor: '#ff006e',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '0.5rem',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#ff1975'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#ff006e'}
+          >
+            <ChevronRight size={18} />
+            Advance Week
+          </button>
+        </div>
+      )}
+
       {/* Enhanced Event Modal */}
-      <EnhancedEventModal
-        isOpen={modalState?.modals?.enhancedEvent}
-        event={modalState?.modalData?.enhancedEvent?.event}
-        psychologicalState={dialogueState?.psychologicalState}
-        onChoice={(choice) => {
-          // Process choice through consequence system
-          if (onHandleEventChoice) {
-            onHandleEventChoice(choice);
-          }
-          // Call the original event choice handler
-          onEventChoice?.(choice);
-        }}
-        onClose={() => modalState?.closeAllModals?.()}
-      />
+      {showEventModal && pendingEvent && (
+        <EnhancedEventModal
+          isOpen={true}
+          event={pendingEvent}
+          psychologicalState={dialogueState?.psychologicalState}
+          onChoice={(eventId, choiceId, choiceText, consequences) => {
+            // Handle choice through consequence system
+            if (onHandleEventChoice) {
+              onHandleEventChoice({
+                eventId,
+                choiceId,
+                choiceText,
+                ...consequences
+              });
+            }
+
+            // Apply psychological effects if present
+            if (dialogueState?.updatePsychologicalState && consequences?.psychologyEffects) {
+              dialogueState.updatePsychologicalState(consequences.psychologyEffects);
+            }
+
+            // Apply faction effects if present
+            if (consequenceSystem && consequences?.factionEffects) {
+              Object.entries(consequences.factionEffects).forEach(([faction, delta]) => {
+                consequenceSystem.updateFactionReputation(faction, delta);
+              });
+            }
+
+            // Remove from queue and show next event if exists
+            setEventQueue(prev => prev.slice(1));
+            if (eventQueue.length > 1) {
+              setPendingEvent(eventQueue[1]);
+            } else {
+              setShowEventModal(false);
+              setPendingEvent(null);
+            }
+
+            // Original choice handler
+            onEventChoice?.(eventId, choiceId, choiceText, consequences);
+          }}
+          onClose={() => {
+            setShowEventModal(false);
+            setPendingEvent(null);
+          }}
+        />
+      )}
     </div>
   );
 };
@@ -235,18 +374,34 @@ export const GamePage = ({
  * 
  * Uses imported tab components from src/components/Tabs/
  */
-const TabContent = ({ tabId, gameData, dialogueState, modalState, uiState }) => {
+const TabContent = ({ 
+  tabId, 
+  gameData, 
+  dialogueState, 
+  modalState, 
+  uiState,
+  gameState,
+  gameLogic,
+  onAdvanceWeek,
+  onTriggerEvent
+}) => {
   switch (tabId) {
     case 'dashboard':
-      return <DashboardTab gameData={gameData} dialogueState={dialogueState} />;
+      return <DashboardTab 
+        gameData={gameData} 
+        dialogueState={dialogueState}
+        gameState={gameState}
+        onAdvanceWeek={onAdvanceWeek}
+        onTriggerEvent={onTriggerEvent}
+      />;
     case 'inventory':
-      return <InventoryTab gameData={gameData} />;
+      return <InventoryTab gameData={gameData} gameLogic={gameLogic} />;
     case 'band':
-      return <BandTab gameData={gameData} />;
+      return <BandTab gameData={gameData} gameLogic={gameLogic} />;
     case 'gigs':
-      return <GigsTab gameData={gameData} />;
+      return <GigsTab gameData={gameData} gameLogic={gameLogic} />;
     case 'upgrades':
-      return <UpgradesTab gameData={gameData} />;
+      return <UpgradesTab gameData={gameData} gameLogic={gameLogic} />;
     case 'rivals':
       return <RivalsTab gameData={gameData} />;
     case 'log':
