@@ -7,4 +7,5 @@ export { useEnhancedDialogue } from './useEnhancedDialogue';
 export { useEventGeneration } from './useEventGeneration';
 export { useConsequenceSystem } from './useConsequenceSystem';
 export { useRecordingSystem } from './useRecordingSystem';
+export { useGigSystem } from './useGigSystem';
 

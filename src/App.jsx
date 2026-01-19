@@ -20,7 +20,8 @@ import {
   useEnhancedDialogue,
   useEventGeneration,
   useConsequenceSystem,
-  useRecordingSystem
+  useRecordingSystem,
+  useGigSystem
 } from './hooks';
 
 // Import page components
@@ -64,6 +65,9 @@ function App() {
   
   // Recording system for music creation and streaming revenue
   const recordingSystem = useRecordingSystem(gameState.state, gameState.updateGameState, gameState.addLog);
+  
+  // Gig system for booking performances and touring
+  const gigSystem = useGigSystem(gameState.state, gameState.updateGameState, gameState.addLog);
 
   // Apply theme to document
   useEffect(() => {
