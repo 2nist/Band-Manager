@@ -51,7 +51,7 @@ function App() {
   const uiState = useUIState();
   const modalState = useModalState();
   const gameLogic = useGameLogic(gameState);
-  const dialogueState = useEnhancedDialogue();
+  const dialogueState = useEnhancedDialogue(gameState.gameData, gameState.updateGameState);
   const eventGen = useEventGeneration(
     gameState.gameData,
     dialogueState.psychologicalState,
