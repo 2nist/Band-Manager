@@ -10,6 +10,7 @@ import { initialState } from '../utils/constants';
  * - Rival bands and competition
  * - Persistence (save/load game)
  * - Week advancement and effects
+ * - Phase 2 Consequence tracking (consequences, factions, psychology)
  * 
  * Replaces individual useState calls scattered throughout App.jsx
  */
@@ -48,9 +49,10 @@ export const useGameState = () => {
   /**
    * Save game to named slot
    * @param {string} slotName - Unique identifier for save slot
+   * @param {object} phase2Data - Optional Phase 2 consequence system data
    * @returns {boolean} Success status
    */
-  const saveGame = (slotName) => {
+  const saveGame = (slotName, phase2Data = {}) => {
     if (!state.bandName || state.bandName.trim() === '') {
       console.warn('Cannot save: no band name');
       return false;
@@ -62,7 +64,11 @@ export const useGameState = () => {
       gameLog,
       timestamp: new Date().toISOString(),
       weekNumber: state.week,
-      bandName: state.bandName
+      bandName: state.bandName,
+      // Phase 2: Include consequence system data
+      consequences: phase2Data.consequences || [],
+      factions: phase2Data.factions || {},
+      psychologicalEvolution: phase2Data.psychologicalEvolution || {}
     };
 
     try {
@@ -80,7 +86,7 @@ export const useGameState = () => {
   /**
    * Load game from named slot
    * @param {string} slotName - Identifier of slot to load
-   * @returns {boolean} Success status
+   * @returns {object} Load result with game data and Phase 2 systems
    */
   const loadGame = (slotName) => {
     try {
@@ -89,16 +95,35 @@ export const useGameState = () => {
       
       if (!saveData) {
         console.warn(`Save slot "${slotName}" not found`);
-        return false;
+        return { success: false };
       }
 
       setState(saveData.state);
       setRivals(saveData.rivals || []);
       setGameLog(saveData.gameLog || []);
-      return true;
+      
+      // Phase 2: Restore consequence system data
+      const phase2Data = {
+        consequences: saveData.consequences || [],
+        factions: saveData.factions || {},
+        psychologicalEvolution: saveData.psychologicalEvolution || {}
+      };
+      
+      // Store in localStorage for consequence system to restore
+      if (saveData.consequences) {
+        localStorage.setItem('gigmaster_consequences', JSON.stringify(saveData.consequences));
+      }
+      if (saveData.factions) {
+        localStorage.setItem('gigmaster_factions', JSON.stringify(saveData.factions));
+      }
+      if (saveData.psychologicalEvolution) {
+        localStorage.setItem('gigmaster_psychology', JSON.stringify(saveData.psychologicalEvolution));
+      }
+      
+      return { success: true, phase2Data };
     } catch (err) {
       console.error('Load failed:', err);
-      return false;
+      return { success: false };
     }
   };
 

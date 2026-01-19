@@ -18,7 +18,8 @@ import {
   useModalState,
   useGameLogic,
   useEnhancedDialogue,
-  useEventGeneration
+  useEventGeneration,
+  useConsequenceSystem
 } from './hooks';
 
 // Import page components
@@ -42,6 +43,7 @@ import BandStatsModal from './components/Modals/BandStatsModal';
  * - useGameLogic: Game actions
  * - useEnhancedDialogue: Psychological state + narrative
  * - useEventGeneration: Procedural events
+ * - useConsequenceSystem: Phase 2 consequence tracking (NEW)
  */
 function App() {
   // Initialize hooks
@@ -55,6 +57,9 @@ function App() {
     dialogueState.psychologicalState,
     dialogueState.narrativeState
   );
+  
+  // Phase 2: Consequence system (tracks consequences, factions, psychology evolution)
+  const consequenceSystem = useConsequenceSystem(gameState.gameData);
 
   // Apply theme to document
   useEffect(() => {
@@ -90,7 +95,37 @@ function App() {
           gameLogic={gameLogic}
           dialogueState={dialogueState}
           eventGen={eventGen}
+          consequenceSystem={consequenceSystem}
           onReturnToLanding={() => gameState.setStep('landing')}
+          onHandleEventChoice={(choice) => {
+            // Handle choice through consequence system
+            if (choice.factionEffects) {
+              consequenceSystem.updateFactionStandings(choice);
+            }
+            if (choice.triggerConsequence) {
+              const consequence = choice.triggerConsequence;
+              if (consequence.type === 'active') {
+                consequenceSystem.addActiveConsequence(consequence);
+              } else if (consequence.type === 'dormant') {
+                consequenceSystem.addDormantConsequence(consequence);
+              }
+            }
+            if (choice.psychologyEffects) {
+              Object.entries(choice.psychologyEffects).forEach(([path, changes]) => {
+                Object.entries(changes).forEach(([stat, amount]) => {
+                  consequenceSystem.updatePsychology(path, stat, amount);
+                });
+              });
+            }
+          }}
+          onAdvanceWeek={() => {
+            // Process consequences on week advancement
+            const escalations = consequenceSystem.processEscalations();
+            const resurfaced = consequenceSystem.checkResurfacing();
+            consequenceSystem.applyFactionDecay();
+            
+            return { escalations, resurfaced };
+          }}
         />
       )}
 

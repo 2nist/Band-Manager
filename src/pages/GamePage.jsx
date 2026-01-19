@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Music, Users, Zap, TrendingUp, Settings, Save, LogOut } from 'lucide-react';
 import { EnhancedEventModal } from '../components/EnhancedEventModal';
 import { 
@@ -23,6 +23,8 @@ import {
  * 5. Upgrades - Purchase improvements
  * 6. Rivals - Competition and battles
  * 7. Log - Game history
+ * 
+ * Phase 2: Integrated consequence tracking system
  */
 export const GamePage = ({
   gameData,
@@ -32,10 +34,38 @@ export const GamePage = ({
   onNavigate,
   onSave,
   onQuit,
-  onEventChoice
+  onEventChoice,
+  consequenceSystem,
+  onHandleEventChoice,
+  onAdvanceWeek,
+  gameState,
+  gameLogic,
+  eventGen
 }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [autoSaving, setAutoSaving] = useState(false);
+
+  // Handle week advancement with consequence processing
+  const handleAdvanceWeek = useCallback(() => {
+    if (onAdvanceWeek) {
+      const { escalations, resurfaced } = onAdvanceWeek();
+      
+      // Queue escalations as events
+      if (escalations && escalations.length > 0) {
+        escalations.forEach(esc => {
+          // These will be shown in the event modal
+          console.log(`Consequence escalated: ${esc.consequenceId}`);
+        });
+      }
+      
+      // Queue resurfaced consequences as events
+      if (resurfaced && resurfaced.length > 0) {
+        resurfaced.forEach(res => {
+          console.log(`Consequence resurfaced: ${res.consequenceId}`);
+        });
+      }
+    }
+  }, [onAdvanceWeek]);
 
   // Auto-save every 5 minutes
   useEffect(() => {
@@ -186,7 +216,14 @@ export const GamePage = ({
         isOpen={modalState?.modals?.enhancedEvent}
         event={modalState?.modalData?.enhancedEvent?.event}
         psychologicalState={dialogueState?.psychologicalState}
-        onChoice={onEventChoice}
+        onChoice={(choice) => {
+          // Process choice through consequence system
+          if (onHandleEventChoice) {
+            onHandleEventChoice(choice);
+          }
+          // Call the original event choice handler
+          onEventChoice?.(choice);
+        }}
         onClose={() => modalState?.closeAllModals?.()}
       />
     </div>
