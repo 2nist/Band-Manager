@@ -27,53 +27,24 @@ export const LandingPage = ({
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: '#fff',
-      fontFamily: 'Arial, sans-serif',
-      padding: '2rem'
-    }}>
+    <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-8">
       {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 style={{ 
-          fontSize: '4rem', 
-          fontWeight: 'bold',
-          marginBottom: '1rem',
-          background: 'linear-gradient(45deg, #ff006e, #8338ec)',
-          backgroundClip: 'text',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent'
-        }}>
+      <div className="text-center mb-12">
+        <h1 className="text-6xl font-bold mb-4 text-primary">
           GigMaster
         </h1>
-        <p style={{ fontSize: '1.2rem', color: '#aaa' }}>
+        <p className="text-xl text-muted-foreground">
           Rise to rock stardom... or crash and burn
         </p>
       </div>
 
       {/* Main Content */}
-      <div style={{
-        maxWidth: '600px',
-        width: '100%',
-        backgroundColor: 'rgba(30, 30, 50, 0.8)',
-        borderRadius: '1rem',
-        padding: '2rem',
-        backdropFilter: 'blur(10px)',
-        border: '2px solid rgba(131, 56, 236, 0.3)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '2rem'
-      }}>
+      <div className="max-w-xl w-full bg-card rounded-2xl p-8 border border-border/20 flex flex-col gap-6">
         {/* New Game Section */}
         {!showLoadMenu && !showSettings && (
           <>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <label style={{ fontSize: '0.9rem', color: '#aaa', textTransform: 'uppercase' }}>
+            <div className="flex flex-col gap-4">
+              <label className="text-sm text-muted-foreground uppercase font-medium">
                 Your Band Name
               </label>
               <input
@@ -82,77 +53,33 @@ export const LandingPage = ({
                 onChange={(e) => setBandName(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleNewGame()}
                 placeholder="Enter your band name..."
-                style={{
-                  padding: '1rem',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '2px solid rgba(131, 56, 236, 0.3)',
-                  borderRadius: '0.5rem',
-                  color: '#fff',
-                  fontSize: '1rem',
-                  outline: 'none'
-                }}
-                onFocus={(e) => e.target.style.borderColor = 'rgba(131, 56, 236, 0.8)'}
-                onBlur={(e) => e.target.style.borderColor = 'rgba(131, 56, 236, 0.3)'}
+                className="px-4 py-3 bg-input border border-border/30 rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition-colors"
               />
             </div>
 
             <button
               onClick={handleNewGame}
               disabled={!bandName.trim()}
-              style={{
-                padding: '1rem 2rem',
-                backgroundColor: bandName.trim() ? '#ff006e' : '#666',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '0.5rem',
-                fontSize: '1.1rem',
-                fontWeight: 'bold',
-                cursor: bandName.trim() ? 'pointer' : 'not-allowed',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-                transition: 'all 0.3s ease',
-                opacity: bandName.trim() ? 1 : 0.5
-              }}
-              onMouseEnter={(e) => {
-                if (bandName.trim()) e.target.style.backgroundColor = '#ff1975';
-              }}
-              onMouseLeave={(e) => {
-                if (bandName.trim()) e.target.style.backgroundColor = '#ff006e';
-              }}
+              className={`px-6 py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-all ${
+                bandName.trim()
+                  ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                  : 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
+              }`}
             >
               <Play size={20} />
               Start New Game
             </button>
 
             {/* Secondary Buttons */}
-            <div style={{ display: 'flex', gap: '1rem' }}>
+            <div className="flex gap-4">
               <button
                 onClick={() => setShowLoadMenu(true)}
                 disabled={saveSlots.length === 0}
-                style={{
-                  flex: 1,
-                  padding: '0.75rem',
-                  backgroundColor: saveSlots.length > 0 ? 'rgba(131, 56, 236, 0.3)' : '#444',
-                  color: '#fff',
-                  border: '2px solid rgba(131, 56, 236, 0.3)',
-                  borderRadius: '0.5rem',
-                  fontSize: '1rem',
-                  cursor: saveSlots.length > 0 ? 'pointer' : 'not-allowed',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  transition: 'all 0.3s ease',
-                  opacity: saveSlots.length > 0 ? 1 : 0.5
-                }}
-                onMouseEnter={(e) => {
-                  if (saveSlots.length > 0) e.target.style.backgroundColor = 'rgba(131, 56, 236, 0.6)';
-                }}
-                onMouseLeave={(e) => {
-                  if (saveSlots.length > 0) e.target.style.backgroundColor = 'rgba(131, 56, 236, 0.3)';
-                }}
+                className={`flex-1 px-4 py-3 rounded-lg border transition-all flex items-center justify-center gap-2 ${
+                  saveSlots.length > 0
+                    ? 'bg-secondary/10 border-secondary/30 text-foreground hover:bg-secondary/20 hover:border-secondary/50'
+                    : 'bg-muted border-border/20 text-muted-foreground cursor-not-allowed opacity-50'
+                }`}
               >
                 <Upload size={18} />
                 Load Game
@@ -160,23 +87,7 @@ export const LandingPage = ({
 
               <button
                 onClick={() => setShowSettings(true)}
-                style={{
-                  flex: 1,
-                  padding: '0.75rem',
-                  backgroundColor: 'rgba(131, 56, 236, 0.3)',
-                  color: '#fff',
-                  border: '2px solid rgba(131, 56, 236, 0.3)',
-                  borderRadius: '0.5rem',
-                  fontSize: '1rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(131, 56, 236, 0.6)'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(131, 56, 236, 0.3)'}
+                className="flex-1 px-4 py-3 rounded-lg border border-secondary/30 bg-secondary/10 text-foreground hover:bg-secondary/20 hover:border-secondary/50 transition-all flex items-center justify-center gap-2"
               >
                 <Settings size={18} />
                 Settings
@@ -188,63 +99,30 @@ export const LandingPage = ({
         {/* Load Game Menu */}
         {showLoadMenu && (
           <>
-            <h2 style={{ margin: 0, fontSize: '1.5rem' }}>Load Game</h2>
-            <div style={{ 
-              maxHeight: '400px', 
-              overflowY: 'auto',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.75rem'
-            }}>
+            <h2 className="text-2xl font-bold text-foreground">Load Game</h2>
+            <div className="max-h-96 overflow-y-auto flex flex-col gap-2">
               {saveSlots.length > 0 ? (
                 saveSlots.map(slot => (
                   <button
                     key={slot.id}
                     onClick={() => onLoadGame(slot.id)}
-                    style={{
-                      padding: '1rem',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      border: '2px solid rgba(131, 56, 236, 0.3)',
-                      borderRadius: '0.5rem',
-                      color: '#fff',
-                      textAlign: 'left',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(131, 56, 236, 0.2)';
-                      e.currentTarget.style.borderColor = 'rgba(131, 56, 236, 0.6)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                      e.currentTarget.style.borderColor = 'rgba(131, 56, 236, 0.3)';
-                    }}
+                    className="px-4 py-3 bg-input border border-border/30 rounded-lg text-foreground text-left hover:bg-input/80 hover:border-secondary/50 transition-all"
                   >
-                    <div style={{ fontWeight: 'bold' }}>{slot.name}</div>
-                    <div style={{ fontSize: '0.85rem', color: '#aaa', marginTop: '0.5rem' }}>
+                    <div className="font-bold">{slot.name}</div>
+                    <div className="text-sm text-muted-foreground mt-1">
                       Week {slot.week} • ${slot.money} • Fame {slot.fame}
                     </div>
                   </button>
                 ))
               ) : (
-                <div style={{ color: '#aaa', textAlign: 'center', padding: '1rem' }}>
+                <div className="text-muted-foreground text-center py-4">
                   No saved games found
                 </div>
               )}
             </div>
             <button
               onClick={() => setShowLoadMenu(false)}
-              style={{
-                padding: '0.75rem',
-                backgroundColor: 'rgba(131, 56, 236, 0.3)',
-                color: '#fff',
-                border: '2px solid rgba(131, 56, 236, 0.3)',
-                borderRadius: '0.5rem',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(131, 56, 236, 0.6)'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(131, 56, 236, 0.3)'}
+              className="px-4 py-2 bg-secondary/10 border border-secondary/30 rounded-lg text-foreground hover:bg-secondary/20 transition-all"
             >
               Back
             </button>
@@ -254,29 +132,19 @@ export const LandingPage = ({
         {/* Settings Menu */}
         {showSettings && (
           <>
-            <h2 style={{ margin: 0, fontSize: '1.5rem' }}>Settings</h2>
-            <div style={{ fontSize: '0.9rem', color: '#aaa' }}>
+            <h2 className="text-2xl font-bold text-foreground">Settings</h2>
+            <div className="text-sm text-muted-foreground space-y-1">
               <p>Sound: Enabled</p>
               <p>Music: Enabled</p>
               <p>Theme: Dark</p>
               <p>Language: English</p>
-              <p style={{ marginTop: '1rem', fontSize: '0.8rem' }}>
+              <p className="mt-4 text-xs text-muted-foreground/70">
                 Version 1.0.0
               </p>
             </div>
             <button
               onClick={() => setShowSettings(false)}
-              style={{
-                padding: '0.75rem',
-                backgroundColor: 'rgba(131, 56, 236, 0.3)',
-                color: '#fff',
-                border: '2px solid rgba(131, 56, 236, 0.3)',
-                borderRadius: '0.5rem',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(131, 56, 236, 0.6)'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(131, 56, 236, 0.3)'}
+              className="px-4 py-2 bg-secondary/10 border border-secondary/30 rounded-lg text-foreground hover:bg-secondary/20 transition-all"
             >
               Back
             </button>
@@ -285,12 +153,7 @@ export const LandingPage = ({
       </div>
 
       {/* Footer */}
-      <p style={{ 
-        marginTop: '3rem', 
-        color: '#666', 
-        fontSize: '0.85rem',
-        textAlign: 'center'
-      }}>
+      <p className="mt-12 text-muted-foreground text-sm text-center">
         GigMaster © 2026 • A game about chasing dreams in the music industry
       </p>
     </div>
