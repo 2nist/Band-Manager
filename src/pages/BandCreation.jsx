@@ -36,7 +36,7 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const currentMember = members[currentIndex];
-  const currentRole = ROLES.find(r => r.id === currentMember.role);
+  const currentRole = currentMember ? ROLES.find(r => r.id === currentMember.role) : null;
 
   // Rehearsal phase - select pre-made candidates
   const handleSelectCandidate = useCallback((candidate) => {
@@ -224,6 +224,10 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
   }
 
   // Assembly Phase UI
+  if (phase !== 'assembly' || members.length === 0) {
+    return null; // Don't render assembly until members exist
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">
@@ -262,13 +266,13 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
             <div className="mb-8 flex justify-center">
               <div className="relative">
                 <img
-                  src={getAvatarUrl(currentMember.name || 'member', 'open-peeps')}
-                  alt={currentMember.name}
+                  src={getAvatarUrl(currentMember?.name || 'member', 'open-peeps')}
+                  alt={currentMember?.name || 'member'}
                   className="w-24 h-24 rounded-full border-4 border-primary shadow-lg"
                   onError={(e) => e.target.style.opacity = '0.3'}
                 />
                 <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-bold border-2 border-card">
-                  {ROLES.find(r => r.id === currentMember.role)?.name.split(' ')[0]}
+                  {currentRole?.name.split(' ')[0] || '?'}
                 </div>
               </div>
             </div>
@@ -284,7 +288,7 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
                     key={role.id}
                     onClick={() => updateMember('role', role.id)}
                     className={`py-3 px-2 rounded-lg text-xs font-bold transition-all ${
-                      currentMember.role === role.id
+                      currentMember?.role === role.id
                         ? 'bg-primary text-primary-foreground ring-2 ring-primary scale-105'
                         : 'bg-muted text-muted-foreground hover:bg-muted/80'
                     }`}
@@ -303,7 +307,7 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
               </label>
               <input
                 type="text"
-                value={currentMember.name}
+                value={currentMember?.name || ''}
                 onChange={(e) => updateMember('name', e.target.value)}
                 placeholder="e.g., Alex Storm"
                 className="w-full px-4 py-3 bg-input text-card-foreground border border-border rounded-lg placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -312,13 +316,15 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
             </div>
 
             {/* Current Role Display */}
-            <div className="p-4 bg-muted/30 rounded-lg border border-border/20 mb-6">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Current Position</p>
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 rounded-full bg-primary" />
-                <p className="text-lg font-bold text-primary">{currentRole.name}</p>
+            {currentRole && (
+              <div className="p-4 bg-muted/30 rounded-lg border border-border/20 mb-6">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Current Position</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 rounded-full bg-primary" />
+                  <p className="text-lg font-bold text-primary">{currentRole.name}</p>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Navigation Controls */}
             <div className="flex gap-3 mb-8">
