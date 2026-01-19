@@ -21,7 +21,8 @@ import {
   useEventGeneration,
   useConsequenceSystem,
   useRecordingSystem,
-  useGigSystem
+  useGigSystem,
+  useBandManagementSystem
 } from './hooks';
 
 // Import page components
@@ -68,6 +69,9 @@ function App() {
   
   // Gig system for booking performances and touring
   const gigSystem = useGigSystem(gameState.state, gameState.updateGameState, gameState.addLog);
+
+  // Band management system for recruitment, development, and conflict resolution
+  const bandManagement = useBandManagementSystem(gameState.state, gameState.updateGameState, gameState.addLog);
 
   // Apply theme to document
   useEffect(() => {
@@ -122,6 +126,9 @@ function App() {
           dialogueState={dialogueState}
           eventGen={eventGen}
           consequenceSystem={consequenceSystem}
+          recordingSystem={recordingSystem}
+          gigSystem={gigSystem}
+          bandManagement={bandManagement}
           onReturnToLanding={() => gameState.setStep('landing')}
           onHandleEventChoice={(choice) => {
             // Handle choice through consequence system
