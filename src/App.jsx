@@ -23,7 +23,7 @@ import {
 } from './hooks';
 
 // Import page components
-import { LandingPage, GamePage } from './pages';
+import { LandingPage, GamePage, LogoDesigner } from './pages';
 import { EnhancedEventModal } from './components/EnhancedEventModal';
 
 // Import modals
@@ -79,13 +79,22 @@ function App() {
         <LandingPage
           onStartNewGame={(bandName) => {
             gameState.setBandName(bandName);
-            gameState.setStep('game');
+            gameState.setStep('logo');
           }}
           onLoadGame={(saveName) => {
             // Load game logic handled by GamePage
             gameState.setStep('game');
           }}
           onSettings={() => uiState.setShowSettings(true)}
+          saveSlots={gameState.saveSlots}
+        />
+      ) : gameState.step === 'logo' ? (
+        <LogoDesigner
+          bandName={gameState.state?.bandName || 'Your Band'}
+          logoState={gameState.state}
+          onLogoChange={(updates) => gameState.updateGameState(updates)}
+          onComplete={() => gameState.setStep('game')}
+          onBack={() => gameState.setStep('landing')}
         />
       ) : (
         <GamePage
