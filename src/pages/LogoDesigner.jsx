@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ChevronLeft, Copy, RotateCcw } from 'lucide-react';
 import { calculateLogoStyle, ensureFontLoaded } from '../utils/helpers';
 
@@ -6,7 +6,7 @@ import { calculateLogoStyle, ensureFontLoaded } from '../utils/helpers';
  * LogoDesigner - Band logo customization screen
  * 
  * Allows customization of:
- * - Font (Arial, Georgia, Impact, Courier, Trebuchet, Verdana)
+ * - Font (18+ Google Fonts optimized for logos)
  * - Font weight (400-900)
  * - Size (18-72px)
  * - Letter spacing
@@ -25,13 +25,26 @@ export const LogoDesigner = ({
   onBack 
 }) => {
   const FONT_OPTIONS = [
-    'Arial',
-    'Georgia',
-    'Impact',
-    'Courier New',
-    'Trebuchet MS',
-    'Verdana',
-    'Comic Sans MS'
+    { name: 'Metal Mania', family: 'Metal Mania' },
+    { name: 'New Rocker', family: 'New Rocker' },
+    { name: 'Creepster', family: 'Creepster' },
+    { name: 'Russo One', family: 'Russo One' },
+    { name: 'Ultra', family: 'Ultra' },
+    { name: 'Shojumaru', family: 'Shojumaru' },
+    { name: 'Pirata One', family: 'Pirata One' },
+    { name: 'Road Rage', family: 'Road Rage' },
+    { name: 'Permanent Marker', family: 'Permanent Marker' },
+    { name: 'Bangers', family: 'Bangers' },
+    { name: 'Space Grotesk', family: 'Space Grotesk' },
+    { name: 'Bungee', family: 'Bungee' },
+    { name: 'Righteous', family: 'Righteous' },
+    { name: 'DotGothic16', family: 'DotGothic16' },
+    { name: 'Tourney', family: 'Tourney' },
+    { name: 'Exo 2', family: 'Exo 2' },
+    { name: 'RocknRoll One', family: 'RocknRoll One' },
+    { name: 'Bebas Neue', family: 'Bebas Neue' },
+    { name: 'Anton', family: 'Anton' },
+    { name: 'Oswald', family: 'Oswald' }
   ];
 
   const LOGO_PRESETS = [
@@ -56,6 +69,8 @@ export const LogoDesigner = ({
       cfg: { logoWeight: 700, logoSize: 30, logoTextColor: '#fef3c7', logoBgColor: '#111827', logoShadow: 'soft', logoUpper: false, logoLetter: 0.5 } 
     }
   ];
+
+  const [showFontGallery, setShowFontGallery] = useState(false);
 
   const logoStyle = useMemo(() => {
     if (logoState.logoFont) {
@@ -205,9 +220,8 @@ export const LogoDesigner = ({
             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#aaa' }}>
               Font
             </label>
-            <select
-              value={logoState.logoFont || 'Arial'}
-              onChange={(e) => handleLogoChange({ logoFont: e.target.value })}
+            <button
+              onClick={() => setShowFontGallery(!showFontGallery)}
               style={{
                 width: '100%',
                 padding: '0.75rem',
@@ -216,15 +230,77 @@ export const LogoDesigner = ({
                 borderRadius: '0.5rem',
                 color: '#fff',
                 fontSize: '1rem',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                textAlign: 'left',
+                transition: 'all 0.3s ease'
               }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'}
             >
-              {FONT_OPTIONS.map((font) => (
-                <option key={font} value={font} style={{ backgroundColor: '#1a1a2e', color: '#fff' }}>
-                  {font}
-                </option>
-              ))}
-            </select>
+              {logoState.logoFont || 'Metal Mania'} {showFontGallery ? '▼' : '▶'}
+            </button>
+
+            {showFontGallery && (
+              <div style={{
+                marginTop: '1rem',
+                backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                border: '2px solid rgba(131, 56, 236, 0.5)',
+                borderRadius: '0.5rem',
+                padding: '1rem',
+                maxHeight: '400px',
+                overflowY: 'auto',
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '0.75rem'
+              }}>
+                {FONT_OPTIONS.map((font) => (
+                  <button
+                    key={font.family}
+                    onClick={() => {
+                      handleLogoChange({ logoFont: font.family });
+                      setShowFontGallery(false);
+                    }}
+                    style={{
+                      padding: '1rem',
+                      backgroundColor: logoState.logoFont === font.family ? 'rgba(255, 0, 110, 0.3)' : 'rgba(131, 56, 236, 0.1)',
+                      border: logoState.logoFont === font.family ? '2px solid #ff006e' : '2px solid rgba(131, 56, 236, 0.3)',
+                      borderRadius: '0.5rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      textAlign: 'center'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (logoState.logoFont !== font.family) {
+                        e.target.style.backgroundColor = 'rgba(131, 56, 236, 0.3)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (logoState.logoFont !== font.family) {
+                        e.target.style.backgroundColor = 'rgba(131, 56, 236, 0.1)';
+                      }
+                    }}
+                  >
+                    <div style={{
+                      fontFamily: font.family,
+                      fontSize: '18px',
+                      fontWeight: 700,
+                      color: '#ff6b6b',
+                      marginBottom: '0.5rem',
+                      wordBreak: 'break-word'
+                    }}>
+                      {bandName.substring(0, 12)}
+                    </div>
+                    <div style={{
+                      fontSize: '0.75rem',
+                      color: '#aaa',
+                      fontFamily: 'Arial, sans-serif'
+                    }}>
+                      {font.name}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Weight */}
