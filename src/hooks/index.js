@@ -10,4 +10,5 @@ export { useRecordingSystem } from './useRecordingSystem';
 export { useGigSystem } from './useGigSystem';
 export { useBandManagementSystem } from './useBandManagementSystem';
 export { useEquipmentUpgradesSystem } from './useEquipmentUpgradesSystem';
+export { useLabelDealsSystem } from './useLabelDealsSystem';
 

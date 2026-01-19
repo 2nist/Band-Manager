@@ -23,7 +23,8 @@ import {
   useRecordingSystem,
   useGigSystem,
   useBandManagementSystem,
-  useEquipmentUpgradesSystem
+  useEquipmentUpgradesSystem,
+  useLabelDealsSystem
 } from './hooks';
 
 // Import page components
@@ -76,6 +77,9 @@ function App() {
 
   // Equipment upgrades system for studio, instruments, and stage gear
   const equipmentUpgrades = useEquipmentUpgradesSystem(gameState.state, gameState.updateGameState, gameState.addLog);
+
+  // Label deals system for record contracts and promotional support
+  const labelDeals = useLabelDealsSystem(gameState.state, gameState.updateGameState, gameState.addLog);
 
   // Apply theme to document
   useEffect(() => {
@@ -134,6 +138,7 @@ function App() {
           gigSystem={gigSystem}
           bandManagement={bandManagement}
           equipmentUpgrades={equipmentUpgrades}
+          labelDeals={labelDeals}
           onReturnToLanding={() => gameState.setStep('landing')}
           onHandleEventChoice={(choice) => {
             // Handle choice through consequence system
