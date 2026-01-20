@@ -62,16 +62,8 @@ function App() {
   const modalState = useModalState();
   const gameLogic = useGameLogic(gameState);
   const dialogueState = useEnhancedDialogue(gameState.state, gameState.updateGameState);
-  const eventGen = useEventGeneration(
-    gameState.state,
-    dialogueState.psychologicalState,
-    dialogueState.narrativeState
-  );
   
-  // Phase 2: Consequence system (tracks consequences, factions, psychology evolution)
-  const consequenceSystem = useConsequenceSystem(gameState.state);
-  
-  // Enhanced Features Configuration
+  // Enhanced Features Configuration (must be before eventGen)
   // Controls feature toggles and content preferences for mature content
   const [enhancedFeatures, setEnhancedFeatures] = useState({
     enabled: true, // Toggle enhanced dialogue features on/off
@@ -104,6 +96,17 @@ function App() {
       maturityLevel: level
     }));
   };
+  
+  // Event generation with enhanced features integrated
+  const eventGen = useEventGeneration(
+    gameState.state,
+    dialogueState.psychologicalState,
+    dialogueState.narrativeState,
+    enhancedFeatures
+  );
+  
+  // Phase 2: Consequence system (tracks consequences, factions, psychology evolution)
+  const consequenceSystem = useConsequenceSystem(gameState.state);
   
   // Recording system for music creation and streaming revenue
   const recordingSystem = useRecordingSystem(gameState.state, gameState.updateGameState, gameState.addLog);

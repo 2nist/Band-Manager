@@ -1,4 +1,11 @@
 import { useCallback, useMemo } from 'react';
+import {
+  createEnhancedEvent,
+  shouldShowEvent,
+  detectMaturityLevel,
+  categorizeEvent,
+  detectContentWarnings
+} from '../utils/enhancedEventWrapper';
 
 /**
  * useEventGeneration - Procedural generation of gritty, mature events
@@ -8,13 +15,15 @@ import { useCallback, useMemo } from 'react';
  * - Psychological state (stress, addiction, moral integrity)
  * - Narrative context (ongoing storylines, faction standing)
  * - Player archetype (detected psychological profile)
+ * - Content preferences (enhanced features system)
  * 
  * @param {Object} gameState - Current game state
  * @param {Object} psychologicalState - Player's psychological profile
  * @param {Object} narrativeState - Story progression tracking
+ * @param {Object} enhancedFeatures - Content preference settings (optional)
  * @returns {Object} Event generation methods
  */
-export const useEventGeneration = (gameState, psychologicalState, narrativeState) => {
+export const useEventGeneration = (gameState, psychologicalState, narrativeState, enhancedFeatures = null) => {
   
   // Character archetypes
   const CHARACTER_ARCHETYPES = useMemo(() => ({
@@ -364,6 +373,11 @@ export const useEventGeneration = (gameState, psychologicalState, narrativeState
 
   /**
    * Generate event based on current state
+   * 
+   * Now integrates with enhanced event wrapper to:
+   * - Wrap raw events with enhanced features
+   * - Filter by content preferences
+   * - Respect maturity level settings
    */
   const generateEvent = useCallback((eventType = 'random') => {
     if (eventType === 'random') {
@@ -386,22 +400,74 @@ export const useEventGeneration = (gameState, psychologicalState, narrativeState
       }
     }
     
+    // Generate base event
+    let event;
     switch (eventType) {
       case 'substance':
         const subStage = narrativeState.addiction_progression?.stage || 'experimental';
-        return generateSubstanceEvent(subStage);
+        event = generateSubstanceEvent(subStage);
+        break;
         
       case 'corruption':
         const corruptStage = narrativeState.corruption_progression?.stage || 'first_compromise';
-        return generateCorruptionEvent(corruptStage);
+        event = generateCorruptionEvent(corruptStage);
+        break;
         
       case 'horror':
-        return generateHorrorEvent();
+        event = generateHorrorEvent();
+        break;
         
       default:
-        return generateSubstanceEvent();
+        event = generateSubstanceEvent();
     }
-  }, [psychologicalState, narrativeState, generateSubstanceEvent, generateCorruptionEvent, generateHorrorEvent]);
+    
+    // Enhance event with enhanced features wrapper
+    if (event && enhancedFeatures?.enabled) {
+      // Auto-detect maturity level and category if not already set
+      const enhancements = {
+        maturityLevel: event.maturityLevel || detectMaturityLevel(event),
+        category: event.category || categorizeEvent(event),
+        contentWarnings: event.contentWarnings || detectContentWarnings(event)
+      };
+      
+      event = createEnhancedEvent(event, enhancements);
+      
+      // Filter by user preferences
+      if (!shouldShowEvent(event, enhancedFeatures)) {
+        // Event blocked by preferences - recursively generate another
+        // Prevent infinite loops with max recursion
+        if (!generateEvent.recursionDepth) {
+          generateEvent.recursionDepth = 0;
+        }
+        
+        if (generateEvent.recursionDepth < 5) {
+          generateEvent.recursionDepth++;
+          const alternative = generateEvent('random');
+          generateEvent.recursionDepth--;
+          return alternative;
+        } else {
+          // Fallback: return event anyway after 5 recursions
+          generateEvent.recursionDepth = 0;
+          return event;
+        }
+      }
+    } else if (event && !enhancedFeatures?.enabled) {
+      // If enhanced features disabled, still wrap but don't filter
+      event = createEnhancedEvent(event, {
+        maturityLevel: event.maturityLevel || 'teen',
+        category: event.category || 'general'
+      });
+    }
+    
+    return event;
+  }, [
+    psychologicalState,
+    narrativeState,
+    enhancedFeatures,
+    generateSubstanceEvent,
+    generateCorruptionEvent,
+    generateHorrorEvent
+  ]);
 
   return {
     generateEvent,
