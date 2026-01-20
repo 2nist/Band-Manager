@@ -26,7 +26,8 @@ import {
   useEquipmentUpgradesSystem,
   useLabelDealsSystem,
   useRivalCompetitionSystem,
-  useFestivalPerformanceSystem
+  useFestivalPerformanceSystem,
+  useRadioChartingSystem
 } from './hooks';
 
 // Import page components
@@ -89,6 +90,9 @@ function App() {
   // Festival performance system for special events and prestige multipliers
   const festivalPerformance = useFestivalPerformanceSystem(gameState.state, gameState.updateGameState, gameState.addLog);
 
+  // Radio and charting system for airplay and chart rankings
+  const radioCharting = useRadioChartingSystem(gameState.state, gameState.updateGameState, gameState.addLog);
+
   // Apply theme to document
   useEffect(() => {
     const root = document.documentElement;
@@ -149,6 +153,7 @@ function App() {
           labelDeals={labelDeals}
           rivalCompetition={rivalCompetition}
           festivalPerformance={festivalPerformance}
+          radioCharting={radioCharting}
           onReturnToLanding={() => gameState.setStep('landing')}
           onHandleEventChoice={(choice) => {
             // Handle choice through consequence system
