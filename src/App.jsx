@@ -8,7 +8,7 @@
  * - Minimal logic (300 lines vs 6,117 original)
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './styles.css';
 
 // Import hooks
@@ -70,6 +70,40 @@ function App() {
   
   // Phase 2: Consequence system (tracks consequences, factions, psychology evolution)
   const consequenceSystem = useConsequenceSystem(gameState.state);
+  
+  // Enhanced Features Configuration
+  // Controls feature toggles and content preferences for mature content
+  const [enhancedFeatures, setEnhancedFeatures] = useState({
+    enabled: true, // Toggle enhanced dialogue features on/off
+    maturityLevel: 'teen', // 'teen' or 'mature' - affects which events can appear
+    contentPreferences: {
+      substance_abuse: false, // Drug/alcohol themed events
+      sexual_content: false, // Sexual/romance themed events
+      criminal_activity: false, // Crime/law-breaking themed events
+      psychological_themes: true, // Psychological stress, depression, etc.
+      violence: false, // Violence themed events
+      explicit_language: false // Profanity in dialogue
+    }
+  });
+  
+  // Helper function to update content preference
+  const setContentPreference = (category, enabled) => {
+    setEnhancedFeatures(prev => ({
+      ...prev,
+      contentPreferences: {
+        ...prev.contentPreferences,
+        [category]: enabled
+      }
+    }));
+  };
+  
+  // Helper function to toggle maturity level
+  const setMaturityLevel = (level) => {
+    setEnhancedFeatures(prev => ({
+      ...prev,
+      maturityLevel: level
+    }));
+  };
   
   // Recording system for music creation and streaming revenue
   const recordingSystem = useRecordingSystem(gameState.state, gameState.updateGameState, gameState.addLog);
@@ -154,6 +188,9 @@ function App() {
           dialogueState={dialogueState}
           eventGen={eventGen}
           consequenceSystem={consequenceSystem}
+          enhancedFeatures={enhancedFeatures}
+          setContentPreference={setContentPreference}
+          setMaturityLevel={setMaturityLevel}
           recordingSystem={recordingSystem}
           gigSystem={gigSystem}
           bandManagement={bandManagement}
