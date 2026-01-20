@@ -36,15 +36,15 @@ export const UpgradesTab = ({ gameData, equipmentUpgrades, gameState }) => {
       {/* Current Status */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-card border border-primary/30 p-6 rounded-lg">
-          <div className="text-muted-foreground text-xs uppercase mb-2">💰 Budget</div>
+          <div className="text-muted-foreground text-xs uppercase mb-2">Budget</div>
           <div className="text-2xl font-bold text-accent">${money.toLocaleString()}</div>
         </div>
         <div className="bg-card border border-secondary/30 p-6 rounded-lg">
-          <div className="text-muted-foreground text-xs uppercase mb-2">⚡ Performance Bonus</div>
+          <div className="text-muted-foreground text-xs uppercase mb-2">Performance Bonus</div>
           <div className="text-2xl font-bold text-secondary">+{stats}%</div>
         </div>
         <div className="bg-card border border-primary/30 p-6 rounded-lg">
-          <div className="text-muted-foreground text-xs uppercase mb-2">📊 Total Investments</div>
+          <div className="text-muted-foreground text-xs uppercase mb-2">Total Investments</div>
           <div className="text-2xl font-bold text-primary">${((gameState?.state?.totalUpgradeCost || 0)).toLocaleString()}</div>
         </div>
       </div>
@@ -52,7 +52,7 @@ export const UpgradesTab = ({ gameData, equipmentUpgrades, gameState }) => {
       {/* Studio Upgrades */}
       <div className="border-t border-border/20 pt-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-foreground">🏢 Studio Equipment</h3>
+          <h3 className="text-xl font-bold text-foreground">Studio Equipment</h3>
           <button
             onClick={() => setShowStudio(!showStudio)}
             className="text-sm px-3 py-1 bg-muted text-muted-foreground rounded hover:bg-muted/80 transition-all"
@@ -89,7 +89,7 @@ export const UpgradesTab = ({ gameData, equipmentUpgrades, gameState }) => {
       {/* Instrument Upgrades */}
       <div className="border-t border-border/20 pt-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-foreground">🎸 Instruments</h3>
+          <h3 className="text-xl font-bold text-foreground">Instruments</h3>
           <button
             onClick={() => setShowInstruments(!showInstruments)}
             className="text-sm px-3 py-1 bg-muted text-muted-foreground rounded hover:bg-muted/80 transition-all"
@@ -122,7 +122,7 @@ export const UpgradesTab = ({ gameData, equipmentUpgrades, gameState }) => {
       {/* Stage Gear */}
       <div className="border-t border-border/20 pt-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-foreground">🎤 Stage Gear</h3>
+          <h3 className="text-xl font-bold text-foreground">Stage Gear</h3>
           <button
             onClick={() => setShowStageGear(!showStageGear)}
             className="text-sm px-3 py-1 bg-muted text-muted-foreground rounded hover:bg-muted/80 transition-all"

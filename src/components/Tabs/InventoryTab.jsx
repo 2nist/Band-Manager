@@ -112,7 +112,7 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState }) => {
                   Cancel
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground">💰 Current: ${money.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">Current: ${money.toLocaleString()}</p>
             </div>
           </div>
         )}
@@ -173,7 +173,7 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState }) => {
               placeholder="Enter album name"
               className="w-full px-4 py-2 bg-input border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary mb-4"
             />
-            <p className="text-xs text-muted-foreground">📀 {selectedSongs.length} songs selected • Cost: $5,000</p>
+            <p className="text-xs text-muted-foreground">{selectedSongs.length} songs selected • Cost: $5,000</p>
           </div>
         )}
 

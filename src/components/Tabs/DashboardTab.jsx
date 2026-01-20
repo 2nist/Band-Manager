@@ -104,12 +104,12 @@ export const DashboardTab = ({
         <div className="bg-card border-2 border-primary/30 p-6 rounded-lg">
           <h3 className="text-lg font-bold text-foreground mb-4">Quick Stats</h3>
           <div className="flex flex-col gap-3 text-sm">
-            <div className="text-muted-foreground">💰 Money: <strong className="text-accent">${(gameState?.state?.money || 0).toLocaleString()}</strong></div>
-            <div className="text-muted-foreground">⭐ Fame: <strong className="text-primary">{gameState?.state?.fame || 0}</strong></div>
-            <div className="text-muted-foreground">🎵 Songs: <strong className="text-foreground">{(gameState?.state?.songs || []).length}</strong></div>
-            <div className="text-muted-foreground">📀 Albums: <strong className="text-foreground">{(gameState?.state?.albums || []).length}</strong></div>
-            <div className="text-muted-foreground">🎤 Gigs: <strong className="text-foreground">{(gameState?.state?.gigHistory || []).length}</strong></div>
-            <div className="text-muted-foreground">👥 Band: <strong className="text-foreground">{(gameState?.state?.bandMembers || []).length}</strong></div>
+            <div className="text-muted-foreground">Money: <strong className="text-accent">${(gameState?.state?.money || 0).toLocaleString()}</strong></div>
+            <div className="text-muted-foreground">Fame: <strong className="text-primary">{gameState?.state?.fame || 0}</strong></div>
+            <div className="text-muted-foreground">Songs: <strong className="text-foreground">{(gameState?.state?.songs || []).length}</strong></div>
+            <div className="text-muted-foreground">Albums: <strong className="text-foreground">{(gameState?.state?.albums || []).length}</strong></div>
+            <div className="text-muted-foreground">Gigs: <strong className="text-foreground">{(gameState?.state?.gigHistory || []).length}</strong></div>
+            <div className="text-muted-foreground">Band: <strong className="text-foreground">{(gameState?.state?.bandMembers || []).length}</strong></div>
           </div>
         </div>
 
@@ -149,37 +149,37 @@ export const DashboardTab = ({
             onClick={() => handleQuickAction('write-song')}
             className="px-4 py-3 bg-primary/20 hover:bg-primary/40 text-primary border border-primary/50 rounded-lg transition-all text-sm font-semibold"
           >
-            🎵 Write Song
+            Write Song
           </button>
           <button
             onClick={() => handleQuickAction('book-gig')}
             className="px-4 py-3 bg-secondary/20 hover:bg-secondary/40 text-secondary border border-secondary/50 rounded-lg transition-all text-sm font-semibold"
           >
-            🎤 Book Gig
+            Book Gig
           </button>
           <button
             onClick={() => handleQuickAction('practice-band')}
             className="px-4 py-3 bg-accent/20 hover:bg-accent/40 text-accent border border-accent/50 rounded-lg transition-all text-sm font-semibold"
           >
-            🎸 Practice
+            Practice
           </button>
           <button
             onClick={() => handleQuickAction('upgrade-studio')}
             className="px-4 py-3 bg-primary/20 hover:bg-primary/40 text-primary border border-primary/50 rounded-lg transition-all text-sm font-semibold"
           >
-            🏢 Upgrade
+            Upgrade
           </button>
           <button
             onClick={() => handleQuickAction('sign-label')}
             className="px-4 py-3 bg-secondary/20 hover:bg-secondary/40 text-secondary border border-secondary/50 rounded-lg transition-all text-sm font-semibold"
           >
-            🤝 Label Deal
+            Label Deal
           </button>
           <button
             onClick={() => handleQuickAction('merchandise')}
             className="px-4 py-3 bg-accent/20 hover:bg-accent/40 text-accent border border-accent/50 rounded-lg transition-all text-sm font-semibold"
           >
-            👕 Merch
+            Merchandise
           </button>
         </div>
       </div>
@@ -192,14 +192,14 @@ export const DashboardTab = ({
             onClick={onTriggerEvent}
             className="px-6 py-3 bg-primary/20 hover:bg-primary/30 text-foreground border-2 border-primary/40 rounded-lg transition-all text-sm font-medium"
           >
-            🎭 Trigger Event
+            Trigger Event
           </button>
 
           <button
             onClick={onAdvanceWeek}
             className="flex-1 min-w-[200px] px-6 py-3 bg-accent hover:opacity-90 text-accent-foreground border-none rounded-lg transition-all text-base font-bold"
           >
-            ⏭️ Advance Week
+            Advance Week
           </button>
         </div>
         <p className="text-xs text-muted-foreground m-0">

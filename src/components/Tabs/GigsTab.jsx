@@ -49,13 +49,13 @@ export const GigsTab = ({ gameData, gigSystem, gameState }) => {
       {/* Current Tour Status */}
       {currentTour && (
         <div className="bg-card border border-accent/50 p-6 rounded-lg mb-8">
-          <h3 className="text-lg font-bold text-accent mb-3">🎪 Currently Touring</h3>
+          <h3 className="text-lg font-bold text-accent mb-3">Currently Touring</h3>
           <p className="text-sm text-muted-foreground mb-4">{currentTour.venues?.length || 0} venues scheduled</p>
           <button
             onClick={() => gigSystem?.advanceTourWeek?.()}
             className="px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:opacity-90 font-semibold transition-all"
           >
-            Next Tour Stop →
+            Next Tour Stop
           </button>
         </div>
       )}
@@ -66,7 +66,7 @@ export const GigsTab = ({ gameData, gigSystem, gameState }) => {
 
         {bandMembers.length < 2 ? (
           <p className="text-muted-foreground bg-destructive/10 border border-destructive/30 p-4 rounded-lg">
-            ⚠️ You need at least 2 band members to book gigs!
+            You need at least 2 band members to book gigs!
           </p>
         ) : availableVenues.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -118,7 +118,7 @@ export const GigsTab = ({ gameData, gigSystem, gameState }) => {
               onClick={() => gigSystem?.startTour?.(availableVenues.map(v => v.id).slice(0, 4))}
               className="w-full px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:opacity-90 font-bold transition-all"
             >
-              🎪 Start National Tour (4 venues, $15,000)
+              Start National Tour (4 venues, $15,000)
             </button>
           </div>
         )}
@@ -138,7 +138,7 @@ export const GigsTab = ({ gameData, gigSystem, gameState }) => {
                 <div className="text-right">
                   <p className="text-secondary font-bold mb-1">${gig.earnings?.toLocaleString()}</p>
                   <p className="text-sm text-muted-foreground">
-                    {gig.success ? '✓ Great show' : '✗ Rough night'}
+                    {gig.success ? 'Great show' : 'Rough night'}
                   </p>
                 </div>
               </div>
