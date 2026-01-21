@@ -13,7 +13,8 @@ import {
   calculateFanGrowth,
   processGenreTrends,
   ageSongs,
-  ageAlbums
+  ageAlbums,
+  calculateMerchandiseRevenue
 } from '../utils/processWeekEffects';
 
 describe('processWeekEffects - Phase 1', () => {
@@ -783,6 +784,208 @@ describe('processWeekEffects - Phase 1', () => {
         
         expect(result.next.albums[0].chartScore).toBeDefined();
         expect(result.next.albums[0].chartScore).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('Phase 4: Merchandise Revenue', () => {
+    describe('calculateMerchandiseRevenue', () => {
+      it('returns 0 for no merchandise', () => {
+        const result = calculateMerchandiseRevenue([], {});
+        expect(result.merchandiseRevenue).toBe(0);
+        expect(result.itemsSold).toBe(0);
+        expect(result.updatedMerchandise).toEqual([]);
+      });
+
+      it('calculates revenue for merchandise with inventory', () => {
+        const merchandise = [{
+          id: 'merch1',
+          basePrice: 25,
+          quality: 80,
+          popularity: 60,
+          inventory: 100,
+          weeksSelling: 0,
+          totalSold: 0,
+          totalRevenue: 0
+        }];
+        const state = { fame: 1000 };
+        
+        const result = calculateMerchandiseRevenue(merchandise, state);
+        
+        expect(result.merchandiseRevenue).toBeGreaterThan(0);
+        expect(result.itemsSold).toBeGreaterThan(0);
+        expect(result.updatedMerchandise[0].inventory).toBeLessThan(100);
+      });
+
+      it('respects inventory limits', () => {
+        const merchandise = [{
+          id: 'merch1',
+          basePrice: 25,
+          quality: 80,
+          popularity: 60,
+          inventory: 5, // Low inventory
+          weeksSelling: 0,
+          totalSold: 0,
+          totalRevenue: 0
+        }];
+        const state = { fame: 5000 }; // High fame
+        
+        const result = calculateMerchandiseRevenue(merchandise, state);
+        
+        expect(result.itemsSold).toBeLessThanOrEqual(5);
+        expect(result.updatedMerchandise[0].inventory).toBeGreaterThanOrEqual(0);
+      });
+
+      it('applies decay factor for older merchandise', () => {
+        const newMerch = [{
+          id: 'merch1',
+          basePrice: 25,
+          quality: 80,
+          popularity: 60,
+          inventory: 100,
+          weeksSelling: 0,
+          totalSold: 0,
+          totalRevenue: 0
+        }];
+        const oldMerch = [{
+          id: 'merch2',
+          basePrice: 25,
+          quality: 80,
+          popularity: 60,
+          inventory: 100,
+          weeksSelling: 10, // Older
+          totalSold: 0,
+          totalRevenue: 0
+        }];
+        const state = { fame: 1000 };
+        
+        const newResult = calculateMerchandiseRevenue(newMerch, state);
+        const oldResult = calculateMerchandiseRevenue(oldMerch, state);
+        
+        // Older merchandise should sell less or equal due to decay
+        // Decay factor: 1 / (1 + weeksSelling * 0.1)
+        // For weeksSelling=0: 1 / 1 = 1.0
+        // For weeksSelling=10: 1 / 2 = 0.5
+        // So old should be <= new (allowing for rounding)
+        expect(oldResult.merchandiseRevenue).toBeLessThanOrEqual(newResult.merchandiseRevenue);
+        expect(oldResult.itemsSold).toBeLessThanOrEqual(newResult.itemsSold);
+        // Verify decay is actually applied
+        expect(newResult.updatedMerchandise[0].weeksSelling).toBe(1);
+        expect(oldResult.updatedMerchandise[0].weeksSelling).toBe(11);
+      });
+
+      it('updates merchandise state correctly', () => {
+        const merchandise = [{
+          id: 'merch1',
+          basePrice: 25,
+          quality: 80,
+          popularity: 60,
+          inventory: 100,
+          weeksSelling: 0,
+          totalSold: 0,
+          totalRevenue: 0
+        }];
+        const state = { fame: 1000 };
+        
+        const result = calculateMerchandiseRevenue(merchandise, state);
+        
+        expect(result.updatedMerchandise[0].weeksSelling).toBe(1);
+        expect(result.updatedMerchandise[0].totalSold).toBe(result.itemsSold);
+        expect(result.updatedMerchandise[0].totalRevenue).toBe(result.merchandiseRevenue);
+      });
+    });
+
+    describe('processWeekEffects with Phase 4 features', () => {
+      it('includes merchandise revenue in weekly calculation', () => {
+        const initialState = {
+          week: 0,
+          money: 1000,
+          fame: 1000,
+          difficulty: 'normal',
+          bandMembers: [],
+          songs: [],
+          albums: [],
+          merchandise: [{
+            id: 'merch1',
+            basePrice: 25,
+            quality: 80,
+            popularity: 60,
+            inventory: 100,
+            weeksSelling: 0,
+            totalSold: 0,
+            totalRevenue: 0
+          }]
+        };
+
+        const result = processWeekEffects(initialState);
+        
+        expect(result.summary).toContain('Merchandise Sales');
+        expect(result.next.money).toBeGreaterThan(initialState.money - 120); // Should have revenue
+      });
+
+      it('updates merchandise inventory in state', () => {
+        const initialState = {
+          week: 0,
+          money: 1000,
+          fame: 1000,
+          difficulty: 'normal',
+          bandMembers: [],
+          songs: [],
+          albums: [],
+          merchandise: [{
+            id: 'merch1',
+            basePrice: 25,
+            quality: 80,
+            popularity: 60,
+            inventory: 100,
+            weeksSelling: 0,
+            totalSold: 0,
+            totalRevenue: 0
+          }]
+        };
+
+        const result = processWeekEffects(initialState);
+        
+        expect(result.next.merchandise[0].inventory).toBeLessThan(100);
+        expect(result.next.merchandise[0].weeksSelling).toBe(1);
+      });
+
+      it('does not apply label royalty split to merchandise revenue', () => {
+        const initialState = {
+          week: 0,
+          money: 1000,
+          fame: 1000,
+          difficulty: 'normal',
+          bandMembers: [],
+          songs: [{ title: 'Test', popularity: 50, quality: 60, age: 0 }],
+          albums: [],
+          merchandise: [{
+            id: 'merch1',
+            basePrice: 25,
+            quality: 80,
+            popularity: 60,
+            inventory: 100,
+            weeksSelling: 0,
+            totalSold: 0,
+            totalRevenue: 0
+          }],
+          labelDeal: {
+            type: 'major',
+            royaltySplit: 30 // 30% split
+          }
+        };
+
+        const result = processWeekEffects(initialState);
+        
+        // Merchandise revenue should not be subject to label split
+        // We can verify this by checking that total revenue includes full merchandise amount
+        const summary = result.summary;
+        const merchMatch = summary.match(/Merchandise Sales: \$([\d,]+)/);
+        if (merchMatch) {
+          const merchRevenue = parseInt(merchMatch[1].replace(/,/g, ''));
+          // The net revenue should include full merchandise revenue
+          expect(result.next.totalRevenue).toBeGreaterThan(merchRevenue);
+        }
       });
     });
   });

@@ -6,12 +6,23 @@
  * - Basic song streaming revenue
  * - Song aging
  * 
- * Future phases will add:
+ * Phase 2: Albums & Trends
  * - Album revenue
  * - Genre trends
- * - Chart progression
  * - Fan growth
+ * 
+ * Phase 3: Enhanced Systems
+ * - Radio plays
+ * - Label deals & royalty splits
+ * - Chart progression
  * - Equipment costs
+ * 
+ * Phase 4: Advanced Systems
+ * - Merchandise revenue integration
+ * - Social media growth (coming)
+ * - Tour revenue (coming)
+ * - Geographic reputation (coming)
+ * - Career stats (coming)
  */
 
 import { clampStat } from './helpers';
@@ -433,6 +444,62 @@ export function calculateLabelRoyaltySplit(grossRevenue, labelDeal) {
 }
 
 /**
+ * Calculate merchandise revenue (Phase 4)
+ * @param {Array} merchandise - Array of merchandise objects
+ * @param {Object} state - Game state (for fame, etc.)
+ * @returns {Object} { merchandiseRevenue: number, itemsSold: number, updatedMerchandise: Array }
+ */
+export function calculateMerchandiseRevenue(merchandise, state) {
+  if (!merchandise || merchandise.length === 0) {
+    return { merchandiseRevenue: 0, itemsSold: 0, updatedMerchandise: [] };
+  }
+  
+  let totalRevenue = 0;
+  let totalItemsSold = 0;
+  const fame = state.fame || 0;
+  
+  const updatedMerch = merchandise.map(m => {
+    // Calculate weekly sales based on:
+    // - Band fame (draw factor)
+    // - Merchandise popularity
+    // - Inventory availability
+    // - Design quality
+    
+    const fameDraw = Math.min(1, fame / 5000);
+    const qualityFactor = (m.quality || 50) / 100;
+    const weeksSelling = (m.weeksSelling || 0) + 1;
+    const decayFactor = 1 / (1 + weeksSelling * 0.1); // Sales decay over time
+    
+    const baseWeeklySales = Math.floor(50 * (m.popularity || 50) * fameDraw * qualityFactor * decayFactor);
+    const unitsSold = Math.min(baseWeeklySales, m.inventory || 0);
+    
+    if (unitsSold > 0) {
+      const revenuePerUnit = (m.basePrice || 20) * (0.7 + qualityFactor * 0.3); // Quality affects profit margin
+      const weeklyRevenue = Math.floor(unitsSold * revenuePerUnit);
+      
+      totalRevenue += weeklyRevenue;
+      totalItemsSold += unitsSold;
+      
+      return {
+        ...m,
+        inventory: (m.inventory || 0) - unitsSold,
+        totalSold: (m.totalSold || 0) + unitsSold,
+        totalRevenue: (m.totalRevenue || 0) + weeklyRevenue,
+        weeksSelling: weeksSelling
+      };
+    }
+    
+    return { ...m, weeksSelling: weeksSelling };
+  });
+  
+  return {
+    merchandiseRevenue: totalRevenue,
+    itemsSold: totalItemsSold,
+    updatedMerchandise: updatedMerch
+  };
+}
+
+/**
  * Process week effects - Phase 3 (Added radio play, label deals, enhanced song processing)
  * @param {Object} state - Current game state
  * @param {Object} gameData - Game data (for genres, etc.)
@@ -454,15 +521,22 @@ export function processWeekEffects(state, gameData = {}) {
   const songStreamingRevenue = calculateSongStreamingRevenue(agedSongs, state);
   const { radioPlays, radioRevenue } = calculateRadioPlays(agedSongs);
   const albumRevenue = calculateAlbumStreamingRevenue(agedAlbums, state);
+  const { merchandiseRevenue, itemsSold, updatedMerchandise } = calculateMerchandiseRevenue(
+    state.merchandise || [],
+    state
+  );
   
-  // Calculate gross revenue (before label split)
-  const grossRevenue = songStreamingRevenue + radioRevenue + albumRevenue;
+  // Calculate gross music revenue (before label split) - merchandise is separate
+  const grossMusicRevenue = songStreamingRevenue + radioRevenue + albumRevenue;
   
-  // Apply label royalty split if under contract
-  const { netRevenue, labelRoyaltySplit } = calculateLabelRoyaltySplit(
-    grossRevenue, 
+  // Apply label royalty split if under contract (only to music revenue, not merchandise)
+  const { netRevenue: netMusicRevenue, labelRoyaltySplit } = calculateLabelRoyaltySplit(
+    grossMusicRevenue, 
     state.labelDeal
   );
+  
+  // Total net revenue (music + merchandise)
+  const netRevenue = netMusicRevenue + merchandiseRevenue;
   
   // Calculate fan growth
   const fanGrowth = calculateFanGrowth(state, agedSongs);
@@ -481,11 +555,15 @@ export function processWeekEffects(state, gameData = {}) {
     ? `\n- Label Royalty Split: -$${labelRoyaltySplit.toLocaleString()}`
     : '';
   
+  const merchandiseNote = merchandiseRevenue > 0
+    ? `\n- Merchandise Sales: $${merchandiseRevenue.toLocaleString()} (${itemsSold} items)`
+    : '';
+  
   const summary = `Week ${(state.week || 0) + 1} Summary:
 - Expenses: $${weeklyExpenses.toLocaleString()}
 - Song Streaming: $${songStreamingRevenue.toLocaleString()}
 - Radio Plays: ${radioPlays} ($${radioRevenue.toLocaleString()})
-- Album Revenue: $${albumRevenue.toLocaleString()}${labelNote}
+- Album Revenue: $${albumRevenue.toLocaleString()}${merchandiseNote}${labelNote}
 - Net Revenue: $${netRevenue.toLocaleString()}
 - Net: ${netChange >= 0 ? '+' : ''}$${netChange.toLocaleString()}
 - Fan Growth: +${fanGrowth}
@@ -499,6 +577,7 @@ export function processWeekEffects(state, gameData = {}) {
       fans: newFans,
       songs: agedSongs,
       albums: agedAlbums,
+      merchandise: updatedMerchandise,
       trend: trendResult.trend,
       genreTrends: trendResult.genreTrends,
       weeklyExpenses,
