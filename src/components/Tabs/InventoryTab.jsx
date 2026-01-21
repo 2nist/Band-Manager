@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import { Music, Plus } from 'lucide-react';
+import { Music, Plus, Zap } from 'lucide-react';
+import { useMusicGeneration } from '../../hooks/useMusicGeneration';
+import { SongPlaybackPanel } from '../SongPlaybackPanel';
 
 /**
- * InventoryTab.jsx - Songs and albums management
+ * InventoryTab.jsx - Songs and albums management with procedural generation
  * 
  * Displays:
  * - List of recorded songs with quality metrics
  * - Released albums
  * - Music library statistics
- * - ACTION: Write new songs
+ * - ACTION: Write new songs (Basic or Procedural)
  * - ACTION: Create albums
+ * 
+ * Integration: Merged procedural music system (Tone.js synthesis, MIDI export)
  */
 export const InventoryTab = ({ gameData, recordingSystem, gameState }) => {
   const [showSongForm, setShowSongForm] = useState(false);
@@ -17,17 +21,52 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState }) => {
   const [songGenre, setSongGenre] = useState('Rock');
   const [albumName, setAlbumName] = useState('');
   const [selectedSongs, setSelectedSongs] = useState([]);
+  
+  // Procedural music generation
+  const musicGeneration = useMusicGeneration();
+  const [generatingMode, setGeneratingMode] = useState('legacy');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedSong, setGeneratedSong] = useState(null);
+  const [showPlaybackPanel, setShowPlaybackPanel] = useState(false);
 
-  const handleWriteSong = () => {
+  const handleWriteSong = async () => {
     if (!songName.trim()) {
       alert('Enter a song name');
       return;
     }
 
-    const result = recordingSystem?.recordSong?.(songName, songGenre);
-    if (result?.success) {
-      setSongName('');
-      setShowSongForm(false);
+    setIsGenerating(true);
+
+    try {
+      if (generatingMode === 'procedural' && musicGeneration?.generateSong) {
+        // Procedural generation with constraint-based music
+        const song = await musicGeneration.generateSong({
+          title: songName,
+          genre: songGenre,
+          gameState: gameState?.state || {}
+        });
+
+        if (song) {
+          setGeneratedSong(song);
+          setShowPlaybackPanel(true);
+          setSongName('');
+          setShowSongForm(false);
+        } else {
+          alert('Failed to generate song');
+        }
+      } else {
+        // Legacy basic song generation
+        const result = recordingSystem?.recordSong?.(songName, songGenre);
+        if (result?.success) {
+          setSongName('');
+          setShowSongForm(false);
+        }
+      }
+    } catch (error) {
+      console.error('Song generation failed:', error);
+      alert('Error generating song: ' + error.message);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -71,6 +110,39 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState }) => {
         {showSongForm && (
           <div className="bg-card border border-primary/30 p-6 rounded-lg mb-6">
             <div className="space-y-4">
+              {/* Generation Mode Toggle */}
+              <div>
+                <label className="block text-sm font-semibold mb-2">Generation Mode</label>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setGeneratingMode('legacy')}
+                    className={`flex-1 px-3 py-2 rounded-lg transition-all font-medium ${
+                      generatingMode === 'legacy'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    Basic
+                  </button>
+                  <button
+                    onClick={() => setGeneratingMode('procedural')}
+                    className={`flex-1 px-3 py-2 rounded-lg transition-all font-medium flex items-center justify-center gap-1 ${
+                      generatingMode === 'procedural'
+                        ? 'bg-secondary text-secondary-foreground'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    <Zap size={16} />
+                    Procedural
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {generatingMode === 'legacy'
+                    ? 'Quick basic song (instant)'
+                    : 'Advanced AI generation (constraint-based, audio playback)'}
+                </p>
+              </div>
+
               <div>
                 <label className="block text-sm font-semibold mb-2">Song Name</label>
                 <input
@@ -101,13 +173,19 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState }) => {
               <div className="flex gap-4">
                 <button
                   onClick={handleWriteSong}
-                  className="flex-1 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:opacity-90 font-semibold transition-all"
+                  disabled={isGenerating}
+                  className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-all ${
+                    isGenerating
+                      ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
+                      : 'bg-secondary text-secondary-foreground hover:opacity-90'
+                  }`}
                 >
-                  Record Song ($2,500)
+                  {isGenerating ? 'Generating...' : `${generatingMode === 'legacy' ? 'Record' : 'Generate'} Song ($2,500)`}
                 </button>
                 <button
                   onClick={() => setShowSongForm(false)}
-                  className="flex-1 px-4 py-2 bg-muted text-muted-foreground rounded-lg hover:bg-muted/80 transition-all"
+                  disabled={isGenerating}
+                  className="flex-1 px-4 py-2 bg-muted text-muted-foreground rounded-lg hover:bg-muted/80 transition-all disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -121,7 +199,7 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             {songs.map(song => (
               <div key={song.id} className="bg-card border border-primary/30 p-4 rounded-lg hover:border-primary/60 transition-all">
-                <h4 className="text-foreground font-semibold mb-2">{song.name}</h4>
+                <h4 className="text-foreground font-semibold mb-2">{song.name || song.title}</h4>
                 <p className="text-sm text-muted-foreground mb-1">Quality: <span className="text-accent font-medium">{song.quality}/10</span></p>
                 <p className="text-sm text-muted-foreground mb-3">Genre: {song.genre}</p>
                 <div className="flex gap-2">
@@ -144,6 +222,59 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState }) => {
           </div>
         ) : (
           <p className="text-muted-foreground mb-8">No songs recorded yet. Start writing!</p>
+        )}
+
+        {/* Playback Panel Modal for Generated Songs */}
+        {generatedSong && showPlaybackPanel && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-card border border-primary max-w-2xl w-full max-h-[90vh] overflow-y-auto rounded-lg">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-foreground">
+                    🎵 {generatedSong.title || 'Generated Song'}
+                  </h3>
+                  <button
+                    onClick={() => {
+                      setShowPlaybackPanel(false);
+                      setGeneratedSong(null);
+                    }}
+                    className="text-muted-foreground hover:text-foreground transition-colors text-2xl leading-none"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <SongPlaybackPanel
+                  song={generatedSong}
+                  gameState={gameState?.state || {}}
+                  dispatch={gameState?.updateGameState}
+                  onAccept={() => {
+                    // Add song to gameState
+                    if (gameState?.updateGameState) {
+                      const currentSongs = gameState.state?.songs || [];
+                      const newSong = {
+                        ...generatedSong,
+                        id: `song-${Date.now()}`,
+                        recordedWeek: gameState.state?.week || 0,
+                        totalEarnings: 0,
+                        totalStreams: 0
+                      };
+                      gameState.updateGameState({
+                        songs: [...currentSongs, newSong]
+                      });
+                    }
+
+                    // Close panel
+                    setShowPlaybackPanel(false);
+                    setGeneratedSong(null);
+
+                    // Show success message
+                    alert(`✓ "${generatedSong.title}" added to your songs!`);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
         )}
       </div>
 
