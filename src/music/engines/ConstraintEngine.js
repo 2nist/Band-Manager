@@ -80,6 +80,9 @@ export class ConstraintEngine {
       substance_use = 0
     } = psychState;
 
+    // Calculate corruption first
+    const corruption = 100 - moral_integrity;
+    
     return {
       // Stress affects timing precision and chaotic elements (0-100)
       stress,
@@ -88,7 +91,7 @@ export class ConstraintEngine {
       addictionRisk: addiction_risk,
       
       // Moral corruption (inverse of integrity) (0-100)
-      corruption: 100 - moral_integrity,
+      corruption,
       
       // Depression affects tempo and emotional valence (0-100)
       depression,

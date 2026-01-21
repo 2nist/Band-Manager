@@ -1,52 +1,28 @@
 /**
  * HarmonyEngine - Chordonomicon-based progression generation
  * 
- * Aggressively filters chord progressions by mode, valence, era, and
- * complexity. Applies gameplay constraints to select and customize
- * progressions based on band confidence, label pressure, and audience.
+ * Loads processed chord progressions from core dataset and applies
+ * constraint-based selection using psychological resonance and industry context.
  */
 
-import { SeededRandom } from '../utils/SeededRandom';
+import { SeededRandom } from '../utils/SeededRandom.js';
+import { loadDataset } from '../utils/loadDataset.js';
 
 export class HarmonyEngine {
-  // Curated chord progressions categorized by characteristics
-  static PROGRESSIONS = {
+  // Loaded progressions from processed dataset
+  static progressions = null;
+
+  // Fallback progressions
+  static FALLBACK_PROGRESSIONS = {
     major: {
       happy: [
         { chords: ['C', 'G', 'Am', 'F'], name: 'vi-IV-I-V', catchiness: 0.9, familiarity: 0.95, era: 'classic' },
-        { chords: ['I', 'V', 'vi', 'IV'], name: 'pop-progression', catchiness: 0.95, familiarity: 0.98, era: 'modern' },
         { chords: ['C', 'Am', 'F', 'G'], name: 'i-vi-IV-V', catchiness: 0.85, familiarity: 0.9, era: 'classic' },
-      ],
-      triumphant: [
-        { chords: ['C', 'F', 'C', 'G'], name: 'power-progression', catchiness: 0.8, familiarity: 0.75, era: 'rock' },
-        { chords: ['I', 'IV', 'V', 'I'], name: 'heroic-movement', catchiness: 0.75, familiarity: 0.8, era: 'classic' },
-      ],
-      complex: [
-        { chords: ['C', 'Em7', 'Am7', 'Dm7', 'G7'], name: 'jazz-standard', catchiness: 0.5, familiarity: 0.6, complexity: 'high' },
-        { chords: ['CM7', 'Bm7b5', 'E7', 'Am'], name: 'modal-interchange', catchiness: 0.4, familiarity: 0.5, complexity: 'high' },
       ]
     },
     minor: {
       melancholic: [
         { chords: ['Am', 'F', 'C', 'G'], name: 'minor-classic', catchiness: 0.85, familiarity: 0.9, era: 'classic' },
-        { chords: ['Em', 'Am', 'D', 'G'], name: 'folk-minor', catchiness: 0.75, familiarity: 0.8, era: 'folk' },
-      ],
-      dark: [
-        { chords: ['Am', 'G', 'F', 'E'], name: 'descending-minor', catchiness: 0.7, familiarity: 0.75, darkness: 0.8 },
-        { chords: ['Em', 'Bb', 'F#m', 'B'], name: 'tritone-walk', catchiness: 0.5, familiarity: 0.4, darkness: 0.95 },
-      ],
-      complex: [
-        { chords: ['Am(maj7)', 'Bbmaj7', 'Am(maj7)', 'Gm7'], name: 'advanced-modal', catchiness: 0.4, familiarity: 0.3, complexity: 'high' },
-      ]
-    },
-    mixolydian: {
-      funky: [
-        { chords: ['D', 'D', 'A', 'D'], name: 'dominant-groove', catchiness: 0.8, familiarity: 0.7, genre: 'funk' },
-      ]
-    },
-    dorian: {
-      sultry: [
-        { chords: ['Dm', 'G', 'Dm', 'A'], name: 'dorian-groove', catchiness: 0.75, familiarity: 0.6, genre: 'jazz' },
       ]
     }
   };
@@ -64,14 +40,82 @@ export class HarmonyEngine {
   };
 
   /**
+   * Load progressions from processed dataset
+   */
+  static async loadProgressions() {
+    if (this.progressions !== null) {
+      return this.progressions;
+    }
+
+    try {
+      // Load dataset (works in both Node.js and browser)
+      const data = await loadDataset('progressions');
+      
+      if (!data) {
+        throw new Error('Failed to load dataset');
+      }
+      
+      this.progressions = (data || []).filter(prog => {
+        // Filter out invalid progressions
+        return prog.chords && Array.isArray(prog.chords) && prog.chords.length > 0;
+      });
+
+      if (this.progressions.length === 0) {
+        console.warn('No valid progressions in dataset, using fallback');
+        this.progressions = this._convertFallbackToEnhanced();
+      } else {
+        console.log(`Loaded ${this.progressions.length} progressions from dataset`);
+      }
+    } catch (error) {
+      console.error('Failed to load progressions:', error);
+      this.progressions = this._convertFallbackToEnhanced();
+    }
+
+    return this.progressions;
+  }
+
+  /**
+   * Convert fallback progressions to enhanced schema format
+   */
+  static _convertFallbackToEnhanced() {
+    const enhanced = [];
+    Object.values(this.FALLBACK_PROGRESSIONS).forEach(modeData => {
+      Object.values(modeData).forEach(category => {
+        category.forEach(prog => {
+          enhanced.push({
+            ...prog,
+            mode: prog.mode || 'major',
+            psychological_resonance: {
+              corruption_level: prog.mode === 'minor' ? 0.6 : 0.2,
+              addiction_spiral: 0.4,
+              depression_weight: prog.mode === 'minor' ? 0.7 : 0.3,
+              manic_energy: 0.4,
+              paranoia_tension: 0.3,
+              redemption_potential: prog.mode === 'major' ? 0.8 : 0.4
+            },
+            industry_context: {
+              commercial_safety: prog.catchiness > 0.8 ? 0.9 : 0.6,
+              underground_cred: prog.catchiness < 0.6 ? 0.7 : 0.3,
+              label_friendly: prog.catchiness > 0.7 ? 0.9 : 0.4,
+              experimental_factor: 0.2
+            }
+          });
+        });
+      });
+    });
+    return enhanced;
+  }
+
+  /**
    * Generate chord progression based on constraints
    * @param {Object} constraints - Constraints from ConstraintEngine
    * @param {string} genre - Genre to generate for
    * @param {string} seed - Random seed for reproducibility
    * @returns {Object} Generated progression
    */
-  static generate(constraints, genre = 'rock', seed = '') {
+  static async generate(constraints, genre = 'rock', seed = '') {
     const rng = new SeededRandom(seed);
+    const progressions = await this.loadProgressions();
     
     // Get genre preferences
     const genrePrefs = this.GENRE_PREFERENCES[genre] || this.GENRE_PREFERENCES.rock;
@@ -79,28 +123,163 @@ export class HarmonyEngine {
     // Select mode based on genre and emotional state
     const mode = this._selectMode(genrePrefs, constraints, rng);
     
-    // Filter progressions by mode and constraints
-    let candidates = this._filterProgressions(mode, constraints, genrePrefs, rng);
+    // Filter progressions by constraints using enhanced schema
+    let candidates = this._filterByConstraints(progressions, mode, constraints, genrePrefs, rng);
     
     if (candidates.length === 0) {
-      // Fallback if no progressions match
-      const allModes = this.PROGRESSIONS[mode] || {};
-      const allProgs = Object.values(allModes).flat();
-      candidates = allProgs;
+      // Fallback: use any progression in the mode
+      candidates = progressions.filter(p => (p.mode || 'major') === mode);
+      if (candidates.length === 0) {
+        candidates = this._convertFallbackToEnhanced();
+      }
     }
     
     // Weight and select progression
-    const progression = this._selectProgression(candidates, constraints, rng);
+    const progression = this._selectWeightedProgression(candidates, constraints, rng);
     
     // Customize based on band psychology
     const customized = this._customizeProgression(progression, constraints, rng);
     
     return {
       progression: customized,
-      mode,
+      mode: customized.mode || mode,
       genre,
       timestamp: Date.now()
     };
+  }
+
+  /**
+   * Filter progressions by constraints using enhanced schema fields
+   */
+  static _filterByConstraints(progressions, mode, constraints, genrePrefs, rng) {
+    const { bandConstraints = {}, psychConstraints = {}, industryConstraints = {} } = constraints;
+    const { confidence = 50 } = bandConstraints;
+    const { labelPressure = 0 } = industryConstraints;
+    const { depression = 0, burnout = 0 } = psychConstraints;
+    const corruption = psychConstraints.corruption || 0;
+
+    return progressions.filter(prog => {
+      // Filter by mode
+      if ((prog.mode || 'major') !== mode) {
+        return false;
+      }
+
+      // Filter by complexity (genre preferences)
+      const progComplexity = prog.complexity || 0.5;
+      if (genrePrefs.complexity === 'simple' && progComplexity > 0.6) {
+        return false;
+      }
+      if (genrePrefs.complexity === 'high' && progComplexity < 0.4) {
+        return false;
+      }
+
+      // Filter by confidence level
+      if (confidence < 30) {
+        // Low confidence = stick to familiar progressions
+        if ((prog.familiarity || 0.5) < 0.7) {
+          return false;
+        }
+      }
+
+      // Filter by label pressure (commercial viability)
+      if (labelPressure > 70) {
+        const commercialSafety = prog.industry_context?.commercial_safety || 0.5;
+        if (commercialSafety < 0.6) {
+          return false; // Need commercially safe progressions
+        }
+      }
+
+      // Filter by psychological resonance
+      if (depression > 60) {
+        // Prefer progressions with higher depression_weight
+        const depWeight = prog.psychological_resonance?.depression_weight || 0;
+        if (depWeight < 0.4) {
+          return false; // Not depressive enough
+        }
+      }
+
+      const corruption = psychConstraints.corruption || 0;
+      if (corruption > 60) {
+        // Prefer progressions with higher corruption_level
+        const corrLevel = prog.psychological_resonance?.corruption_level || 0;
+        if (corrLevel < 0.4) {
+          return false; // Not dark enough
+        }
+      }
+
+      // Filter by burnout (prefer familiar if burned out)
+      if (burnout > 60) {
+        if ((prog.familiarity || 0.5) < 0.6) {
+          return false; // Need familiar progressions
+        }
+      }
+
+      return true;
+    });
+  }
+
+  /**
+   * Select progression using weighted random based on constraint fit
+   */
+  static _selectWeightedProgression(candidates, constraints, rng) {
+    if (candidates.length === 0) {
+      return { chords: ['C', 'G', 'Am', 'F'], name: 'default', mode: 'major' };
+    }
+
+    const { psychConstraints = {}, industryConstraints = {} } = constraints;
+    const { burnout = 0, depression = 0 } = psychConstraints;
+    const corruption = psychConstraints.corruption || 0;
+    const { labelPressure = 0 } = industryConstraints;
+
+    // Calculate weights for each candidate
+    const weights = candidates.map(prog => {
+      let weight = 1.0;
+
+      // Prefer progressions matching label expectations
+      if (labelPressure > 50) {
+        const commercialSafety = prog.industry_context?.commercial_safety || 0.5;
+        weight *= (0.5 + commercialSafety);
+      }
+
+      // Prefer familiar progressions if burned out
+      if (burnout > 60) {
+        weight *= (0.5 + (prog.familiarity || 0.5) * 1.5);
+      }
+
+      // Prefer catchiness for commercial appeal
+      if (labelPressure > 70) {
+        weight *= (0.5 + (prog.catchiness || 0.5));
+      }
+
+      // Match psychological resonance
+      if (depression > 60) {
+        const depWeight = prog.psychological_resonance?.depression_weight || 0;
+        weight *= (0.7 + depWeight * 0.3);
+      }
+
+      if (corruption > 60) {
+        const corrLevel = prog.psychological_resonance?.corruption_level || 0;
+        weight *= (0.7 + corrLevel * 0.3);
+      }
+
+      // Add randomness
+      weight *= (0.7 + rng.next() * 0.3);
+
+      return weight;
+    });
+
+    // Weighted random selection
+    const totalWeight = weights.reduce((a, b) => a + b, 0);
+    let selection = rng.next() * totalWeight;
+
+    for (let i = 0; i < candidates.length; i++) {
+      selection -= weights[i];
+      if (selection <= 0) {
+        return candidates[i];
+      }
+    }
+
+    return candidates[candidates.length - 1];
   }
 
   /**
@@ -123,119 +302,31 @@ export class HarmonyEngine {
   }
 
   /**
-   * Filter progressions by multiple criteria
-   */
-  static _filterProgressions(mode, constraints, genrePrefs, rng) {
-    const { bandConstraints = {}, psychConstraints = {}, industryConstraints = {} } = constraints;
-    const { confidence = 50 } = bandConstraints;
-    const { labelPressure = 0 } = industryConstraints;
-    
-    const modeProgressions = this.PROGRESSIONS[mode] || {};
-    let candidates = [];
-    
-    // Collect all progressions in this mode
-    Object.values(modeProgressions).forEach(category => {
-      candidates = candidates.concat(category);
-    });
-    
-    // Filter by confidence level
-    if (confidence < 30) {
-      // Low confidence = stick to simple, familiar progressions
-      candidates = candidates.filter(p => p.familiarity > 0.8 && p.complexity !== 'high');
-    } else if (confidence > 75) {
-      // High confidence = can attempt experimental progressions
-      candidates = candidates.concat(this._getExperimentalProgressions(mode));
-    }
-    
-    // Filter by label pressure (commercial viability)
-    if (labelPressure > 70) {
-      candidates = candidates.filter(p => p.catchiness > 0.6 && p.familiarity > 0.5);
-    }
-    
-    // Filter by genre preferences
-    if (genrePrefs.complexity === 'simple') {
-      candidates = candidates.filter(p => p.complexity !== 'high');
-    } else if (genrePrefs.complexity === 'high') {
-      candidates = candidates.filter(p => p.complexity !== 'simple' || p.familiarity < 0.5);
-    }
-    
-    return candidates;
-  }
-
-  /**
-   * Weight and select progression from candidates
-   */
-  static _selectProgression(candidates, constraints, rng) {
-    if (candidates.length === 0) {
-      return { chords: ['C', 'G', 'Am', 'F'], name: 'default' };
-    }
-    
-    // Calculate weights for each candidate
-    const weights = candidates.map(progression => {
-      let weight = 1.0;
-      
-      // Prefer progressions matching label expectations
-      if (constraints.industryConstraints?.labelPressure > 50) {
-        weight *= progression.catchiness || 0.5;
-      }
-      
-      // Prefer familiar progressions if burned out
-      if (constraints.psychConstraints?.burnout > 60) {
-        weight *= (progression.familiarity || 0.5) * 1.5;
-      }
-      
-      // Some randomness in selection
-      weight *= rng.next() * 0.5 + 0.5;
-      
-      return weight;
-    });
-    
-    // Weighted random selection
-    const totalWeight = weights.reduce((a, b) => a + b, 0);
-    let selection = rng.next() * totalWeight;
-    
-    for (let i = 0; i < candidates.length; i++) {
-      selection -= weights[i];
-      if (selection <= 0) {
-        return candidates[i];
-      }
-    }
-    
-    return candidates[candidates.length - 1];
-  }
-
-  /**
    * Customize progression based on psychology
    */
   static _customizeProgression(progression, constraints, rng) {
     const { psychConstraints = {} } = constraints;
-    const { paranoia = 0, addiction = 0 } = psychConstraints;
+    const { paranoia = 0, addictionRisk = 0 } = psychConstraints;
     
     const customized = { ...progression };
     
-    // High paranoia might add tritone/dissonant intervals
+    // High paranoia might add harmonic tension
     if (paranoia > 75) {
-      // Add harmonic tension (simplified - just note for now)
       customized.harmonic_tension = 'high';
+      // Increase dissonance if not already high
+      if (customized.harmonic_analysis) {
+        customized.harmonic_analysis.dissonance_level = Math.min(1, 
+          (customized.harmonic_analysis.dissonance_level || 0) + 0.3
+        );
+      }
     }
     
     // Addiction can create chaotic harmonic choices
-    if (addiction > 60) {
+    if (addictionRisk > 60) {
       customized.has_unusual_substitution = true;
     }
     
     return customized;
-  }
-
-  /**
-   * Get experimental progressions for confident bands
-   */
-  static _getExperimentalProgressions(mode) {
-    return [
-      { chords: ['Cmaj7', 'D7alt', 'Gm7', 'C'], name: 'experimental-1', complexity: 'high', catchiness: 0.4 },
-      { chords: ['Am', 'B7b9', 'E7', 'Am'], name: 'experimental-2', complexity: 'high', catchiness: 0.3 },
-      { chords: ['Dm7', 'Eb7', 'Cm7', 'B7'], name: 'chromatic-descent', complexity: 'high', darkness: 0.7 },
-    ];
   }
 
   /**
@@ -244,7 +335,8 @@ export class HarmonyEngine {
   static calculateCommercialViability(progression) {
     const familiarity = progression.familiarity || 0.5;
     const catchiness = progression.catchiness || 0.5;
-    return familiarity * 0.4 + catchiness * 0.6;
+    const commercialSafety = progression.industry_context?.commercial_safety || 0.5;
+    return (familiarity * 0.3 + catchiness * 0.4 + commercialSafety * 0.3);
   }
 
   /**

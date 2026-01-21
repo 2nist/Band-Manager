@@ -1,4 +1,5 @@
 import { FIRST_NAMES, LAST_NAMES } from './constants';
+import { getAvatarUrl as getAvataaarsUrl, generateAvatarConfig, getAvatarUrlFromConfig } from './avatarConfig.js';
 
 // Font loading utility
 export const ensureFontLoaded = (fontName) => {
@@ -18,8 +19,14 @@ export const randomFrom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 export const randStat = (min = 2.5, max = 6) => Math.round((min + Math.random() * (max - min)) * 10) / 10;
 export const clampStat = (v) => Math.max(1, Math.min(10, Math.round(v * 10) / 10));
 
-// Avatar URL generation
-export const getAvatarUrl = (seed, style = 'open-peeps', role = null) => {
+// Avatar URL generation (enhanced with Avataaars support)
+export const getAvatarUrl = (seed, style = 'avataaars', role = null, personality = null) => {
+  // Use new Avataaars system by default
+  if (style === 'avataaars' || style === 'avataaars-style' || !style) {
+    return getAvataaarsUrl(seed, style, role, personality);
+  }
+  
+  // Fallback to original DiceBear system for other styles
   const avatarStyle = style || 'open-peeps';
   const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const hairColors = ['1b1b1b', '2c1810', '8b4513', '4a3728', '000000', '3d2817', '5d4037'];
@@ -89,6 +96,10 @@ export const buildMember = (role, personalities = []) => {
   };
   const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
   const fullName = `${firstName} ${lastName}`;
+  
+  // Generate avatar config based on name and personality
+  const avatarConfig = generateAvatarConfig(fullName, personality);
+  
   return {
     id,
     role,
@@ -99,7 +110,8 @@ export const buildMember = (role, personalities = []) => {
     stats,
     name: fullName,
     avatarSeed: fullName,
-    avatarStyle: 'open-peeps'
+    avatarStyle: 'avataaars',
+    avatarConfig: avatarConfig // Store config for customization
   };
 };
 

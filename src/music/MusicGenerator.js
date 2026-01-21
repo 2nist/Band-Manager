@@ -7,11 +7,11 @@
  * Phase 1: Instrumental only (vocals added in Phase 2)
  */
 
-import { ConstraintEngine } from './engines/ConstraintEngine';
-import { DrumEngine } from './engines/DrumEngine';
-import { HarmonyEngine } from './engines/HarmonyEngine';
-import { MelodyEngine } from './engines/MelodyEngine';
-import { SeededRandom } from './utils/SeededRandom';
+import { ConstraintEngine } from './engines/ConstraintEngine.js';
+import { DrumEngine } from './engines/DrumEngine.js';
+import { HarmonyEngine } from './engines/HarmonyEngine.js';
+import { MelodyEngine } from './engines/MelodyEngine.js';
+import { SeededRandom } from './utils/SeededRandom.js';
 
 export class MusicGenerator {
   /**
@@ -19,9 +19,9 @@ export class MusicGenerator {
    * @param {Object} gameState - Current game state
    * @param {string} genre - Musical genre (rock, punk, funk, metal, folk, jazz)
    * @param {Object} options - Generation options
-   * @returns {Object} Complete song data
+   * @returns {Promise<Object>} Complete song data
    */
-  static generateSong(gameState, genre = 'rock', options = {}) {
+  static async generateSong(gameState, genre = 'rock', options = {}) {
     const {
       seed = '',
       songName = `${gameState.bandName || 'Untitled'} - ${new Date().toLocaleDateString()}`,
@@ -34,20 +34,13 @@ export class MusicGenerator {
     // Step 1: Extract constraints from game state
     const constraints = ConstraintEngine.generateConstraints(gameState);
 
-    // Step 2: Generate individual components with derived seeds
-    const drums = DrumEngine.generate(
-      constraints,
-      genre,
-      `${masterSeed}-drums`
-    );
+    // Step 2: Generate individual components with derived seeds (parallel for speed)
+    const [drums, harmony] = await Promise.all([
+      DrumEngine.generate(constraints, genre, `${masterSeed}-drums`),
+      HarmonyEngine.generate(constraints, genre, `${masterSeed}-harmony`)
+    ]);
 
-    const harmony = HarmonyEngine.generate(
-      constraints,
-      genre,
-      `${masterSeed}-harmony`
-    );
-
-    const melody = MelodyEngine.assemble(
+    const melody = await MelodyEngine.assemble(
       harmony,
       constraints,
       `${masterSeed}-melody`
@@ -69,7 +62,9 @@ export class MusicGenerator {
         bandSkill: constraints.bandConstraints.overallSkill,
         bandConfidence: constraints.bandConstraints.confidence,
         psychologicalState: constraints.psychConstraints,
-        industryPressure: constraints.industryConstraints
+        industryPressure: constraints.industryConstraints,
+        bandMembers: gameState.bandMembers || gameState.members || [],
+        members: gameState.bandMembers || gameState.members || []
       },
 
       musicalContent: {
@@ -100,14 +95,14 @@ export class MusicGenerator {
   /**
    * Generate multiple songs for album
    */
-  static generateAlbum(gameState, genre = 'rock', options = {}) {
+  static async generateAlbum(gameState, genre = 'rock', options = {}) {
     const { trackCount = 10 } = options;
     
     const tracks = [];
     
     for (let i = 0; i < trackCount; i++) {
       const trackSeed = `${options.seed || gameState.bandName}-track-${i}`;
-      const track = this.generateSong(gameState, genre, {
+      const track = await this.generateSong(gameState, genre, {
         ...options,
         seed: trackSeed,
         songName: `Track ${i + 1}`

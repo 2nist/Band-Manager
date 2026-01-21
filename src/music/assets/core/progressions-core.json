@@ -1,0 +1,1382 @@
+[
+  {
+    "chords": [
+      "Fsmin"
+    ],
+    "name": "Intro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "neutral",
+    "era": "classic",
+    "mode": "minor",
+    "psychological_resonance": {
+      "corruption_level": 0.32000000000000006,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0.36000000000000004,
+      "manic_energy": 0,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.4
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975707
+  },
+  {
+    "chords": [
+      "C"
+    ],
+    "name": "Intro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975712
+  },
+  {
+    "chords": [
+      "F"
+    ],
+    "name": "Outro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975714
+  },
+  {
+    "chords": [
+      "Emin"
+    ],
+    "name": "Intro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "neutral",
+    "era": "classic",
+    "mode": "minor",
+    "psychological_resonance": {
+      "corruption_level": 0.32000000000000006,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0.36000000000000004,
+      "manic_energy": 0,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.4
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975722
+  },
+  {
+    "chords": [
+      "E"
+    ],
+    "name": "Intro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975724
+  },
+  {
+    "chords": [
+      "Bmin"
+    ],
+    "name": "Verse",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "neutral",
+    "era": "classic",
+    "mode": "minor",
+    "psychological_resonance": {
+      "corruption_level": 0.32000000000000006,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0.36000000000000004,
+      "manic_energy": 0,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.4
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975726
+  },
+  {
+    "chords": [
+      "Bb"
+    ],
+    "name": "Intro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975727
+  },
+  {
+    "chords": [
+      "Cmin"
+    ],
+    "name": "Intro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "neutral",
+    "era": "classic",
+    "mode": "minor",
+    "psychological_resonance": {
+      "corruption_level": 0.32000000000000006,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0.36000000000000004,
+      "manic_energy": 0,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.4
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975729
+  },
+  {
+    "chords": [
+      "Db"
+    ],
+    "name": "Interlude",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975737
+  },
+  {
+    "chords": [
+      "Amin"
+    ],
+    "name": "Intro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "neutral",
+    "era": "classic",
+    "mode": "minor",
+    "psychological_resonance": {
+      "corruption_level": 0.32000000000000006,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0.36000000000000004,
+      "manic_energy": 0,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.4
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975744
+  },
+  {
+    "chords": [
+      "Amin/E"
+    ],
+    "name": "Verse",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "neutral",
+    "era": "classic",
+    "mode": "minor",
+    "psychological_resonance": {
+      "corruption_level": 0.32000000000000006,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0.36000000000000004,
+      "manic_energy": 0,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.4
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975747
+  },
+  {
+    "chords": [
+      "A"
+    ],
+    "name": "Chorus",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975751
+  },
+  {
+    "chords": [
+      "B"
+    ],
+    "name": "Chorus",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975755
+  },
+  {
+    "chords": [
+      "G"
+    ],
+    "name": "Intro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975758
+  },
+  {
+    "chords": [
+      "D"
+    ],
+    "name": "Chorus",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975758
+  },
+  {
+    "chords": [
+      "Eno3d"
+    ],
+    "name": "Chorus",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975764
+  },
+  {
+    "chords": [
+      "Dmin"
+    ],
+    "name": "Intro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "neutral",
+    "era": "classic",
+    "mode": "minor",
+    "psychological_resonance": {
+      "corruption_level": 0.32000000000000006,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0.36000000000000004,
+      "manic_energy": 0,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.4
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975848
+  },
+  {
+    "chords": [
+      "Ano3d"
+    ],
+    "name": "Intro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975872
+  },
+  {
+    "chords": [
+      "Eb"
+    ],
+    "name": "Intro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975883
+  },
+  {
+    "chords": [
+      "Gsmin"
+    ],
+    "name": "Outro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "neutral",
+    "era": "classic",
+    "mode": "minor",
+    "psychological_resonance": {
+      "corruption_level": 0.32000000000000006,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0.36000000000000004,
+      "manic_energy": 0,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.4
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975884
+  },
+  {
+    "chords": [
+      "Cs"
+    ],
+    "name": "Verse",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975890
+  },
+  {
+    "chords": [
+      "Csmin"
+    ],
+    "name": "Intro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "neutral",
+    "era": "classic",
+    "mode": "minor",
+    "psychological_resonance": {
+      "corruption_level": 0.32000000000000006,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0.36000000000000004,
+      "manic_energy": 0,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.4
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975902
+  },
+  {
+    "chords": [
+      "Gno3d"
+    ],
+    "name": "Intro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975912
+  },
+  {
+    "chords": [
+      "Ab"
+    ],
+    "name": "Intro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975914
+  },
+  {
+    "chords": [
+      "Fs"
+    ],
+    "name": "Intro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975922
+  },
+  {
+    "chords": [
+      "Bno3d"
+    ],
+    "name": "Bridge",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975940
+  },
+  {
+    "chords": [
+      "Gs"
+    ],
+    "name": "Instrumental",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975953
+  },
+  {
+    "chords": [
+      "Asus4"
+    ],
+    "name": "Instrumental",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975973
+  },
+  {
+    "chords": [
+      "Dsmin"
+    ],
+    "name": "Intro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "neutral",
+    "era": "classic",
+    "mode": "minor",
+    "psychological_resonance": {
+      "corruption_level": 0.32000000000000006,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0.36000000000000004,
+      "manic_energy": 0,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.4
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014975991
+  },
+  {
+    "chords": [
+      "Dno3d"
+    ],
+    "name": "Intro",
+    "catchiness": 1.1,
+    "familiarity": 1.2,
+    "complexity": -0.2,
+    "vibe": "energetic",
+    "era": "classic",
+    "mode": "major",
+    "psychological_resonance": {
+      "corruption_level": 0,
+      "addiction_spiral": 0.35,
+      "depression_weight": 0,
+      "manic_energy": 1,
+      "paranoia_tension": 0.3,
+      "redemption_potential": 0.8
+    },
+    "industry_context": {
+      "commercial_safety": 1.15,
+      "underground_cred": -0.14000000000000004,
+      "label_friendly": 0.9,
+      "experimental_factor": 0.2
+    },
+    "harmonic_analysis": {
+      "key_center_stability": 1.2,
+      "modulation_complexity": -0.4,
+      "resolution_strength": 0.5,
+      "dissonance_level": 0,
+      "voice_leading_quality": 1.2
+    },
+    "gameplay_adaptations": {
+      "skill_scalable": false,
+      "tempo_flexible": true,
+      "arrangement_hints": [
+        "acoustic",
+        "stripped_down"
+      ],
+      "emotional_pivot_points": [
+        0
+      ]
+    },
+    "source": "Chordonomicon",
+    "processed_at": 1769014976002
+  }
+]

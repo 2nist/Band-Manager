@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { generateRivalSongsForChart, generateRivalSong } from '../utils/rivalSongGenerator.js';
 
 /**
  * useRadioChartingSystem - Radio play, chart positioning, and charting mechanics
@@ -254,9 +255,67 @@ export const useRadioChartingSystem = (gameState, updateGameState, addLog) => {
   }, [gameState.songs, gameState.radioRotation]);
 
   /**
+   * Generate songs for rival bands if needed
+   * Called automatically when chart rankings are requested
+   */
+  const ensureRivalSongsGenerated = useCallback(async () => {
+    const rivalBands = gameState.rivalBands || [];
+    const rivalSongs = gameState.rivalSongs || {};
+    const week = gameState.week || 0;
+
+    // Find rivals that need songs generated
+    const rivalsNeedingSongs = rivalBands.filter(rival => {
+      const existingSong = rivalSongs[rival.id];
+      if (!existingSong) return true;
+      
+      // Regenerate if song is older than 4 weeks
+      const songAge = week - (existingSong.metadata?.generatedWeek || 0);
+      return songAge > 4;
+    });
+
+    if (rivalsNeedingSongs.length === 0) {
+      return; // All songs are up to date
+    }
+
+    try {
+      // Generate songs for rivals that need them (limit to top 20 for charts)
+      const songsToGenerate = rivalsNeedingSongs.slice(0, 20);
+      const generatedSongs = await Promise.all(
+        songsToGenerate.map(async (rival) => {
+          const song = await generateRivalSong(rival, {
+            week,
+            genre: rival.genre || 'rock',
+            seed: `${rival.id}-chart-${week}`
+          });
+          return { rivalId: rival.id, song };
+        })
+      );
+
+      // Update game state with new songs
+      const updatedRivalSongs = { ...rivalSongs };
+      generatedSongs.forEach(({ rivalId, song }) => {
+        updatedRivalSongs[rivalId] = {
+          ...song,
+          metadata: {
+            ...song.metadata,
+            generatedWeek: week
+          }
+        };
+      });
+
+      updateGameState({ rivalSongs: updatedRivalSongs });
+    } catch (error) {
+      console.error('Failed to generate rival songs:', error);
+      addLog('warning', 'Some rival songs could not be generated');
+    }
+  }, [gameState.rivalBands, gameState.rivalSongs, gameState.week, updateGameState, addLog]);
+
+  /**
    * Get official chart rankings
    */
-  const getChartRankings = useCallback((chartType = 'combined-chart') => {
+  const getChartRankings = useCallback(async (chartType = 'combined-chart') => {
+    // Ensure rival songs are generated before building chart
+    await ensureRivalSongsGenerated();
     const songs = gameState.songs || [];
     const radioRotations = gameState.radioRotation || [];
 
@@ -284,17 +343,38 @@ export const useRadioChartingSystem = (gameState, updateGameState, addLog) => {
       };
     });
 
-    // Add rival songs for context (simplified)
+    // Add rival songs from generated songs
     const rivalBands = gameState.rivalBands || [];
-    rivalBands.slice(0, 3).forEach((rival, idx) => {
-      rankings.push({
-        songId: `rival-${rival.id}`,
-        songName: `${rival.name}'s Hit`,
-        artistName: rival.name,
-        score: rival.prestige * (1000 + Math.random() * 5000),
-        streams: 0,
-        isYourSong: false
-      });
+    const rivalSongs = gameState.rivalSongs || {};
+    
+    rivalBands.slice(0, 20).forEach((rival) => {
+      const rivalSong = rivalSongs[rival.id];
+      
+      if (rivalSong) {
+        // Calculate score from generated song analysis
+        const qualityScore = rivalSong.analysis?.qualityScore || 50;
+        const commercialScore = rivalSong.analysis?.commercialViability || 50;
+        const originalityScore = rivalSong.analysis?.originalityScore || 50;
+        
+        // Combine scores with prestige for chart ranking
+        const songScore = (qualityScore * 100) + 
+                         (commercialScore * 80) + 
+                         (originalityScore * 40) +
+                         (rival.prestige || 50) * 10;
+        
+        // Calculate streams based on song quality and prestige
+        const streams = Math.floor(songScore * 2);
+        
+        rankings.push({
+          songId: `rival-${rival.id}`,
+          songName: rivalSong.metadata?.name || `${rival.name}'s Hit`,
+          artistName: rival.name,
+          score: songScore,
+          streams: streams,
+          isYourSong: false,
+          generatedSong: rivalSong // Store full song data for playback/export
+        });
+      }
     });
 
     // Sort by score descending
@@ -387,6 +467,8 @@ export const useRadioChartingSystem = (gameState, updateGameState, addLog) => {
     getChartPosition,
     getChartRankings,
     checkChartMilestone,
+    ensureRivalSongsGenerated,
+    ensureRivalSongsGenerated,
 
     // Stats
     getRadioChartingStats,

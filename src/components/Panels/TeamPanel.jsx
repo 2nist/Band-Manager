@@ -23,8 +23,8 @@ export const TeamPanel = ({ gameData }) => (
               src={getAvatarUrl(member.name, 'open-peeps')}
               alt={member.name}
               style={{
-                width: '40px',
-                height: '40px',
+                width: '50px',
+                height: '50px',
                 borderRadius: '0.375rem',
                 backgroundColor: 'rgba(131, 56, 236, 0.2)',
                 border: '2px solid rgba(131, 56, 236, 0.3)',

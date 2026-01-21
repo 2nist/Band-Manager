@@ -24,7 +24,9 @@ export const SongPlaybackPanel = ({
     if (song && gameState) {
       const reactions = FanReactionSystem.generateReactions(
         song,
-        gameState.fanbase
+        gameState.fanbase,
+        gameState.psychologicalState || gameState.psychState,
+        gameState
       );
       setReactionData(reactions);
 
@@ -204,13 +206,53 @@ export const SongPlaybackPanel = ({
             padding: '10px',
             borderRadius: '4px',
             marginTop: '12px',
-            borderLeft: '3px solid #0f0',
+            borderLeft: `3px solid ${reactionData?.gritty ? '#dc2626' : '#0f0'}`,
             fontSize: '0.85em',
             fontStyle: 'italic',
             color: '#aaa'
           }}>
             "{reactions.fanSpecific}"
           </div>
+
+          {/* Social Media Reactions (if gritty) */}
+          {reactionData?.gritty && reactions.socialMedia && (
+            <div style={{
+              marginTop: '12px',
+              padding: '12px',
+              backgroundColor: 'rgba(220, 38, 38, 0.1)',
+              borderRadius: '4px',
+              border: '1px solid rgba(220, 38, 38, 0.3)'
+            }}>
+              <div style={{ fontSize: '0.85em', color: '#dc2626', marginBottom: '8px', fontWeight: 'bold' }}>
+                Social Media Buzz
+              </div>
+              {reactions.socialMedia.tweets?.slice(0, 2).map((tweet, idx) => (
+                <div key={idx} style={{
+                  fontSize: '0.75em',
+                  color: '#888',
+                  marginBottom: '6px',
+                  padding: '6px',
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  borderRadius: '4px',
+                  fontStyle: 'italic'
+                }}>
+                  "{tweet}"
+                </div>
+              ))}
+              {reactions.socialMedia.controversial && (
+                <div style={{
+                  marginTop: '8px',
+                  padding: '6px',
+                  background: 'rgba(220, 38, 38, 0.2)',
+                  borderRadius: '4px',
+                  fontSize: '0.75em',
+                  color: '#dc2626'
+                }}>
+                  ⚠️ Controversial - This is generating heated debate
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -254,6 +296,36 @@ export const SongPlaybackPanel = ({
                 +${impact.moneyGain}
               </div>
             </div>
+
+            {/* Obsession Change (if gritty) */}
+            {reactionData?.gritty && impact.obsessionChange > 0 && (
+              <div style={{
+                backgroundColor: '#1a1a1a',
+                padding: '10px',
+                borderRadius: '4px',
+                borderLeft: '3px solid #dc2626'
+              }}>
+                <div style={{ fontSize: '0.8em', color: '#666' }}>OBSESSION LEVEL</div>
+                <div style={{ fontSize: '1.3em', fontWeight: 'bold', color: '#dc2626' }}>
+                  +{impact.obsessionChange}%
+                </div>
+              </div>
+            )}
+
+            {/* Controversy Level (if gritty) */}
+            {reactionData?.gritty && impact.controversyLevel > 0 && (
+              <div style={{
+                backgroundColor: '#1a1a1a',
+                padding: '10px',
+                borderRadius: '4px',
+                borderLeft: '3px solid #f59e0b'
+              }}>
+                <div style={{ fontSize: '0.8em', color: '#666' }}>CONTROVERSY</div>
+                <div style={{ fontSize: '1.3em', fontWeight: 'bold', color: '#f59e0b' }}>
+                  {impact.controversyLevel}%
+                </div>
+              </div>
+            )}
 
             {/* Band Effects */}
             <div style={{ gridColumn: '1 / -1' }}>

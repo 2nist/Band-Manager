@@ -1,81 +1,117 @@
 /**
  * DrumEngine - E-GMD-based drum pattern generation
  * 
- * Treats E-GMD dataset as probability fields for rhythm generation,
- * not raw playback. Extracts useful drum patterns and applies
- * skill-based mutations tied to gameplay psychology.
+ * Loads processed drum patterns from core dataset and applies
+ * constraint-based selection based on game psychology and band state.
  */
 
-import { SeededRandom } from '../utils/SeededRandom';
+import { SeededRandom } from '../utils/SeededRandom.js';
+import { loadDataset } from '../utils/loadDataset.js';
 
 export class DrumEngine {
-  // Preprocessed drum pattern templates organized by characteristics
-  static DRUM_PATTERNS = {
-    // Tempo buckets for different speeds
+  // Loaded patterns from processed dataset
+  static patterns = null;
+  
+  // Fallback patterns (used if dataset loading fails or patterns are invalid)
+  static FALLBACK_PATTERNS = {
     slow: {
       bpm: [60, 90],
       patterns: [
-        { id: 'slow_1', signature: '4/4', complexity: 'simple', kick: [0, 2], snare: [1, 3], hihat: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5] },
-        { id: 'slow_2', signature: '4/4', complexity: 'simple', kick: [0, 1.5, 2, 3.5], snare: [1, 3], hihat: [0, 1, 2, 3] },
+        { id: 'slow_1', signature: '4/4', complexity: 'simple', beats: { kick: [0, 2], snare: [1, 3], hihat: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5], ghostSnare: [] } },
+        { id: 'slow_2', signature: '4/4', complexity: 'simple', beats: { kick: [0, 1.5, 2, 3.5], snare: [1, 3], hihat: [0, 1, 2, 3], ghostSnare: [] } },
       ]
     },
     medium: {
       bpm: [90, 130],
       patterns: [
-        { id: 'medium_1', signature: '4/4', complexity: 'medium', kick: [0, 0.5, 2, 2.5, 3.5], snare: [1, 3], hihat: [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75] },
-        { id: 'medium_2', signature: '4/4', complexity: 'medium', kick: [0, 1, 2, 3], snare: [1, 2.5, 3], hihat: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5] },
-        { id: 'rock_groove', signature: '4/4', complexity: 'medium', kick: [0, 2], snare: [1, 3], hihat: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5] },
+        { id: 'medium_1', signature: '4/4', complexity: 'medium', beats: { kick: [0, 0.5, 2, 2.5, 3.5], snare: [1, 3], hihat: [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75], ghostSnare: [] } },
+        { id: 'rock_groove', signature: '4/4', complexity: 'medium', beats: { kick: [0, 2], snare: [1, 3], hihat: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5], ghostSnare: [] } },
       ]
     },
     fast: {
       bpm: [130, 180],
       patterns: [
-        { id: 'fast_1', signature: '4/4', complexity: 'complex', kick: [0, 0.33, 0.67, 1, 1.33, 1.67, 2, 2.5, 3, 3.5], snare: [1, 2, 3], hihat: [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75] },
-        { id: 'fast_2', signature: '4/4', complexity: 'complex', kick: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5], snare: [1, 1.5, 2.5, 3], hihat: [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75] },
-        { id: 'blast_beat', signature: '4/4', complexity: 'complex', kick: [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75], snare: [1, 3], hihat: [0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1, 1.125, 1.25, 1.375, 1.5, 1.625, 1.75, 1.875, 2, 2.125, 2.25, 2.375, 2.5, 2.625, 2.75, 2.875, 3, 3.125, 3.25, 3.375, 3.5, 3.625, 3.75, 3.875] },
+        { id: 'fast_1', signature: '4/4', complexity: 'complex', beats: { kick: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5], snare: [1, 1.5, 2.5, 3], hihat: [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75], ghostSnare: [] } },
       ]
     }
   };
 
-  // Genre-specific pattern collections
-  static GENRE_PATTERNS = {
-    rock: {
-      signatures: ['4/4'],
-      complexity: 'medium',
-      patternIds: ['rock_groove', 'medium_1', 'medium_2'],
-      characteristics: { swingAmount: 0, timingTightness: 0.9 }
-    },
-    punk: {
-      signatures: ['4/4'],
-      complexity: 'simple',
-      patternIds: ['medium_2', 'slow_2'],
-      characteristics: { swingAmount: 0, timingTightness: 0.7, energyLevel: 0.9 }
-    },
-    funk: {
-      signatures: ['4/4'],
-      complexity: 'high',
-      patternIds: ['fast_1', 'medium_1'],
-      characteristics: { swingAmount: 0.3, timingTightness: 0.6, grooveFeeling: 0.9 }
-    },
-    metal: {
-      signatures: ['4/4'],
-      complexity: 'complex',
-      patternIds: ['fast_2', 'blast_beat'],
-      characteristics: { swingAmount: 0, timingTightness: 0.95, powerLevel: 1.0 }
-    },
-    folk: {
-      signatures: ['4/4'],
-      complexity: 'simple',
-      patternIds: ['slow_1', 'slow_2', 'medium_2'],
-      characteristics: { swingAmount: 0.1, timingTightness: 0.8, organicFeeling: 0.8 }
-    },
-    jazz: {
-      signatures: ['4/4', '3/4'],
-      complexity: 'complex',
-      patternIds: ['medium_1', 'fast_1'],
-      characteristics: { swingAmount: 0.4, timingTightness: 0.5, improvisationSpace: 0.7 }
+  /**
+   * Load patterns from processed dataset
+   */
+  static async loadPatterns() {
+    if (this.patterns !== null) {
+      return this.patterns;
     }
-  };
+
+    try {
+      // Load dataset (works in both Node.js and browser)
+      const data = await loadDataset('drums');
+      
+      if (!data) {
+        throw new Error('Failed to load dataset');
+      }
+      
+      // Filter out patterns with empty beats (MIDI parsing issue)
+      this.patterns = (data || []).filter(pattern => {
+        const beats = pattern.beats || {};
+        const hasBeats = (beats.kick && beats.kick.length > 0) || 
+                        (beats.snare && beats.snare.length > 0) ||
+                        (beats.hihat && beats.hihat.length > 0);
+        return hasBeats;
+      });
+
+      // If no valid patterns, use fallback
+      if (this.patterns.length === 0) {
+        console.warn('No valid patterns in dataset, using fallback');
+        this.patterns = this._convertFallbackToEnhanced();
+      } else {
+        console.log(`Loaded ${this.patterns.length} drum patterns from dataset`);
+      }
+    } catch (error) {
+      console.error('Failed to load drum patterns:', error);
+      this.patterns = this._convertFallbackToEnhanced();
+    }
+
+    return this.patterns;
+  }
+
+  /**
+   * Convert fallback patterns to enhanced schema format
+   */
+  static _convertFallbackToEnhanced() {
+    const enhanced = [];
+    Object.values(this.FALLBACK_PATTERNS).forEach(bucket => {
+      bucket.patterns.forEach(pattern => {
+        enhanced.push({
+          ...pattern,
+          bpmRange: bucket.bpm,
+          psychological_tags: {
+            stress_appropriate: pattern.complexity === 'simple',
+            chaos_level: pattern.complexity === 'complex' ? 0.6 : 0.2,
+            confidence_required: pattern.complexity === 'complex' ? 0.7 : 0.3,
+            substance_vulnerability: pattern.complexity === 'complex' ? 0.6 : 0.3,
+            emotional_intensity: 0.5
+          },
+          genre_weights: {
+            rock: 0.7,
+            punk: 0.3,
+            folk: 0.3,
+            electronic: 0.2,
+            jazz: 0.2,
+            metal: 0.2
+          },
+          gameplay_hooks: {
+            fills: [3, 7],
+            humanization_targets: [],
+            showoff_moments: [3.5, 7.5],
+            simplification_safe: []
+          }
+        });
+      });
+    });
+    return enhanced;
+  }
 
   /**
    * Generate drum pattern based on game constraints
@@ -84,27 +120,190 @@ export class DrumEngine {
    * @param {string} seed - Random seed for reproducibility
    * @returns {Object} Generated drum pattern
    */
-  static generate(gameConstraints, genre = 'rock', seed = '') {
+  static async generate(gameConstraints, genre = 'rock', seed = '') {
     const rng = new SeededRandom(seed);
+    const patterns = await this.loadPatterns();
     
-    // Select pattern family based on tempo and genre
+    // Select tempo based on constraints
     const tempo = this._selectTempo(gameConstraints, rng);
-    const patternFamily = this._selectPatternFamily(tempo, genre, rng);
     
-    // Start with base pattern
-    let pattern = JSON.parse(JSON.stringify(patternFamily));
+    // Filter patterns by constraints
+    const candidates = this._filterByConstraints(patterns, gameConstraints, genre, tempo, rng);
     
-    // Apply skill-based mutations
-    pattern = this._applySkillMutations(pattern, gameConstraints, rng);
+    if (candidates.length === 0) {
+      // Fallback: use any pattern
+      const selected = patterns[Math.floor(rng.next() * patterns.length)] || this._getFallbackPattern(tempo);
+      return this._applyMutations(selected, gameConstraints, tempo, genre, rng);
+    }
     
-    // Apply psychological mutations
-    pattern = this._applyPsychMutations(pattern, gameConstraints, rng);
+    // Select from candidates using weighted random
+    const selected = this._selectWeightedPattern(candidates, gameConstraints, rng);
     
-    // Apply context-based adjustments
-    pattern = this._applyContextAdjustments(pattern, gameConstraints, rng);
+    // Apply mutations based on skill and psychology
+    return this._applyMutations(selected, gameConstraints, tempo, genre, rng);
+  }
+
+  /**
+   * Filter patterns by constraints using enhanced schema fields
+   */
+  static _filterByConstraints(patterns, constraints, genre, tempo, rng) {
+    const { psychConstraints = {}, bandConstraints = {} } = constraints;
+    const { stress = 0, substanceUse = 0, depression = 0 } = psychConstraints;
+    const { memberSkills = {}, overallSkill = 50 } = bandConstraints;
+    const drummerSkill = memberSkills.drummer || overallSkill;
+
+    return patterns.filter(pattern => {
+      // Filter by tempo range
+      const [minBpm, maxBpm] = pattern.bpmRange || [60, 180];
+      if (tempo < minBpm || tempo > maxBpm) {
+        return false;
+      }
+
+      // Filter by genre weights
+      const genreWeight = pattern.genre_weights?.[genre] || 0;
+      if (genreWeight < 0.2) {
+        return false; // Pattern doesn't fit genre
+      }
+
+      // Filter by stress tolerance
+      if (stress > 70 && !pattern.psychological_tags?.stress_appropriate) {
+        return false; // High stress needs stress-appropriate patterns
+      }
+
+      // Filter by skill requirement
+      const requiredSkill = (pattern.psychological_tags?.confidence_required || 0) * 100;
+      if (drummerSkill < requiredSkill) {
+        return false; // Drummer not skilled enough
+      }
+
+      // Filter by substance vulnerability (if high substance use, avoid vulnerable patterns)
+      if (substanceUse > 60 && (pattern.psychological_tags?.substance_vulnerability || 0) > 0.7) {
+        return false; // High substance use + vulnerable pattern = bad combination
+      }
+
+      return true;
+    });
+  }
+
+  /**
+   * Select pattern using weighted random based on constraint fit
+   */
+  static _selectWeightedPattern(candidates, constraints, rng) {
+    const { psychConstraints = {}, bandConstraints = {} } = constraints;
+    const { stress = 0, depression = 0 } = psychConstraints;
+    const { memberSkills = {}, overallSkill = 50 } = bandConstraints;
+    const drummerSkill = memberSkills.drummer || overallSkill;
+
+    // Calculate weights for each candidate
+    const weights = candidates.map(pattern => {
+      let weight = 1.0;
+
+      // Prefer patterns that match psychological state
+      if (stress > 50 && pattern.psychological_tags?.stress_appropriate) {
+        weight *= 1.5;
+      }
+
+      // Prefer patterns matching skill level
+      const skillMatch = 1 - Math.abs((pattern.psychological_tags?.confidence_required || 0) - (drummerSkill / 100));
+      weight *= (0.5 + skillMatch * 0.5);
+
+      // Prefer lower chaos if depressed
+      if (depression > 60) {
+        weight *= (1 - (pattern.psychological_tags?.chaos_level || 0) * 0.5);
+      }
+
+      // Add some randomness
+      weight *= (0.7 + rng.next() * 0.3);
+
+      return weight;
+    });
+
+    // Weighted random selection
+    const totalWeight = weights.reduce((a, b) => a + b, 0);
+    let selection = rng.next() * totalWeight;
+
+    for (let i = 0; i < candidates.length; i++) {
+      selection -= weights[i];
+      if (selection <= 0) {
+        return candidates[i];
+      }
+    }
+
+    return candidates[candidates.length - 1];
+  }
+
+  /**
+   * Apply mutations to selected pattern
+   */
+  static _applyMutations(pattern, constraints, tempo, genre, rng) {
+    const { psychConstraints = {}, bandConstraints = {}, contextConstraints = {} } = constraints;
+    const { memberSkills = {}, overallSkill = 50 } = bandConstraints;
+    const drummerSkill = memberSkills.drummer || overallSkill;
+    const { stress = 0, substanceUse = 0, depression = 0 } = psychConstraints;
+    const { equipmentQuality = 50 } = contextConstraints;
+
+    // Start with pattern copy
+    let mutated = JSON.parse(JSON.stringify(pattern));
     
+    // Ensure beats structure exists
+    if (!mutated.beats) {
+      mutated.beats = { kick: [], snare: [], hihat: [], ghostSnare: [] };
+    }
+
+    // Apply skill-based timing variations
+    const timingVariance = (100 - drummerSkill) * 0.005;
+    if (mutated.beats.kick) {
+      mutated.beats.kick = mutated.beats.kick.map(beat => beat + (rng.next() - 0.5) * timingVariance);
+    }
+    if (mutated.beats.snare) {
+      mutated.beats.snare = mutated.beats.snare.map(beat => beat + (rng.next() - 0.5) * timingVariance);
+    }
+    
+    // Add ghost notes if skilled enough
+    if (drummerSkill > 60 && mutated.beats.snare && mutated.beats.snare.length > 0) {
+      const ghostNoteChance = (drummerSkill - 60) / 40 * 0.3;
+      if (!mutated.beats.ghostSnare) mutated.beats.ghostSnare = [];
+      mutated.beats.snare.forEach(snareBeat => {
+        if (rng.next() < ghostNoteChance) {
+          mutated.beats.ghostSnare.push(snareBeat + (rng.next() - 0.5) * 0.2);
+        }
+      });
+    }
+
+    // Apply stress-based chaos
+    if (stress > 50) {
+      const chaosAmount = (stress - 50) * 0.01;
+      if (mutated.beats.kick) {
+        mutated.beats.kick = mutated.beats.kick.map(beat => beat + (rng.next() - 0.5) * chaosAmount);
+      }
+      if (mutated.beats.snare) {
+        mutated.beats.snare = mutated.beats.snare.map(beat => beat + (rng.next() - 0.5) * chaosAmount);
+      }
+    }
+
+    // Apply substance use effects
+    if (substanceUse > 40) {
+      const impulsiveness = substanceUse * 0.005;
+      if (rng.next() < impulsiveness && mutated.beats.kick && mutated.beats.kick.length > 0) {
+        const randomBeat = mutated.beats.kick[Math.floor(rng.next() * mutated.beats.kick.length)];
+        mutated.beats.kick.push(randomBeat + 0.1);
+        mutated.beats.kick.sort((a, b) => a - b);
+      }
+    }
+
+    // Apply depression (simplify)
+    if (depression > 60 && mutated.beats.hihat) {
+      mutated.beats.hihat = mutated.beats.hihat.slice(0, Math.ceil(mutated.beats.hihat.length * 0.7));
+    }
+
+    // Apply equipment quality effects
+    const precisionLoss = (100 - equipmentQuality) * 0.002;
+    if (mutated.beats.kick) {
+      mutated.beats.kick = mutated.beats.kick.map(beat => beat + (rng.next() - 0.5) * precisionLoss);
+    }
+
     return {
-      pattern,
+      pattern: mutated,
       tempo,
       genre,
       timestamp: Date.now()
@@ -115,119 +314,35 @@ export class DrumEngine {
    * Select appropriate tempo based on constraints
    */
   static _selectTempo(constraints, rng) {
-    const { psychConstraints = {}, bandConstraints = {}, industryConstraints = {} } = constraints;
+    const { psychConstraints = {}, bandConstraints = {} } = constraints;
+    const { depression = 0, substanceUse = 0 } = psychConstraints;
+    const { confidence = 50 } = bandConstraints;
     
-    // Base tempo influenced by depression and substance use
     let baseTempo = 120;
-    baseTempo -= psychConstraints.depression * 0.2; // Depression = slower
-    baseTempo += psychConstraints.substanceUse * 0.1; // Substances = faster/chaotic
+    baseTempo -= depression * 0.2; // Depression = slower
+    baseTempo += substanceUse * 0.1; // Substances = faster/chaotic
     
-    // Confidence affects tempo choice
-    if (bandConstraints.confidence > 75) {
-      baseTempo += rng.next() * 20; // Confident bands play faster
-    } else if (bandConstraints.confidence < 35) {
-      baseTempo -= rng.next() * 15; // Lacking confidence = slower
+    if (confidence > 75) {
+      baseTempo += rng.next() * 20;
+    } else if (confidence < 35) {
+      baseTempo -= rng.next() * 15;
     }
     
     return Math.max(60, Math.min(180, baseTempo));
   }
 
   /**
-   * Select pattern family from genre and tempo
+   * Get fallback pattern for tempo
    */
-  static _selectPatternFamily(tempo, genre, rng) {
-    const genrePatterns = this.GENRE_PATTERNS[genre] || this.GENRE_PATTERNS.rock;
-    const patternId = genrePatterns.patternIds[Math.floor(rng.next() * genrePatterns.patternIds.length)];
+  static _getFallbackPattern(tempo) {
+    let bucket = 'medium';
+    if (tempo < 90) bucket = 'slow';
+    else if (tempo >= 130) bucket = 'fast';
     
-    // Find pattern in tempo buckets
-    for (const [bucket, data] of Object.entries(this.DRUM_PATTERNS)) {
-      const [minTempo, maxTempo] = data.bpm;
-      if (tempo >= minTempo && tempo < maxTempo) {
-        const basePattern = data.patterns.find(p => p.id === patternId);
-        return basePattern || data.patterns[0];
-      }
-    }
-    
-    return this.DRUM_PATTERNS.medium.patterns[0];
-  }
-
-  /**
-   * Apply skill-based mutations to pattern
-   */
-  static _applySkillMutations(pattern, constraints, rng) {
-    const { memberSkills = {}, overallSkill = 50 } = constraints.bandConstraints || {};
-    const drummersKill = memberSkills.drummer || overallSkill;
-    
-    // Timing precision based on skill
-    const timingVariance = (100 - drummersKill) * 0.005; // Unskilled = wobbly
-    pattern.kick = pattern.kick.map(beat => beat + (rng.next() - 0.5) * timingVariance);
-    pattern.snare = pattern.snare.map(beat => beat + (rng.next() - 0.5) * timingVariance);
-    
-    // Add ghost notes if skilled enough
-    if (drummersKill > 60) {
-      const ghostNoteChance = (drummersKill - 60) / 40 * 0.3; // 0-30% ghost notes
-      pattern.ghostSnare = [];
-      for (let i = 0; i < 4; i++) {
-        if (rng.next() < ghostNoteChance) {
-          pattern.ghostSnare.push(i + (rng.next() - 0.5) * 0.2);
-        }
-      }
-    }
-    
-    // Add fills if very skilled
-    if (drummersKill > 70) {
-      pattern.hasCreativeFill = true;
-      pattern.fillComplexity = (drummersKill - 70) / 30; // 0-1
-    }
-    
-    return pattern;
-  }
-
-  /**
-   * Apply psychological mutations to pattern
-   */
-  static _applyPsychMutations(pattern, constraints, rng) {
-    const { psychConstraints = {} } = constraints;
-    const { stress = 0, substanceUse = 0, depression = 0 } = psychConstraints;
-    
-    // Stress adds timing chaos
-    if (stress > 50) {
-      const chaosAmount = (stress - 50) * 0.01;
-      pattern.kick = pattern.kick.map(beat => beat + (rng.next() - 0.5) * chaosAmount);
-      pattern.snare = pattern.snare.map(beat => beat + (rng.next() - 0.5) * chaosAmount);
-    }
-    
-    // Substance use creates interesting (chaotic) patterns
-    if (substanceUse > 40) {
-      const impulsiveness = substanceUse * 0.005;
-      // Randomly double-hit some beats
-      if (rng.next() < impulsiveness) {
-        const randomBeat = Math.floor(rng.next() * pattern.kick.length);
-        pattern.kick.push(pattern.kick[randomBeat] + 0.1);
-        pattern.kick.sort();
-      }
-    }
-    
-    // Depression slows and simplifies
-    if (depression > 60) {
-      pattern.hihat = pattern.hihat.slice(0, Math.ceil(pattern.hihat.length * 0.7));
-    }
-    
-    return pattern;
-  }
-
-  /**
-   * Apply context-based adjustments
-   */
-  static _applyContextAdjustments(pattern, constraints, rng) {
-    const { contextConstraints = {} } = constraints;
-    const { equipmentQuality = 50 } = contextConstraints;
-    
-    // Poor equipment = less precise timing
-    const precisionLoss = (100 - equipmentQuality) * 0.002;
-    pattern.kick = pattern.kick.map(beat => beat + (rng.next() - 0.5) * precisionLoss);
-    
-    return pattern;
+    const patterns = this.FALLBACK_PATTERNS[bucket].patterns;
+    return this._convertFallbackToEnhanced().find(p => 
+      patterns.some(fp => fp.id === p.id)
+    ) || this._convertFallbackToEnhanced()[0];
   }
 
   /**

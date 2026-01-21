@@ -34,7 +34,13 @@ export const ScenarioSelection = ({
 
       {/* Scenarios Grid */}
       <div className="flex-1 px-8 py-8 overflow-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-6xl mx-auto">
+        {/* CARD WIDTH CONTROL: Change grid-cols to adjust card width
+            - grid-cols-1: Full width (mobile)
+            - md:grid-cols-2: 2 columns (tablet) - each card is 50% width
+            - md:grid-cols-4: 4 columns - each card is 25% width (half of current)
+            - lg:grid-cols-4: 4 columns on large screens
+            - max-w-3xl: Container max width (reduce for narrower cards) */}
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-6 max-w-3xl mx-auto">
           {SCENARIOS.map(scenario => (
             <div
               key={scenario.id}

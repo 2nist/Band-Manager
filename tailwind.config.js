@@ -60,6 +60,14 @@ export default {
         xl: "var(--shadow-xl)",
         "2xl": "var(--shadow-2xl)",
       },
+      spacing: {
+        // Reduced spacing scale for tighter card layouts
+        'card-xs': '0.5rem',   // 8px (was 1rem/16px)
+        'card-sm': '0.75rem',  // 12px (was 1.5rem/24px)
+        'card-md': '1rem',     // 16px (was 2rem/32px)
+        'card-lg': '1.25rem',  // 20px (was 2.5rem/40px)
+        'card-xl': '1.5rem',   // 24px (was 3rem/48px)
+      },
     },
   },
   plugins: [],

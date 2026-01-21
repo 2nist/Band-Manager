@@ -88,24 +88,24 @@ export const LogoDesigner = ({
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-auto p-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+    <div className="min-h-screen bg-background text-foreground overflow-auto p-4">
+      {/* Header - Compact */}
+      <div className="flex items-center justify-between mb-4">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 px-4 py-3 bg-secondary/10 border border-secondary/30 rounded-lg text-foreground hover:bg-secondary/20 transition-all"
+          className="flex items-center gap-2 px-3 py-2 bg-secondary/10 border border-secondary/30 rounded-lg text-foreground hover:bg-secondary/20 transition-all text-sm"
         >
-          <ChevronLeft size={18} />
+          <ChevronLeft size={16} />
           Back
         </button>
-        <h1 className="text-4xl font-bold text-primary">Logo Designer</h1>
-        <div className="w-32" />
+        <h1 className="text-2xl font-bold text-primary">Logo Designer</h1>
+        <div className="w-24" />
       </div>
 
-      <div className="grid grid-cols-2 gap-8 max-w-6xl mx-auto">
-        {/* Preview */}
-        <div className="flex flex-col gap-4">
-          <div className="bg-card rounded-2xl p-8 border border-border/20 min-h-80 flex items-center justify-center shadow-lg">
+      <div className="grid grid-cols-3 gap-4 max-w-7xl mx-auto">
+        {/* Preview - Left Column */}
+        <div className="col-span-1 flex flex-col gap-3">
+          <div className="bg-card rounded-lg p-4 border border-border/20 h-48 flex items-center justify-center shadow-lg">
             <div
               style={{
                 ...logoStyle,
@@ -118,15 +118,15 @@ export const LogoDesigner = ({
             </div>
           </div>
 
-          {/* Presets */}
-          <div className="bg-card rounded-2xl p-6 border border-border/20 shadow-lg">
-            <h3 className="text-lg font-bold mb-4 text-foreground">Quick Presets</h3>
-            <div className="space-y-2">
+          {/* Presets - Compact */}
+          <div className="bg-card rounded-lg p-3 border border-border/20 shadow-lg">
+            <h3 className="text-sm font-bold mb-2 text-foreground">Quick Presets</h3>
+            <div className="space-y-1">
               {LOGO_PRESETS.map((preset) => (
                 <button
                   key={preset.name}
                   onClick={() => applyPreset(preset)}
-                  className="w-full px-4 py-3 bg-primary/10 border border-primary/30 rounded-lg text-foreground text-left hover:bg-primary/20 hover:border-primary/50 transition-all"
+                  className="w-full px-2 py-1.5 bg-primary/10 border border-primary/30 rounded text-foreground text-left hover:bg-primary/20 hover:border-primary/50 transition-all text-xs"
                 >
                   {preset.name}
                 </button>
@@ -135,285 +135,289 @@ export const LogoDesigner = ({
           </div>
         </div>
 
-        {/* Controls */}
-        <div className="bg-card rounded-2xl p-8 border border-border/20 max-h-screen overflow-y-auto shadow-lg">
-          <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.2rem' }}>Customization</h3>
+        {/* Controls - Middle & Right Columns */}
+        <div className="col-span-2 bg-card rounded-lg p-4 border border-border/20 shadow-lg overflow-y-auto max-h-[calc(100vh-120px)]">
+          <h3 className="text-lg font-bold mb-3 text-foreground">Customization</h3>
+          
+          {/* Two-column grid for controls */}
+          <div className="grid grid-cols-2 gap-4">
 
-          {/* Font */}
-          <div className="mb-6">
-            <label className="block text-sm font-semibold mb-3 text-muted-foreground">
-              Font
-            </label>
-            <button
-              onClick={() => setShowFontGallery(!showFontGallery)}
-              className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground text-left hover:border-primary/50 transition-all"
-            >
-              {logoState.logoFont || 'Metal Mania'} {showFontGallery ? '▼' : '▶'}
-            </button>
+            {/* Font - Full Width */}
+            <div className="col-span-2">
+              <label className="block text-xs font-semibold mb-2 text-muted-foreground">
+                Font
+              </label>
+              <button
+                onClick={() => setShowFontGallery(!showFontGallery)}
+                className="w-full px-3 py-2 bg-input border border-border rounded text-foreground text-left hover:border-primary/50 transition-all text-sm"
+              >
+                {logoState.logoFont || 'Metal Mania'} {showFontGallery ? '▼' : '▶'}
+              </button>
 
-            {showFontGallery && (
-              <div className="mt-4 bg-muted/20 border border-primary/30 rounded-lg p-4 max-h-96 overflow-y-auto grid grid-cols-2 gap-3">
-                {FONT_OPTIONS.map((font) => (
+              {showFontGallery && (
+                <div className="mt-2 bg-muted/20 border border-primary/30 rounded p-3 max-h-64 overflow-y-auto grid grid-cols-3 gap-2">
+                  {FONT_OPTIONS.map((font) => (
+                    <button
+                      key={font.family}
+                      onClick={() => {
+                        handleLogoChange({ logoFont: font.family });
+                        setShowFontGallery(false);
+                      }}
+                      className={`p-2 rounded cursor-pointer transition-all text-center ${
+                        logoState.logoFont === font.family
+                          ? 'bg-primary/20 border-2 border-primary'
+                          : 'bg-muted/10 border-2 border-border/30 hover:bg-muted/20'
+                      }`}
+                    >
+                      <div
+                        style={{
+                          fontFamily: font.family,
+                          fontSize: '14px',
+                          fontWeight: 700,
+                          color: 'var(--primary)',
+                          marginBottom: '0.25rem',
+                          wordBreak: 'break-word'
+                        }}
+                      >
+                        {bandName.substring(0, 10)}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {font.name}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Weight */}
+            <div>
+              <div className="flex justify-between mb-2">
+                <label className="text-xs font-semibold text-muted-foreground">Weight</label>
+                <span className="text-xs">{logoState.logoWeight || 700}</span>
+              </div>
+              <select
+                value={logoState.logoWeight || 700}
+                onChange={(e) => handleLogoChange({ logoWeight: Number(e.target.value) })}
+                className="w-full px-2 py-1.5 bg-input border border-border rounded text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+              >
+                {[400, 500, 600, 700, 800, 900].map((w) => (
+                  <option key={w} value={w} className="bg-background">
+                    {w}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Size */}
+            <div>
+              <div className="flex justify-between mb-2">
+                <label className="text-xs font-semibold text-muted-foreground">Size</label>
+                <span className="text-xs">{logoState.logoSize || 32}px</span>
+              </div>
+              <input
+                type="range"
+                min="18"
+                max="72"
+                value={logoState.logoSize || 32}
+                onChange={(e) => handleLogoChange({ logoSize: Number(e.target.value) })}
+                className="w-full accent-primary"
+              />
+            </div>
+
+            {/* Letter Spacing */}
+            <div>
+              <div className="flex justify-between mb-2">
+                <label className="text-xs font-semibold text-muted-foreground">Letter Spacing</label>
+                <span className="text-xs">{logoState.logoLetter || 0}px</span>
+              </div>
+              <input
+                type="range"
+                min="-2"
+                max="12"
+                step="0.5"
+                value={logoState.logoLetter || 0}
+                onChange={(e) => handleLogoChange({ logoLetter: Number(e.target.value) })}
+                className="w-full accent-primary"
+              />
+            </div>
+
+            {/* Line Height */}
+            <div>
+              <div className="flex justify-between mb-2">
+                <label className="text-xs font-semibold text-muted-foreground">Line Height</label>
+                <span className="text-xs">{(logoState.logoLineHeight || 1.1).toFixed(2)}</span>
+              </div>
+              <input
+                type="range"
+                min="0.8"
+                max="1.6"
+                step="0.05"
+                value={logoState.logoLineHeight || 1.1}
+                onChange={(e) => handleLogoChange({ logoLineHeight: Number(e.target.value) })}
+                className="w-full accent-primary"
+              />
+            </div>
+
+            {/* Uppercase */}
+            <div className="col-span-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={!!logoState.logoUpper}
+                  onChange={(e) => handleLogoChange({ logoUpper: e.target.checked })}
+                  className="w-4 h-4 accent-primary"
+                />
+                <span className="text-xs font-semibold">Uppercase</span>
+              </label>
+            </div>
+
+            {/* Text Color */}
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground block mb-2">
+                Text Color
+              </label>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="color"
+                  value={logoState.logoTextColor || '#ff6b6b'}
+                  onChange={(e) => handleLogoChange({ logoTextColor: e.target.value })}
+                  className="w-12 h-8 rounded cursor-pointer border border-border"
+                />
+                <span className="text-xs font-mono">
+                  {logoState.logoTextColor || '#ff6b6b'}
+                </span>
+              </div>
+            </div>
+
+            {/* Background Color */}
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground block mb-2">
+                Background Color
+              </label>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="color"
+                  value={logoState.logoBgColor || '#1a1a2e'}
+                  onChange={(e) => handleLogoChange({ logoBgColor: e.target.value })}
+                  className="w-12 h-8 rounded cursor-pointer border border-border"
+                />
+                <span className="text-xs font-mono">
+                  {logoState.logoBgColor || '#1a1a2e'}
+                </span>
+              </div>
+            </div>
+
+            {/* Gradient */}
+            <div className="col-span-2">
+              <label className="flex items-center gap-2 cursor-pointer mb-2">
+                <input
+                  type="checkbox"
+                  checked={!!logoState.logoGradient}
+                  onChange={(e) => handleLogoChange({ logoGradient: e.target.checked })}
+                  className="w-4 h-4 accent-primary"
+                />
+                <span className="text-xs font-semibold">Gradient Background</span>
+              </label>
+
+              {logoState.logoGradient && (
+                <div className="flex gap-2 items-center ml-6">
+                  <label className="text-xs font-semibold text-muted-foreground">To</label>
+                  <input
+                    type="color"
+                    value={logoState.logoBgColor2 || '#1e293b'}
+                    onChange={(e) => handleLogoChange({ logoBgColor2: e.target.value })}
+                    className="w-12 h-8 rounded cursor-pointer border border-border"
+                  />
+                  <span className="text-xs font-mono">
+                    {logoState.logoBgColor2 || '#1e293b'}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Shadow */}
+            <div className="col-span-2">
+              <label className="text-xs font-semibold text-muted-foreground block mb-2">
+                Shadow Effect
+              </label>
+              <div className="flex gap-2">
+                {['none', 'soft', 'strong'].map((sfx) => (
                   <button
-                    key={font.family}
-                    onClick={() => {
-                      handleLogoChange({ logoFont: font.family });
-                      setShowFontGallery(false);
-                    }}
-                    className={`p-4 rounded-lg cursor-pointer transition-all text-center ${
-                      logoState.logoFont === font.family
-                        ? 'bg-primary/20 border-2 border-primary'
-                        : 'bg-muted/10 border-2 border-border/30 hover:bg-muted/20'
+                    key={sfx}
+                    onClick={() => handleLogoChange({ logoShadow: sfx })}
+                    className={`flex-1 px-2 py-1.5 rounded text-xs font-semibold transition-all ${
+                      logoState.logoShadow === sfx
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
                     }`}
                   >
-                    <div
-                      style={{
-                        fontFamily: font.family,
-                        fontSize: '18px',
-                        fontWeight: 700,
-                        color: 'var(--primary)',
-                        marginBottom: '0.5rem',
-                        wordBreak: 'break-word'
-                      }}
-                    >
-                      {bandName.substring(0, 12)}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {font.name}
-                    </div>
+                    {sfx}
                   </button>
                 ))}
               </div>
-            )}
-          </div>
-
-          {/* Weight */}
-          <div className="mb-6">
-            <div className="flex justify-between mb-3">
-              <label className="text-sm font-semibold text-muted-foreground">Weight</label>
-              <span className="text-sm">{logoState.logoWeight || 700}</span>
             </div>
-            <select
-              value={logoState.logoWeight || 700}
-              onChange={(e) => handleLogoChange({ logoWeight: Number(e.target.value) })}
-              className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              {[400, 500, 600, 700, 800, 900].map((w) => (
-                <option key={w} value={w} className="bg-background">
-                  {w}
-                </option>
-              ))}
-            </select>
-          </div>
 
-          {/* Size */}
-          <div className="mb-6">
-            <div className="flex justify-between mb-3">
-              <label className="text-sm font-semibold text-muted-foreground">Size</label>
-              <span className="text-sm">{logoState.logoSize || 32}px</span>
-            </div>
-            <input
-              type="range"
-              min="18"
-              max="72"
-              value={logoState.logoSize || 32}
-              onChange={(e) => handleLogoChange({ logoSize: Number(e.target.value) })}
-              className="w-full accent-primary"
-            />
-          </div>
-
-          {/* Letter Spacing */}
-          <div className="mb-6">
-            <div className="flex justify-between mb-3">
-              <label className="text-sm font-semibold text-muted-foreground">Letter Spacing</label>
-              <span className="text-sm">{logoState.logoLetter || 0}px</span>
-            </div>
-            <input
-              type="range"
-              min="-2"
-              max="12"
-              step="0.5"
-              value={logoState.logoLetter || 0}
-              onChange={(e) => handleLogoChange({ logoLetter: Number(e.target.value) })}
-              className="w-full accent-primary"
-            />
-          </div>
-
-          {/* Line Height */}
-          <div className="mb-6">
-            <div className="flex justify-between mb-3">
-              <label className="text-sm font-semibold text-muted-foreground">Line Height</label>
-              <span className="text-sm">{(logoState.logoLineHeight || 1.1).toFixed(2)}</span>
-            </div>
-            <input
-              type="range"
-              min="0.8"
-              max="1.6"
-              step="0.05"
-              value={logoState.logoLineHeight || 1.1}
-              onChange={(e) => handleLogoChange({ logoLineHeight: Number(e.target.value) })}
-              className="w-full accent-primary"
-            />
-          </div>
-
-          {/* Uppercase */}
-          <div className="mb-6">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={!!logoState.logoUpper}
-                onChange={(e) => handleLogoChange({ logoUpper: e.target.checked })}
-                className="w-4 h-4 accent-primary"
-              />
-              <span className="text-sm font-semibold">Uppercase</span>
-            </label>
-          </div>
-
-          {/* Text Color */}
-          <div className="mb-6">
-            <label className="text-sm font-semibold text-muted-foreground block mb-3">
-              Text Color
-            </label>
-            <div className="flex gap-3 items-center">
-              <input
-                type="color"
-                value={logoState.logoTextColor || '#ff6b6b'}
-                onChange={(e) => handleLogoChange({ logoTextColor: e.target.value })}
-                className="w-16 h-10 rounded-lg cursor-pointer border border-border"
-              />
-              <span className="text-sm font-mono">
-                {logoState.logoTextColor || '#ff6b6b'}
-              </span>
-            </div>
-          </div>
-
-          {/* Background Color */}
-          <div className="mb-6">
-            <label className="text-sm font-semibold text-muted-foreground block mb-3">
-              Background Color
-            </label>
-            <div className="flex gap-3 items-center">
-              <input
-                type="color"
-                value={logoState.logoBgColor || '#1a1a2e'}
-                onChange={(e) => handleLogoChange({ logoBgColor: e.target.value })}
-                className="w-16 h-10 rounded-lg cursor-pointer border border-border"
-              />
-              <span className="text-sm font-mono">
-                {logoState.logoBgColor || '#1a1a2e'}
-              </span>
-            </div>
-          </div>
-
-          {/* Gradient */}
-          <div className="mb-6">
-            <label className="flex items-center gap-3 cursor-pointer mb-3">
-              <input
-                type="checkbox"
-                checked={!!logoState.logoGradient}
-                onChange={(e) => handleLogoChange({ logoGradient: e.target.checked })}
-                className="w-4 h-4 accent-primary"
-              />
-              <span className="text-sm font-semibold">Gradient Background</span>
-            </label>
-
-            {logoState.logoGradient && (
-              <div className="flex gap-3 items-center">
-                <label className="text-sm font-semibold text-muted-foreground">To</label>
+            {/* Outline */}
+            <div className="col-span-2">
+              <label className="flex items-center gap-2 cursor-pointer mb-2">
                 <input
-                  type="color"
-                  value={logoState.logoBgColor2 || '#1e293b'}
-                  onChange={(e) => handleLogoChange({ logoBgColor2: e.target.value })}
-                  className="w-16 h-10 rounded-lg cursor-pointer border border-border"
+                  type="checkbox"
+                  checked={!!logoState.logoOutline}
+                  onChange={(e) => handleLogoChange({ logoOutline: e.target.checked })}
+                  className="w-4 h-4 accent-primary"
                 />
-                <span className="text-sm font-mono">
-                  {logoState.logoBgColor2 || '#1e293b'}
-                </span>
-              </div>
-            )}
-          </div>
+                <span className="text-xs font-semibold">Text Outline</span>
+              </label>
 
-          {/* Shadow */}
-          <div className="mb-6">
-            <label className="text-sm font-semibold text-muted-foreground block mb-3">
-              Shadow Effect
-            </label>
-            <div className="flex gap-2">
-              {['none', 'soft', 'strong'].map((sfx) => (
-                <button
-                  key={sfx}
-                  onClick={() => handleLogoChange({ logoShadow: sfx })}
-                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
-                    logoState.logoShadow === sfx
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                  }`}
-                >
-                  {sfx}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Outline */}
-          <div className="mb-6">
-            <label className="flex items-center gap-3 cursor-pointer mb-3">
-              <input
-                type="checkbox"
-                checked={!!logoState.logoOutline}
-                onChange={(e) => handleLogoChange({ logoOutline: e.target.checked })}
-                className="w-4 h-4 accent-primary"
-              />
-              <span className="text-sm font-semibold">Text Outline</span>
-            </label>
-
-            {logoState.logoOutline && (
-              <>
-                <div className="mb-4">
-                  <div className="flex justify-between mb-3">
-                    <label className="text-sm font-semibold text-muted-foreground">Width</label>
-                    <span className="text-sm">{logoState.logoOutlineWidth || 1}px</span>
+              {logoState.logoOutline && (
+                <div className="ml-6 space-y-2">
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <label className="text-xs font-semibold text-muted-foreground">Width</label>
+                      <span className="text-xs">{logoState.logoOutlineWidth || 1}px</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="4"
+                      step="0.2"
+                      value={logoState.logoOutlineWidth || 1}
+                      onChange={(e) => handleLogoChange({ logoOutlineWidth: Number(e.target.value) })}
+                      className="w-full accent-primary"
+                    />
                   </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="4"
-                    step="0.2"
-                    value={logoState.logoOutlineWidth || 1}
-                    onChange={(e) => handleLogoChange({ logoOutlineWidth: Number(e.target.value) })}
-                    className="w-full accent-primary"
-                  />
+
+                  <div className="flex gap-2 items-center">
+                    <label className="text-xs font-semibold text-muted-foreground">Color</label>
+                    <input
+                      type="color"
+                      value={logoState.logoOutlineColor || '#000000'}
+                      onChange={(e) => handleLogoChange({ logoOutlineColor: e.target.value })}
+                      className="w-12 h-8 rounded cursor-pointer border border-border"
+                    />
+                  </div>
                 </div>
+              )}
+            </div>
 
-                <div className="flex gap-3 items-center">
-                  <label className="text-sm font-semibold text-muted-foreground">Color</label>
-                  <input
-                    type="color"
-                    value={logoState.logoOutlineColor || '#000000'}
-                    onChange={(e) => handleLogoChange({ logoOutlineColor: e.target.value })}
-                    className="w-16 h-10 rounded-lg cursor-pointer border border-border"
-                  />
-                </div>
-              </>
-            )}
-          </div>
+            {/* Action Buttons */}
+            <div className="col-span-2 flex gap-3 mt-4">
+              <button
+                onClick={() => handleLogoChange({})}
+                className="flex-1 px-3 py-2 bg-muted text-muted-foreground border border-muted hover:bg-muted/80 rounded transition-all flex items-center justify-center gap-2 font-semibold text-sm"
+              >
+                <RotateCcw size={14} />
+                Reset
+              </button>
 
-          {/* Action Buttons */}
-          <div className="flex gap-4 mt-8">
-            <button
-              onClick={() => handleLogoChange({})}
-              className="flex-1 px-4 py-3 bg-muted text-muted-foreground border border-muted hover:bg-muted/80 rounded-lg transition-all flex items-center justify-center gap-2 font-semibold"
-            >
-              <RotateCcw size={16} />
-              Reset
-            </button>
-
-            <button
-              onClick={onComplete}
-              className="flex-1 px-4 py-3 bg-primary text-primary-foreground hover:opacity-90 rounded-lg transition-all font-bold"
-            >
-              Save Logo & Start Game
-            </button>
+              <button
+                onClick={onComplete}
+                className="flex-1 px-3 py-2 bg-primary text-primary-foreground hover:opacity-90 rounded transition-all font-bold text-sm"
+              >
+                Save Logo & Start Game
+              </button>
+            </div>
           </div>
         </div>
       </div>

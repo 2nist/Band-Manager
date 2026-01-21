@@ -409,6 +409,7 @@ export const GamePage = ({
           isOpen={true}
           event={pendingEvent}
           psychologicalState={dialogueState?.psychologicalState}
+          gameState={gameState?.state || gameState}
           onChoice={handleEventChoice}
           onClose={() => {
             setShowEventModal(false);

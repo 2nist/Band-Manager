@@ -108,8 +108,8 @@ describe('Music Generation System', () => {
 
   describe('MusicGenerator', () => {
     describe('generateSong', () => {
-      it('should generate a complete song structure', () => {
-        const song = MusicGenerator.generateSong(mockGameState, 'rock');
+      it('should generate a complete song structure', async () => {
+        const song = await MusicGenerator.generateSong(mockGameState, 'rock');
 
         expect(song).toBeDefined();
         expect(song.metadata).toBeDefined();
@@ -120,8 +120,8 @@ describe('Music Generation System', () => {
         expect(song.metadata.seed).toBeDefined();
       });
 
-      it('should include game context in song', () => {
-        const song = MusicGenerator.generateSong(mockGameState, 'rock');
+      it('should include game context in song', async () => {
+        const song = await MusicGenerator.generateSong(mockGameState, 'rock');
 
         expect(song.gameContext).toBeDefined();
         expect(song.gameContext.constraints).toBeDefined();
@@ -129,8 +129,8 @@ describe('Music Generation System', () => {
         expect(song.gameContext.bandConfidence).toBe(60);
       });
 
-      it('should include musical content', () => {
-        const song = MusicGenerator.generateSong(mockGameState, 'rock');
+      it('should include musical content', async () => {
+        const song = await MusicGenerator.generateSong(mockGameState, 'rock');
 
         expect(song.musicalContent).toBeDefined();
         expect(song.musicalContent.drums).toBeDefined();
@@ -138,8 +138,8 @@ describe('Music Generation System', () => {
         expect(song.musicalContent.melody).toBeDefined();
       });
 
-      it('should include composition metadata', () => {
-        const song = MusicGenerator.generateSong(mockGameState, 'rock');
+      it('should include composition metadata', async () => {
+        const song = await MusicGenerator.generateSong(mockGameState, 'rock');
 
         expect(song.composition).toBeDefined();
         expect(song.composition.tempo).toBe(120);
@@ -147,8 +147,8 @@ describe('Music Generation System', () => {
         expect(song.composition.structure).toBeDefined();
       });
 
-      it('should include analysis scores', () => {
-        const song = MusicGenerator.generateSong(mockGameState, 'rock');
+      it('should include analysis scores', async () => {
+        const song = await MusicGenerator.generateSong(mockGameState, 'rock');
 
         expect(song.analysis).toBeDefined();
         expect(typeof song.analysis.qualityScore).toBe('number');
@@ -157,36 +157,36 @@ describe('Music Generation System', () => {
         expect(song.analysis.emotionalTone).toBeDefined();
       });
 
-      it('should use custom song name when provided', () => {
-        const song = MusicGenerator.generateSong(mockGameState, 'rock', {
+      it('should use custom song name when provided', async () => {
+        const song = await MusicGenerator.generateSong(mockGameState, 'rock', {
           songName: 'Custom Song Name'
         });
 
         expect(song.metadata.name).toBe('Custom Song Name');
       });
 
-      it('should use seed for reproducibility', () => {
-        const song1 = MusicGenerator.generateSong(mockGameState, 'rock', {
+      it('should use seed for reproducibility', async () => {
+        const song1 = await MusicGenerator.generateSong(mockGameState, 'rock', {
           seed: 'test-seed-123'
         });
-        const song2 = MusicGenerator.generateSong(mockGameState, 'rock', {
+        const song2 = await MusicGenerator.generateSong(mockGameState, 'rock', {
           seed: 'test-seed-123'
         });
 
         expect(song1.metadata.seed).toBe(song2.metadata.seed);
       });
 
-      it('should handle different genres', () => {
+      it('should handle different genres', async () => {
         const genres = ['rock', 'punk', 'funk', 'metal', 'folk', 'jazz'];
         
-        genres.forEach(genre => {
-          const song = MusicGenerator.generateSong(mockGameState, genre);
+        for (const genre of genres) {
+          const song = await MusicGenerator.generateSong(mockGameState, genre);
           expect(song.metadata.genre).toBe(genre);
           expect(song.composition.genre).toBe(genre);
-        });
+        }
       });
 
-      it('should calculate quality score based on band skill and equipment', () => {
+      it('should calculate quality score based on band skill and equipment', async () => {
         const highSkillState = {
           ...mockGameState,
           bandMembers: [
@@ -204,8 +204,8 @@ describe('Music Generation System', () => {
           studioTier: 0
         };
 
-        const highSong = MusicGenerator.generateSong(highSkillState, 'rock');
-        const lowSong = MusicGenerator.generateSong(lowSkillState, 'rock');
+        const highSong = await MusicGenerator.generateSong(highSkillState, 'rock');
+        const lowSong = await MusicGenerator.generateSong(lowSkillState, 'rock');
 
         // High skill should generally produce higher quality
         expect(highSong.analysis.qualityScore).toBeGreaterThanOrEqual(0);
@@ -214,7 +214,7 @@ describe('Music Generation System', () => {
         expect(lowSong.analysis.qualityScore).toBeLessThanOrEqual(100);
       });
 
-      it('should calculate originality based on confidence and burnout', () => {
+      it('should calculate originality based on confidence and burnout', async () => {
         const confidentState = {
           ...mockGameState,
           bandConfidence: 90,
@@ -227,8 +227,8 @@ describe('Music Generation System', () => {
           burnout: 80
         };
 
-        const confidentSong = MusicGenerator.generateSong(confidentState, 'rock');
-        const burnedOutSong = MusicGenerator.generateSong(burnedOutState, 'rock');
+        const confidentSong = await MusicGenerator.generateSong(confidentState, 'rock');
+        const burnedOutSong = await MusicGenerator.generateSong(burnedOutState, 'rock');
 
         expect(confidentSong.analysis.originalityScore).toBeGreaterThanOrEqual(0);
         expect(burnedOutSong.analysis.originalityScore).toBeGreaterThanOrEqual(0);
@@ -238,8 +238,8 @@ describe('Music Generation System', () => {
     });
 
     describe('generateAlbum', () => {
-      it('should generate multiple tracks', () => {
-        const album = MusicGenerator.generateAlbum(mockGameState, 'rock', {
+      it('should generate multiple tracks', async () => {
+        const album = await MusicGenerator.generateAlbum(mockGameState, 'rock', {
           trackCount: 5
         });
 
@@ -250,14 +250,14 @@ describe('Music Generation System', () => {
         expect(album.tracks.length).toBe(5);
       });
 
-      it('should use default track count if not specified', () => {
-        const album = MusicGenerator.generateAlbum(mockGameState, 'rock');
+      it('should use default track count if not specified', async () => {
+        const album = await MusicGenerator.generateAlbum(mockGameState, 'rock');
 
         expect(album.tracks.length).toBe(10); // Default from code
       });
 
-      it('should generate unique tracks with different seeds', () => {
-        const album = MusicGenerator.generateAlbum(mockGameState, 'rock', {
+      it('should generate unique tracks with different seeds', async () => {
+        const album = await MusicGenerator.generateAlbum(mockGameState, 'rock', {
           trackCount: 3
         });
 
@@ -266,8 +266,8 @@ describe('Music Generation System', () => {
         expect(new Set(seeds).size).toBe(3);
       });
 
-      it('should include album metadata', () => {
-        const album = MusicGenerator.generateAlbum(mockGameState, 'rock', {
+      it('should include album metadata', async () => {
+        const album = await MusicGenerator.generateAlbum(mockGameState, 'rock', {
           albumName: 'Test Album',
           trackCount: 3
         });
@@ -279,8 +279,8 @@ describe('Music Generation System', () => {
     });
 
     describe('exportForRendering', () => {
-      it('should export song in renderable format', () => {
-        const song = MusicGenerator.generateSong(mockGameState, 'rock');
+      it('should export song in renderable format', async () => {
+        const song = await MusicGenerator.generateSong(mockGameState, 'rock');
         const exported = MusicGenerator.exportForRendering(song);
 
         expect(exported.metadata).toBeDefined();
@@ -533,8 +533,8 @@ describe('Music Generation System', () => {
       gameLogic = useGameLogic(integrationGameState, mockUpdateGameState, mockAddLog, mockData);
     });
 
-    it('should accept generated song with proper structure', () => {
-      const generatedSong = MusicGenerator.generateSong(integrationGameState, 'rock', {
+    it('should accept generated song with proper structure', async () => {
+      const generatedSong = await MusicGenerator.generateSong(integrationGameState, 'rock', {
         songName: 'Generated Track'
       });
 
@@ -557,8 +557,8 @@ describe('Music Generation System', () => {
       expect(normalizedSong.generatedData).toBeDefined();
     });
 
-    it('should write generated song through game logic', () => {
-      const generatedSong = MusicGenerator.generateSong(integrationGameState, 'rock', {
+    it('should write generated song through game logic', async () => {
+      const generatedSong = await MusicGenerator.generateSong(integrationGameState, 'rock', {
         songName: 'Procedural Song'
       });
 
@@ -580,8 +580,8 @@ describe('Music Generation System', () => {
       expect(mockUpdateGameState).toHaveBeenCalled();
     });
 
-    it('should apply fan reactions when accepting generated song', () => {
-      const generatedSong = MusicGenerator.generateSong(integrationGameState, 'rock');
+    it('should apply fan reactions when accepting generated song', async () => {
+      const generatedSong = await MusicGenerator.generateSong(integrationGameState, 'rock');
       const reactions = FanReactionSystem.generateReactions(generatedSong, integrationGameState.fanbase);
 
       expect(reactions.impact.fameGain).toBeDefined();
@@ -595,8 +595,8 @@ describe('Music Generation System', () => {
       expect(newMoney).toBeGreaterThanOrEqual(integrationGameState.money);
     });
 
-    it('should preserve generatedData when writing song', () => {
-      const generatedSong = MusicGenerator.generateSong(integrationGameState, 'rock', {
+    it('should preserve generatedData when writing song', async () => {
+      const generatedSong = await MusicGenerator.generateSong(integrationGameState, 'rock', {
         songName: 'Preserved Song'
       });
 

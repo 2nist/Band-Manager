@@ -238,7 +238,7 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
                           <img
                             src={getAvatarUrl(member.name, 'open-peeps')}
                             alt={member.name}
-                            className="w-10 h-10 rounded-full border-2 border-primary"
+                            className="w-12 h-12 rounded-full border-2 border-primary"
                             onError={(e) => e.target.style.display = 'none'}
                           />
                           <div>
@@ -280,7 +280,8 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
                         <img
                           src={getAvatarUrl(candidate.name, 'open-peeps')}
                           alt={candidate.name}
-                          className="w-12 h-12 rounded-full border-2 border-border/50"
+                          style={{ width: '50px', height: '50px' }}
+                          className="rounded-full border-2 border-border/50"
                           onError={(e) => e.target.style.display = 'none'}
                         />
                         <div className="flex-1">
@@ -376,7 +377,8 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
                 <img
                   src={getAvatarUrl(currentMember?.name || 'member', 'open-peeps')}
                   alt={currentMember?.name || 'member'}
-                  className="w-24 h-24 rounded-full border-4 border-primary shadow-lg"
+                  style={{ width: '120px', height: '120px' }}
+                  className="rounded-full border-4 border-primary shadow-lg"
                   onError={(e) => e.target.style.opacity = '0.3'}
                 />
                 <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-bold border-2 border-card">
@@ -472,7 +474,7 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
                       <img
                         src={getAvatarUrl(member.name || 'member', 'open-peeps')}
                         alt={member.name}
-                        className="w-8 h-8 rounded-full border border-border/50"
+                        className="w-10 h-10 rounded-full border border-border/50"
                         onError={(e) => e.target.style.display = 'none'}
                       />
                       <div className="flex-1 min-w-0">

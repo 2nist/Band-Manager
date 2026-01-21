@@ -348,8 +348,95 @@ export const GENRE_THEMES = {
   'Classical': 'theme-modern'
 };
 
-export const FIRST_NAMES = ['Alex','Sam','Jordan','Taylor','Riley','Casey','Jamie','Logan','Quinn','Drew','Kai','Morgan','Reese','Jules','Avery'];
-export const LAST_NAMES = ['Stone','Vale','Hart','Kade','Rex','Wilde','Fox','Storm','Ray','Knight','Cross','Shade','Frost','Voss','Lake'];
+// Expanded name lists for band members
+export const FIRST_NAMES = [
+  // Gender-neutral / Modern
+  'Alex', 'Sam', 'Jordan', 'Taylor', 'Riley', 'Casey', 'Jamie', 'Logan', 'Quinn', 'Drew', 
+  'Kai', 'Morgan', 'Reese', 'Jules', 'Avery', 'River', 'Phoenix', 'Skylar', 'Rowan', 'Sage',
+  
+  // Male names
+  'Marcus', 'Jake', 'Noah', 'Liam', 'Ethan', 'Mason', 'Lucas', 'Owen', 'Aiden', 'Carter',
+  'Sebastian', 'Henry', 'Jackson', 'Wyatt', 'Grayson', 'Leo', 'Mason', 'Logan', 'Caleb', 'Ryan',
+  'Nathan', 'Isaac', 'Eli', 'Landon', 'Hunter', 'Connor', 'Aaron', 'Adrian', 'Blake', 'Colin',
+  'Dylan', 'Evan', 'Gavin', 'Ian', 'Jaden', 'Kyle', 'Max', 'Nolan', 'Parker', 'Quinn',
+  'Riley', 'Tyler', 'Zachary', 'Asher', 'Bennett', 'Brody', 'Cameron', 'Cooper', 'Declan', 'Finn',
+  'Harrison', 'Jasper', 'Kai', 'Luca', 'Miles', 'Oscar', 'Preston', 'Reid', 'Sawyer', 'Theo',
+  
+  // Female names
+  'Emma', 'Olivia', 'Sophia', 'Isabella', 'Ava', 'Mia', 'Charlotte', 'Amelia', 'Harper', 'Evelyn',
+  'Abigail', 'Emily', 'Ella', 'Elizabeth', 'Camila', 'Luna', 'Sofia', 'Avery', 'Mila', 'Aria',
+  'Scarlett', 'Penelope', 'Layla', 'Chloe', 'Victoria', 'Madison', 'Eleanor', 'Grace', 'Nora', 'Riley',
+  'Zoey', 'Hannah', 'Lillian', 'Addison', 'Aubrey', 'Ellie', 'Stella', 'Natalie', 'Zoe', 'Leah',
+  'Hazel', 'Violet', 'Aurora', 'Savannah', 'Audrey', 'Brooklyn', 'Bella', 'Claire', 'Skylar', 'Lucy',
+  'Paisley', 'Everly', 'Anna', 'Caroline', 'Nova', 'Genesis', 'Aaliyah', 'Kennedy', 'Kinsley', 'Allison',
+  
+  // Rock/Music themed
+  'Axel', 'Jett', 'Ryder', 'Steele', 'Blaze', 'Phoenix', 'Raven', 'Storm', 'Vex', 'Zane',
+  'Luna', 'Raven', 'Star', 'Melody', 'Harmony', 'Lyric', 'Cadence', 'Aria', 'Jazz', 'Roxy'
+];
+
+export const LAST_NAMES = [
+  // Classic rock/music surnames
+  'Stone', 'Vale', 'Hart', 'Kade', 'Rex', 'Wilde', 'Fox', 'Storm', 'Ray', 'Knight',
+  'Cross', 'Shade', 'Frost', 'Voss', 'Lake', 'Rivers', 'Black', 'Steel', 'Reed', 'Marsh',
+  
+  // Strong surnames
+  'Anderson', 'Bennett', 'Brooks', 'Carter', 'Cooper', 'Davis', 'Edwards', 'Foster', 'Gray', 'Harris',
+  'Hughes', 'Jackson', 'Johnson', 'Kelly', 'Lewis', 'Martinez', 'Mitchell', 'Murphy', 'Parker', 'Powell',
+  'Roberts', 'Robinson', 'Rodriguez', 'Scott', 'Smith', 'Taylor', 'Thomas', 'Thompson', 'Walker', 'White',
+  'Williams', 'Wilson', 'Wood', 'Wright', 'Young', 'Adams', 'Baker', 'Bell', 'Brown', 'Clark',
+  'Collins', 'Cook', 'Evans', 'Green', 'Hall', 'Hill', 'Howard', 'James', 'King', 'Lee',
+  'Martin', 'Miller', 'Moore', 'Morgan', 'Morris', 'Nelson', 'Parker', 'Phillips', 'Reed', 'Richardson',
+  
+  // Edgy/rock surnames
+  'Blade', 'Crow', 'Dagger', 'Fang', 'Hawk', 'Iron', 'Knight', 'Raven', 'Shadow', 'Steel',
+  'Thorn', 'Vex', 'Wolfe', 'Zephyr', 'Ash', 'Blaze', 'Cinder', 'Ember', 'Flame', 'Frost',
+  'Glacier', 'Hail', 'Ice', 'Lightning', 'Mist', 'Nova', 'Phoenix', 'Storm', 'Thunder', 'Tornado',
+  'Vortex', 'Wild', 'Zenith', 'Apex', 'Crest', 'Peak', 'Summit', 'Tide', 'Wave', 'Current',
+  
+  // Music industry surnames
+  'Bass', 'Chord', 'Harmony', 'Lyric', 'Melody', 'Note', 'Rhythm', 'Scale', 'Tempo', 'Tune',
+  'Verse', 'Bridge', 'Chorus', 'Hook', 'Riff', 'Solo', 'Stanza', 'Coda', 'Crescendo', 'Forte'
+];
+
+// Expanded nickname/stage name list
+export const NICKNAMES = [
+  // Classic Rock
+  'Ace', 'Thunder', 'Lightning', 'Storm', 'Blaze', 'Flame', 'Fire', 'Ice', 'Frost', 'Shadow',
+  'Steel', 'Iron', 'Rock', 'Stone', 'Metal', 'Blade', 'Edge', 'Razor', 'Fang', 'Claw',
+  
+  // Cool/Edgy
+  'Vex', 'Rex', 'Zed', 'Zane', 'Zephyr', 'Zen', 'Nova', 'Nyx', 'Raven', 'Crow',
+  'Wolf', 'Fox', 'Hawk', 'Eagle', 'Falcon', 'Phoenix', 'Dragon', 'Tiger', 'Lion', 'Bear',
+  
+  // Music Themed
+  'Riff', 'Chord', 'Beat', 'Rhythm', 'Tempo', 'Harmony', 'Melody', 'Lyric', 'Verse', 'Bridge',
+  'Solo', 'Hook', 'Groove', 'Vibe', 'Tune', 'Note', 'Scale', 'Key', 'Tone', 'Pitch',
+  
+  // Badass
+  'Reaper', 'Viper', 'Cobra', 'Scorpion', 'Venom', 'Toxin', 'Plague', 'Pestilence', 'War', 'Chaos',
+  'Rage', 'Fury', 'Wrath', 'Doom', 'Grim', 'Death', 'Hell', 'Demon', 'Devil', 'Satan',
+  
+  // Mystical
+  'Mystic', 'Oracle', 'Sage', 'Wizard', 'Sorcerer', 'Mage', 'Witch', 'Warlock', 'Shaman', 'Druid',
+  'Spirit', 'Ghost', 'Phantom', 'Specter', 'Wraith', 'Banshee', 'Siren', 'Harpy', 'Valkyrie', 'Vampire',
+  
+  // Cool Single Names
+  'Jax', 'Max', 'Zed', 'Rex', 'Ace', 'Jett', 'Blaze', 'Kai', 'Rio', 'Nico',
+  'Zane', 'Axel', 'Ryder', 'Steele', 'Cruz', 'Dash', 'Jet', 'Fox', 'Wolf', 'Bear',
+  
+  // The [Name]
+  'The Rock', 'The Hammer', 'The Axe', 'The Blade', 'The Edge', 'The Storm', 'The Thunder', 'The Lightning',
+  'The Fire', 'The Ice', 'The Shadow', 'The Ghost', 'The Phantom', 'The Reaper', 'The Viper', 'The Wolf',
+  
+  // Descriptive
+  'Wild', 'Savage', 'Fierce', 'Bold', 'Brave', 'Fierce', 'Mighty', 'Powerful', 'Strong', 'Tough',
+  'Smooth', 'Cool', 'Sharp', 'Fast', 'Quick', 'Swift', 'Rapid', 'Turbo', 'Nitro', 'Speed',
+  
+  // Color Based
+  'Black', 'White', 'Red', 'Blue', 'Green', 'Gold', 'Silver', 'Copper', 'Bronze', 'Platinum',
+  'Crimson', 'Scarlet', 'Azure', 'Emerald', 'Ruby', 'Sapphire', 'Amber', 'Onyx', 'Jade', 'Pearl'
+];
 
 export const initialState = {
   week: 1,

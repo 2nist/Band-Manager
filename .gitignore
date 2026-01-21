@@ -30,3 +30,6 @@ yarn-error.log*
 
 # Vite
 .vite/
+
+# Music datasets - raw MIDI files (large, local only)
+src/music/datasets/
