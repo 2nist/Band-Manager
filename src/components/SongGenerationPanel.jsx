@@ -10,7 +10,8 @@ import { Music, Loader, AlertCircle } from 'lucide-react';
 export const SongGenerationPanel = ({ 
   gameState, 
   onSongGenerated,
-  disabled = false 
+  disabled = false,
+  cost = 500
 }) => {
   const [selectedGenre, setSelectedGenre] = useState('rock');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -45,7 +46,7 @@ export const SongGenerationPanel = ({
   // Check if band is capable of generating
   const bandSkill = gameState.bandMembers?.reduce((sum, m) => sum + (m.skill || 50), 0) / (gameState.bandMembers?.length || 1) || 50;
   const hasRequiredSkill = bandSkill >= 30;
-  const hasRequiredMoney = gameState.money >= 500;
+  const hasRequiredMoney = gameState.money >= cost;
 
   const canGenerate = hasRequiredSkill && hasRequiredMoney && !disabled && !isGenerating;
 
@@ -72,7 +73,7 @@ export const SongGenerationPanel = ({
         )}
         {!hasRequiredMoney && (
           <div style={{ color: '#f00', marginBottom: '5px' }}>
-            ❌ Insufficient studio time budget (minimum $500, you have ${gameState.money})
+            ❌ Insufficient studio time budget (minimum ${cost}, you have ${gameState.money})
           </div>
         )}
         {hasRequiredSkill && hasRequiredMoney && (
@@ -165,7 +166,7 @@ export const SongGenerationPanel = ({
         ) : (
           <>
             <Music size={20} />
-            Record Song (Cost: $500 Studio Time)
+            Record Song (Cost: ${cost} Studio Time)
           </>
         )}
       </button>

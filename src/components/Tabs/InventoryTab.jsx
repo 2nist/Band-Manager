@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Music, Plus, Zap } from 'lucide-react';
 import { useMusicGeneration } from '../../hooks/useMusicGeneration';
 import { SongPlaybackPanel } from '../SongPlaybackPanel';
+import { SongGenerationPanel } from '../SongGenerationPanel';
 import { STUDIO_TIERS } from '../../utils/constants';
 import { FanReactionSystem } from '../../music/FanReactionSystem';
 
@@ -29,6 +30,12 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState, gameLogic, 
   const [generatedSong, setGeneratedSong] = useState(null);
   const [showPlaybackPanel, setShowPlaybackPanel] = useState(false);
 
+  // Calculate recording cost
+  const studio = STUDIO_TIERS[gameState?.state?.studioTier || 0];
+  const difficulty = gameState?.state?.difficulty || 'normal';
+  const costMultiplier = difficulty === 'easy' ? 0.8 : difficulty === 'hard' ? 1.2 : 1;
+  const recordCost = Math.floor(studio.recordCost * costMultiplier);
+
   const handleWriteSong = async () => {
     if (!songName.trim()) {
       alert('Enter a song name');
@@ -36,41 +43,18 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState, gameLogic, 
     }
 
     // Check funds before generating (cost will be deducted on accept)
-    const studio = STUDIO_TIERS[gameState?.state?.studioTier || 0];
-    const difficulty = gameState?.state?.difficulty || 'normal';
-    const costMultiplier = difficulty === 'easy' ? 0.8 : difficulty === 'hard' ? 1.2 : 1;
-    const cost = Math.floor(studio.recordCost * costMultiplier);
-    
-    if (gameState?.state?.money < cost) {
-      alert(`Not enough money to record (need $${cost})`);
+    if (gameState?.state?.money < recordCost) {
+      alert(`Not enough money to record (need $${recordCost})`);
       return;
     }
 
     setIsGenerating(true);
 
     try {
-      if (generatingMode === 'procedural' && musicGeneration?.generateSong) {
-        // Procedural generation with constraint-based music
-        const song = await musicGeneration.generateSong({
-          title: songName,
-          genre: songGenre,
-          gameState: gameState?.state || {}
-        });
-
-        if (song) {
-          setGeneratedSong(song);
-          setShowPlaybackPanel(true);
-          setSongName('');
-          setShowSongForm(false);
-        } else {
-          alert('Failed to generate song');
-        }
-      } else {
-        // Legacy mode: open modal
-        modalState?.openWriteSongModal?.(songName);
-        setSongName('');
-        setShowSongForm(false);
-      }
+      // Legacy mode: open modal
+      modalState?.openWriteSongModal?.(songName);
+      setSongName('');
+      setShowSongForm(false);
     } catch (error) {
       console.error('Song generation failed:', error);
       alert('Error generating song: ' + error.message);
@@ -134,54 +118,103 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState, gameLogic, 
                 </p>
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold mb-2">Song Name</label>
-                <input
-                  type="text"
-                  value={songName}
-                  onChange={(e) => setSongName(e.target.value)}
-                  placeholder="Enter song name"
-                  className="w-full px-4 py-2 bg-input border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
+              {generatingMode === 'legacy' ? (
+                <>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">Song Name</label>
+                    <input
+                      type="text"
+                      value={songName}
+                      onChange={(e) => setSongName(e.target.value)}
+                      placeholder="Enter song name"
+                      className="w-full px-4 py-2 bg-input border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
 
-              <div>
-                <label className="block text-sm font-semibold mb-2">Genre</label>
-                <select
-                  value={songGenre}
-                  onChange={(e) => setSongGenre(e.target.value)}
-                  className="w-full px-4 py-2 bg-input border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  <option>Rock</option>
-                  <option>Pop</option>
-                  <option>Hip-Hop</option>
-                  <option>Electronic</option>
-                  <option>Jazz</option>
-                  <option>Metal</option>
-                </select>
-              </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">Genre</label>
+                    <select
+                      value={songGenre}
+                      onChange={(e) => setSongGenre(e.target.value)}
+                      className="w-full px-4 py-2 bg-input border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                    >
+                      <option>Rock</option>
+                      <option>Pop</option>
+                      <option>Hip-Hop</option>
+                      <option>Electronic</option>
+                      <option>Jazz</option>
+                      <option>Metal</option>
+                    </select>
+                  </div>
 
-              <div className="flex gap-4">
-                <button
-                  onClick={handleWriteSong}
-                  disabled={isGenerating}
-                  className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-all ${
-                    isGenerating
-                      ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
-                      : 'bg-secondary text-secondary-foreground hover:opacity-90'
-                  }`}
-                >
-                  {isGenerating ? 'Generating...' : `${generatingMode === 'legacy' ? 'Record' : 'Generate'} Song ($2,500)`}
-                </button>
-                <button
-                  onClick={() => setShowSongForm(false)}
-                  disabled={isGenerating}
-                  className="flex-1 px-4 py-2 bg-muted text-muted-foreground rounded-lg hover:bg-muted/80 transition-all disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-              </div>
-              <p className="text-xs text-muted-foreground">Current: ${(gameState?.state?.money || 0).toLocaleString()}</p>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={handleWriteSong}
+                      disabled={isGenerating}
+                      className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-all ${
+                        isGenerating
+                          ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
+                          : 'bg-secondary text-secondary-foreground hover:opacity-90'
+                      }`}
+                    >
+                      {isGenerating ? 'Generating...' : `${generatingMode === 'legacy' ? 'Record' : 'Generate'} Song ($${recordCost})`}
+                    </button>
+                    <button
+                      onClick={() => setShowSongForm(false)}
+                      disabled={isGenerating}
+                      className="flex-1 px-4 py-2 bg-muted text-muted-foreground rounded-lg hover:bg-muted/80 transition-all disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Current: ${(gameState?.state?.money || 0).toLocaleString()}</p>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">Song Name</label>
+                    <input
+                      type="text"
+                      value={songName}
+                      onChange={(e) => setSongName(e.target.value)}
+                      placeholder="Enter song name"
+                      className="w-full px-4 py-2 bg-input border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                  <SongGenerationPanel
+                    gameState={gameState?.state || {}}
+                    onSongGenerated={async (genre) => {
+                      if (!songName.trim()) {
+                        alert('Enter a song name');
+                        return;
+                      }
+                      setIsGenerating(true);
+                      try {
+                        const song = await musicGeneration.generateSong({
+                          title: songName,
+                          genre: genre,
+                          gameState: gameState?.state || {}
+                        });
+                        if (song) {
+                          setGeneratedSong(song);
+                          setShowPlaybackPanel(true);
+                          setSongName('');
+                          setShowSongForm(false);
+                        } else {
+                          alert('Failed to generate song');
+                        }
+                      } catch (error) {
+                        console.error('Song generation failed:', error);
+                        alert('Error generating song: ' + error.message);
+                      } finally {
+                        setIsGenerating(false);
+                      }
+                    }}
+                    disabled={isGenerating}
+                    cost={recordCost}
+                  />
+                </>
+              )}
             </div>
           </div>
         )}
