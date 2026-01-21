@@ -12,13 +12,13 @@ export class FanReactionSystem {
   static generateReactions(song, fanbase = {}) {
     const { analysis } = song;
     const { quality, originality, commercial, emotional } = {
-      quality: analysis.qualityScore,
-      originality: analysis.originalityScore,
-      commercial: analysis.commercialViability,
-      emotional: analysis.emotionalTone
+      quality: analysis?.qualityScore || song.quality || 50,
+      originality: analysis?.originalityScore || song.originality || 50,
+      commercial: analysis?.commercialViability || song.commercial || 50,
+      emotional: analysis?.emotionalTone || 'neutral'
     };
 
-    const { primary = 'mixed', size = 100, loyalty = 50 } = fanbase;
+    const { primary = 'mixed', size = 100, loyalty = 50 } = fanbase || {};
 
     // Generate base reactions
     const reactions = {

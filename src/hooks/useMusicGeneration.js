@@ -26,8 +26,31 @@ export const useMusicGeneration = () => {
 
   /**
    * Generate song from game state
+   * Accepts either: generateSong(gameState, genre, options) or generateSong({gameState, title, genre})
    */
-  const generateSong = useCallback(async (gameState, genre = 'rock', options = {}) => {
+  const generateSong = useCallback(async (gameStateOrObj, genre = 'rock', options = {}) => {
+    // Handle both call signatures for compatibility
+    let gameState, songTitle;
+    if (typeof gameStateOrObj === 'object' && gameStateOrObj.gameState !== undefined) {
+      // Called with object: {gameState, title, genre}
+      gameState = gameStateOrObj.gameState || {};
+      songTitle = gameStateOrObj.title || 'Untitled';
+      genre = gameStateOrObj.genre || genre;
+    } else {
+      // Called with positional args: generateSong(gameState, genre, options)
+      gameState = gameStateOrObj || {};
+    }
+
+    // Ensure gameState has required properties
+    gameState = {
+      bandName: gameState.bandName || 'Your Band',
+      week: gameState.week || gameState.currentWeek || 0,
+      money: gameState.money || 0,
+      fame: gameState.fame || 0,
+      bandMembers: gameState.bandMembers || [],
+      ...gameState
+    };
+
     const { 
       useCache = true,
       cacheKey = null,
@@ -36,7 +59,7 @@ export const useMusicGeneration = () => {
     } = options;
 
     // Generate cache key if not provided
-    const key = cacheKey || `${gameState.bandName}-${gameState.currentWeek}-${genre}`;
+    const key = cacheKey || `${gameState.bandName}-${gameState.week}-${genre}`;
 
     // Check cache
     if (useCache && songCacheRef.current[key]) {
@@ -49,12 +72,25 @@ export const useMusicGeneration = () => {
     setGenerationError(null);
 
     try {
-      // Generate song
-      const song = MusicGenerator.generateSong(gameState, genre, {
+      // Generate song and normalize structure
+      const generatedSong = MusicGenerator.generateSong(gameState, genre, {
         seed: key,
-        songName: `${gameState.bandName} - Week ${gameState.currentWeek}`,
+        songName: songTitle || `${gameState.bandName} - Week ${gameState.week}`,
         ...options
       });
+
+      // Normalize song structure for consistency
+      const song = {
+        ...generatedSong,
+        // Add game-friendly properties
+        title: songTitle || generatedSong.metadata?.name || 'Untitled',
+        name: songTitle || generatedSong.metadata?.name || 'Untitled',
+        genre: genre,
+        quality: Math.round(generatedSong.analysis?.qualityScore || 0),
+        originality: Math.round(generatedSong.analysis?.originalityScore || 0),
+        commercial: Math.round(generatedSong.analysis?.commercialViability || 0),
+        recordedWeek: gameState.week
+      };
 
       // Cache result
       songCacheRef.current[key] = song;

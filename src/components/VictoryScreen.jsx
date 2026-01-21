@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trophy, Zap, Users, Music, DollarSign, ChevronRight } from 'lucide-react';
+import { Trophy, Zap, Users, Music, DollarSign, ChevronRight, Star, Disc, Sparkles } from 'lucide-react';
 
 /**
  * VictoryScreen.jsx - End game screen for victory or defeat
@@ -143,10 +143,10 @@ export const VictoryScreen = ({
         {/* Victory Achievements */}
         {isVictory && (
           <div className="p-8 border-b border-border/20 bg-secondary/5">
-            <h2 className="text-xl font-bold text-foreground mb-4">🏆 Achievements Unlocked</h2>
+            <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2"><Trophy size={20} className="text-accent" /> Achievements Unlocked</h2>
             <div className="space-y-2">
               <div className="flex items-center gap-3 text-sm">
-                <div className="text-2xl">⭐</div>
+                <Star size={24} className="text-accent" />
                 <div>
                   <p className="font-semibold text-foreground">Scenario Master</p>
                   <p className="text-xs text-muted-foreground">Completed {scenario?.name}</p>
@@ -154,7 +154,7 @@ export const VictoryScreen = ({
               </div>
               {finalStats.week >= 100 && (
                 <div className="flex items-center gap-3 text-sm">
-                  <div className="text-2xl">🎵</div>
+                  <Music size={24} className="text-accent" />
                   <div>
                     <p className="font-semibold text-foreground">Centenarian</p>
                     <p className="text-xs text-muted-foreground">Survived 100+ weeks</p>
@@ -163,7 +163,7 @@ export const VictoryScreen = ({
               )}
               {finalStats.albumCount >= 5 && (
                 <div className="flex items-center gap-3 text-sm">
-                  <div className="text-2xl">💿</div>
+                  <Disc size={24} className="text-accent" />
                   <div>
                     <p className="font-semibold text-foreground">Prolific Artist</p>
                     <p className="text-xs text-muted-foreground">Released {finalStats.albumCount}+ albums</p>
@@ -172,7 +172,7 @@ export const VictoryScreen = ({
               )}
               {finalStats.fame >= 300 && (
                 <div className="flex items-center gap-3 text-sm">
-                  <div className="text-2xl">🌟</div>
+                  <Sparkles size={24} className="text-accent" />
                   <div>
                     <p className="font-semibold text-foreground">International Icon</p>
                     <p className="text-xs text-muted-foreground">Reached maximum fame</p>

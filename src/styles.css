@@ -12,8 +12,10 @@
     --popover-foreground: #000000;
     --primary: #4f46e5;
     --primary-foreground: #ffffff;
+    --primary-rgb: 79 70 229;
     --secondary: #14b8a6;
     --secondary-foreground: #ffffff;
+    --secondary-rgb: 20 184 166;
     --muted: #f0f0f0;
     --muted-foreground: #333333;
     --accent: #f59e0b;
@@ -67,8 +69,10 @@
     --popover-foreground: #ffffff;
     --primary: #818cf8;
     --primary-foreground: #000000;
+    --primary-rgb: 129 140 248;
     --secondary: #2dd4bf;
     --secondary-foreground: #000000;
+    --secondary-rgb: 45 212 191;
     --muted: #333333;
     --muted-foreground: #cccccc;
     --accent: #fcd34d;
@@ -2231,5 +2235,42 @@ html {
     width: 14px;
     height: 14px;
   }
+}
+
+@keyframes flicker {
+  0%, 100% {
+    opacity: 1;
+  }
+  10% {
+    opacity: 0.95;
+  }
+  15% {
+    opacity: 0.7;
+  }
+  20% {
+    opacity: 0.9;
+  }
+  25% {
+    opacity: 0.85;
+  }
+  30% {
+    opacity: 0.98;
+  }
+  35% {
+    opacity: 0.92;
+  }
+  40% {
+    opacity: 0.88;
+  }
+  50% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 0.95;
+  }
+}
+
+.flicker {
+  animation: flicker 4s ease-in-out infinite;
 }
 

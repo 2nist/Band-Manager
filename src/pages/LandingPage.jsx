@@ -30,8 +30,16 @@ export const LandingPage = ({
     }
   };
 
+  // Force re-render when theme changes to update styles
+  React.useEffect(() => {
+    // Trigger a rerender by updating document
+    document.documentElement.setAttribute('data-theme', currentTheme);
+  }, [currentTheme]);
+
   return (
-    <div className="min-h-screen text-foreground flex flex-col items-center justify-center p-8 relative overflow-hidden transition-colors duration-300"
+    <div 
+      key={`${currentTheme}-${isDarkMode}`}
+      className="min-h-screen text-foreground flex flex-col items-center justify-center p-4 relative overflow-hidden transition-colors duration-300"
       style={{
         backgroundColor: 'var(--background)'
       }}
@@ -79,11 +87,11 @@ export const LandingPage = ({
       />
 
       {/* Top Right - Theme/Dark Mode Controls */}
-      <div className="absolute top-6 right-6 z-20 flex gap-3">
+      <div className="absolute top-3 right-3 z-20 flex gap-1.5">
         {/* Dark Mode Toggle */}
         <button
           onClick={toggleDarkMode}
-          className="p-3 rounded-lg border-2 transition-all duration-300"
+          className="p-1.5 rounded-lg border-2 transition-all duration-300"
           style={{
             borderColor: 'var(--primary)',
             backgroundColor: 'rgba(var(--card-rgb), 0.6)',
@@ -97,27 +105,34 @@ export const LandingPage = ({
           {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
         </button>
 
-        {/* Theme Label */}
-        <div className="flex items-center px-4 py-3 rounded-lg border-2"
+        {/* Theme Dropdown */}
+        <select
+          value={currentTheme}
+          onChange={(e) => setTheme(e.target.value)}
+          className="px-2 py-1.5 rounded-lg border-2 transition-all duration-300 cursor-pointer"
           style={{
             borderColor: 'var(--secondary)',
-            backgroundColor: 'rgba(var(--card-rgb), 0.4)',
+            backgroundColor: 'rgba(var(--card-rgb), 0.6)',
             color: 'var(--secondary)',
             fontSize: '0.75rem',
             fontWeight: 'bold',
             letterSpacing: '0.1em'
           }}
         >
-          {THEME_NAMES[currentTheme]}
-        </div>
+          {availableThemes && availableThemes.map(theme => (
+            <option key={theme} value={theme}>
+              {THEME_NAMES[theme] || theme.replace('-', ' ').toUpperCase()}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center">
         {/* Header with neon glow */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-8">
           <h1 
-            className="text-7xl font-black mb-4 tracking-widest relative"
+            className="text-7xl font-black mb-2 tracking-widest relative flicker"
             style={{
               color: 'var(--primary)',
               textShadow: `
@@ -133,7 +148,7 @@ export const LandingPage = ({
             GIGMASTER
           </h1>
           <div 
-            className="text-sm tracking-widest mt-3"
+            className="text-sm tracking-widest mt-1.5"
             style={{
               color: 'var(--secondary)',
               textShadow: `
@@ -147,7 +162,7 @@ export const LandingPage = ({
         </div>
 
         {/* Main Content Card */}
-        <div className="max-w-2xl w-full rounded-lg p-12 border-2 relative transition-all duration-300"
+        <div className="max-w-2xl w-full rounded-lg p-6 border-2 relative transition-all duration-300"
           style={{
             backgroundColor: 'rgba(var(--card-rgb), 0.4)',
             borderColor: 'var(--primary)',
@@ -162,9 +177,9 @@ export const LandingPage = ({
           {/* New Game Section */}
           {!showLoadMenu && !showSettings && (
             <>
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-3">
                 {/* Band Name Input */}
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1.5">
                   <label 
                     className="text-xs uppercase font-bold tracking-widest"
                     style={{ color: 'var(--primary)' }}
@@ -177,9 +192,9 @@ export const LandingPage = ({
                     onChange={(e) => setBandName(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleNewGame()}
                     placeholder="YOUR BAND..."
-                    className="px-6 py-4 rounded-lg focus:outline-none focus:ring-2 transition-all font-mono uppercase text-sm border-2"
+                    className="px-3 py-2 rounded-lg focus:outline-none focus:ring-2 transition-all font-mono uppercase text-sm border-2"
                     style={{
-                      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                      backgroundColor: 'rgba(var(--card-rgb), 0.3)',
                       borderColor: 'var(--primary)',
                       color: 'var(--primary)',
                       '--placeholder-color': 'var(--primary)',
@@ -191,7 +206,7 @@ export const LandingPage = ({
                 <button
                   onClick={handleNewGame}
                   disabled={!bandName.trim()}
-                  className={`px-8 py-4 rounded-lg font-black text-lg uppercase tracking-widest flex items-center justify-center gap-3 transition-all border-2`}
+                  className={`px-4 py-2 rounded-lg font-black text-lg uppercase tracking-widest flex items-center justify-center gap-3 transition-all border-2`}
                   style={bandName.trim() ? {
                     borderColor: 'var(--primary)',
                     color: 'var(--primary)',
@@ -204,7 +219,7 @@ export const LandingPage = ({
                   } : {
                     borderColor: 'var(--muted)',
                     color: 'var(--muted)',
-                    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                    backgroundColor: 'rgba(var(--card-rgb), 0.15)',
                     cursor: 'not-allowed',
                     opacity: 0.5
                   }}
@@ -214,12 +229,12 @@ export const LandingPage = ({
                 </button>
 
                 {/* Secondary Buttons */}
-                <div className="flex gap-4 pt-4">
+                <div className="flex gap-2 pt-2">
                   {/* Load Game Button */}
                   <button
                     onClick={() => setShowLoadMenu(true)}
                     disabled={saveSlots.length === 0}
-                    className={`flex-1 px-6 py-4 rounded-lg border-2 text-lg font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all`}
+                    className={`flex-1 px-3 py-2 rounded-lg border-2 text-lg font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all`}
                     style={saveSlots.length > 0 ? {
                       borderColor: 'var(--secondary)',
                       color: 'var(--secondary)',
@@ -232,7 +247,7 @@ export const LandingPage = ({
                     } : {
                       borderColor: 'var(--muted)',
                       color: 'var(--muted)',
-                      backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                      backgroundColor: 'rgba(var(--card-rgb), 0.15)',
                       cursor: 'not-allowed',
                       opacity: 0.5
                     }}
@@ -244,7 +259,7 @@ export const LandingPage = ({
                   {/* Settings Button */}
                   <button
                     onClick={() => setShowSettings(true)}
-                    className="px-6 py-4 border-2 rounded-lg font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all"
+                    className="px-3 py-2 border-2 rounded-lg font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all"
                     style={{
                       borderColor: 'var(--muted)',
                       color: 'var(--muted)',
@@ -257,9 +272,9 @@ export const LandingPage = ({
               </div>
 
               {/* Difficulty Indicator */}
-              <div className="mt-8 pt-8 flex justify-center" style={{ borderTopColor: 'var(--primary)', borderTopWidth: '1px' }}>
+              <div className="mt-4 pt-4 flex justify-center" style={{ borderTopColor: 'var(--primary)', borderTopWidth: '1px' }}>
                 <div 
-                  className="px-6 py-2 rounded text-sm uppercase tracking-wider font-mono border"
+                  className="px-3 py-1 rounded text-sm uppercase tracking-wider font-mono border"
                   style={{
                     backgroundColor: 'rgba(0, 0, 0, 0.4)',
                     borderColor: 'var(--muted)',
@@ -275,23 +290,23 @@ export const LandingPage = ({
           {/* Load Game Menu */}
           {showLoadMenu && (
             <>
-              <h2 className="text-3xl font-black uppercase tracking-widest mb-6" style={{ color: 'var(--primary)' }}>
+              <h2 className="text-3xl font-black uppercase tracking-widest mb-3" style={{ color: 'var(--primary)' }}>
                 LOAD GAME
               </h2>
-              <div className="max-h-96 overflow-y-auto flex flex-col gap-3 mb-6">
+              <div className="max-h-96 overflow-y-auto flex flex-col gap-1.5 mb-3">
                 {saveSlots.length > 0 ? (
                   saveSlots.map(slot => (
                     <button
                       key={slot.id}
                       onClick={() => onLoadGame(slot.id)}
-                      className="px-6 py-4 bg-black/60 border-2 rounded-lg text-left hover:border-opacity-100 transition-all text-sm font-mono"
+                      className="px-3 py-2 bg-black/60 border-2 rounded-lg text-left hover:border-opacity-100 transition-all text-sm font-mono"
                       style={{
                         borderColor: 'var(--primary)',
                         color: 'var(--primary)',
                       }}
                     >
                       <div className="font-bold text-base">{slot.name}</div>
-                      <div className="mt-1" style={{ color: 'var(--primary)', opacity: 0.6 }}>
+                      <div className="mt-0.5" style={{ color: 'var(--primary)', opacity: 0.6 }}>
                         WEEK {slot.week} • ${slot.money} • FAME {slot.fame}
                       </div>
                     </button>
@@ -304,7 +319,7 @@ export const LandingPage = ({
               </div>
               <button
                 onClick={() => setShowLoadMenu(false)}
-                className="w-full px-6 py-3 border-2 rounded-lg font-bold uppercase transition-all"
+                className="w-full px-3 py-2 border-2 rounded-lg font-bold uppercase transition-all"
                 style={{
                   borderColor: 'var(--primary)',
                   color: 'var(--primary)',
@@ -318,21 +333,21 @@ export const LandingPage = ({
           {/* Settings Menu */}
           {showSettings && (
             <>
-              <h2 className="text-3xl font-black uppercase tracking-widest mb-6" style={{ color: 'var(--primary)' }}>
+              <h2 className="text-3xl font-black uppercase tracking-widest mb-3" style={{ color: 'var(--primary)' }}>
                 SETTINGS
               </h2>
               
               {/* Theme Selector */}
-              <div className="mb-6 pb-6" style={{ borderBottomWidth: '1px', borderBottomColor: 'var(--primary)' }}>
-                <label className="text-sm font-bold uppercase tracking-widest block mb-3" style={{ color: 'var(--primary)' }}>
+              <div className="mb-3 pb-3" style={{ borderBottomWidth: '1px', borderBottomColor: 'var(--primary)' }}>
+                <label className="text-sm font-bold uppercase tracking-widest block mb-1.5" style={{ color: 'var(--primary)' }}>
                   SELECT THEME
                 </label>
-                <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto">
+                <div className="grid grid-cols-3 gap-1 max-h-48 overflow-y-auto">
                   {availableThemes.map(theme => (
                     <button
                       key={theme}
                       onClick={() => setTheme(theme)}
-                      className={`px-3 py-2 rounded text-xs font-bold uppercase tracking-wider transition-all border-2 ${
+                      className={`px-1.5 py-1 rounded text-xs font-bold uppercase tracking-wider transition-all border-2 ${
                         currentTheme === theme ? 'border-opacity-100' : 'border-opacity-50'
                       }`}
                       style={{
@@ -349,13 +364,13 @@ export const LandingPage = ({
               </div>
 
               {/* Dark Mode Toggle */}
-              <div className="mb-6 pb-6" style={{ borderBottomWidth: '1px', borderBottomColor: 'var(--primary)' }}>
-                <label className="text-sm font-bold uppercase tracking-widest block mb-3" style={{ color: 'var(--primary)' }}>
+              <div className="mb-3 pb-3" style={{ borderBottomWidth: '1px', borderBottomColor: 'var(--primary)' }}>
+                <label className="text-sm font-bold uppercase tracking-widest block mb-1.5" style={{ color: 'var(--primary)' }}>
                   APPEARANCE
                 </label>
                 <button
                   onClick={toggleDarkMode}
-                  className="w-full px-6 py-3 rounded border-2 font-bold uppercase transition-all flex items-center justify-center gap-2"
+                  className="w-full px-3 py-2 rounded border-2 font-bold uppercase transition-all flex items-center justify-center gap-2"
                   style={{
                     borderColor: 'var(--primary)',
                     backgroundColor: 'rgba(var(--primary-rgb), 0.05)',
@@ -375,7 +390,7 @@ export const LandingPage = ({
               </div>
 
               {/* Info */}
-              <div className="text-xs font-mono space-y-3 mb-6" style={{ color: 'var(--muted)' }}>
+              <div className="text-xs font-mono space-y-1.5 mb-3" style={{ color: 'var(--muted)' }}>
                 <p>SOUND: ENABLED</p>
                 <p>MUSIC: ENABLED</p>
                 <p>LANGUAGE: ENGLISH</p>
@@ -386,7 +401,7 @@ export const LandingPage = ({
               
               <button
                 onClick={() => setShowSettings(false)}
-                className="w-full px-6 py-3 border-2 rounded-lg font-bold uppercase transition-all"
+                className="w-full px-3 py-2 border-2 rounded-lg font-bold uppercase transition-all"
                 style={{
                   borderColor: 'var(--primary)',
                   color: 'var(--primary)',
@@ -400,7 +415,7 @@ export const LandingPage = ({
       </div>
 
       {/* Footer */}
-      <p className="mt-16 text-sm text-center font-mono relative z-10" style={{ color: 'var(--muted)' }}>
+      <p className="mt-8 text-sm text-center font-mono relative z-10" style={{ color: 'var(--muted)' }}>
         GIGMASTER © 2026 • CHASING DREAMS IN THE MUSIC INDUSTRY
       </p>
     </div>

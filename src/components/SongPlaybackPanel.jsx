@@ -13,6 +13,7 @@ export const SongPlaybackPanel = ({
   song,
   gameState,
   onApplyGameEffects,
+  onAccept,
   onExport
 }) => {
   const [reactionData, setReactionData] = useState(null);
@@ -291,6 +292,37 @@ export const SongPlaybackPanel = ({
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Accept Button */}
+      {onAccept && (
+        <div style={{
+          padding: '15px',
+          backgroundColor: 'rgba(0, 255, 0, 0.05)',
+          borderTop: '1px solid #333',
+          display: 'flex',
+          gap: '10px'
+        }}>
+          <button
+            onClick={onAccept}
+            style={{
+              flex: 1,
+              padding: '12px',
+              backgroundColor: '#0f0',
+              color: '#000',
+              border: 'none',
+              borderRadius: '4px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              fontSize: '1em',
+              transition: 'opacity 0.2s'
+            }}
+            onMouseEnter={(e) => e.target.style.opacity = '0.9'}
+            onMouseLeave={(e) => e.target.style.opacity = '1'}
+          >
+            ✓ Accept Song
+          </button>
         </div>
       )}
     </div>

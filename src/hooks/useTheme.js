@@ -53,6 +53,32 @@ export const useTheme = () => {
     return saved || THEMES.SYNTHWAVE;
   });
 
+  // Apply theme IMMEDIATELY on mount (before first render)
+  useEffect(() => {
+    const root = document.documentElement;
+    
+    // Get current values from state
+    const isDark = localStorage.getItem('gigmaster_darkMode') === 'true' ||
+                   (localStorage.getItem('gigmaster_darkMode') === null && 
+                    window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const theme = localStorage.getItem('gigmaster_theme') || THEMES.SYNTHWAVE;
+    
+    // Remove all theme classes
+    Object.values(THEMES).forEach(t => {
+      root.classList.remove(`theme-${t}`);
+    });
+    
+    // Add current theme class
+    root.classList.add(`theme-${theme}`);
+    
+    // Add/remove dark mode class
+    if (isDark) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, []); // Run only once on mount
+
   // Persist dark mode setting
   useEffect(() => {
     localStorage.setItem('gigmaster_darkMode', isDarkMode);
@@ -74,12 +100,15 @@ export const useTheme = () => {
     
     // Add current theme class
     root.classList.add(`theme-${currentTheme}`);
+    console.log('Applied theme class:', `theme-${currentTheme}`);
     
-    // Add dark mode class
+    // Add/remove dark mode class
     if (isDarkMode) {
       root.classList.add('dark');
+      console.log('Dark mode ON');
     } else {
       root.classList.remove('dark');
+      console.log('Dark mode OFF');
     }
   }, [currentTheme, isDarkMode]);
 

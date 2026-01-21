@@ -1,16 +1,17 @@
 import React, { useState, useCallback } from 'react';
+import { Mic, Music, Zap, Radio } from 'lucide-react';
 import { getAvatarUrl } from '../utils/helpers';
 
 const ROLES = [
-  { id: 'vocalist', name: '🎤 Vocals' },
-  { id: 'lead-guitar', name: '🎸 Lead Guitar' },
-  { id: 'rhythm-guitar', name: '🎸 Rhythm Guitar' },
-  { id: 'bassist', name: '🎸 Bass' },
-  { id: 'drummer', name: '🥁 Drums' },
-  { id: 'keyboardist', name: '🎹 Keys' },
-  { id: 'synth', name: '🎹 Synth' },
-  { id: 'percussion', name: '🥁 Percussion' },
-  { id: 'dj', name: '🎚️ DJ' },
+  { id: 'vocalist', name: 'Vocals', icon: 'Mic' },
+  { id: 'lead-guitar', name: 'Lead Guitar', icon: 'Guitar' },
+  { id: 'rhythm-guitar', name: 'Rhythm Guitar', icon: 'Guitar' },
+  { id: 'bassist', name: 'Bass', icon: 'Music' },
+  { id: 'drummer', name: 'Drums', icon: 'Music' },
+  { id: 'keyboardist', name: 'Keys', icon: 'Music' },
+  { id: 'synth', name: 'Synth', icon: 'Zap' },
+  { id: 'percussion', name: 'Percussion', icon: 'Music' },
+  { id: 'dj', name: 'DJ', icon: 'Radio' },
 ];
 
 // Pre-made band candidates

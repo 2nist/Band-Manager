@@ -11,6 +11,22 @@
 import React, { useEffect, useState } from 'react';
 import './styles.css';
 
+// Initialize Tone.js for audio synthesis
+if (typeof window !== 'undefined' && !window.audioContextInitialized) {
+  import('tone').then(ToneLib => {
+    const Tone = ToneLib.default || ToneLib;
+    // Initialize the audio context
+    if (Tone && Tone.start) {
+      Tone.start().catch(err => {
+        console.log('Tone.js audio context initialization pending user interaction');
+      });
+    }
+    window.audioContextInitialized = true;
+  }).catch(err => {
+    console.warn('Tone.js could not be loaded. Audio playback will not work.', err);
+  });
+}
+
 // Import hooks
 import {
   useGameState,
@@ -254,12 +270,12 @@ function App() {
             if (gameState?.addLog) {
               if (escalations?.length > 0) {
                 escalations.forEach(esc => {
-                  gameState.addLog(`⚠️ Consequence escalated: ${esc.description}`);
+                  gameState.addLog(`Consequence escalated: ${esc.description}`);
                 });
               }
               if (resurfaced?.length > 0) {
                 resurfaced.forEach(res => {
-                  gameState.addLog(`👻 Past consequence resurfaced: ${res.description}`);
+                  gameState.addLog(`Past consequence resurfaced: ${res.description}`);
                 });
               }
             }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Music, Users, Zap, TrendingUp, Settings, Save, LogOut, ChevronRight, Palette } from 'lucide-react';
+import { Music, Users, Zap, TrendingUp, Settings, Save, LogOut, ChevronRight, Palette, Sun, Moon } from 'lucide-react';
 import { EnhancedEventModal } from '../components/EnhancedEventModal';
 import { 
   DashboardTab, 
@@ -90,7 +90,7 @@ export const GamePage = ({
           weekEvents.push({
             type: 'consequence',
             data: esc,
-            title: `⚠️ Consequence Escalated`,
+            title: `Consequence Escalated`,
             description: esc.description || 'A past decision has caught up with you...'
           });
         });
@@ -102,7 +102,7 @@ export const GamePage = ({
           weekEvents.push({
             type: 'consequence',
             data: res,
-            title: `👻 Consequence Resurfaced`,
+            title: `Consequence Resurfaced`,
             description: res.description || 'The past returns to haunt you...'
           });
         });
@@ -190,7 +190,7 @@ export const GamePage = ({
           const effects = Object.entries(updates)
             .map(([k, v]) => `${k.replace(/_/g, ' ')} ${v > 0 ? '+' : ''}${v}`)
             .join(', ');
-          gameState.addLog(`📊 Psychological effects: ${effects}`);
+          gameState.addLog(`Psychological effects: ${effects}`);
         }
       }
     }
@@ -207,7 +207,7 @@ export const GamePage = ({
     
     // Log the choice made
     if (gameState?.addLog && choiceText) {
-      gameState.addLog(`💭 You chose: "${choiceText}"`);
+      gameState.addLog(`You chose: "${choiceText}"`);
     }
     
     // Remove event from queue and show next one
@@ -302,7 +302,7 @@ export const GamePage = ({
               }`}
               title="Toggle Dark Mode"
             >
-              {themeSystem.isDarkMode ? '🌙' : '☀️'}
+              {themeSystem.isDarkMode ? <Moon size={16} className="text-accent" /> : <Sun size={16} className="text-accent" />}
             </button>
           </div>
         )}
