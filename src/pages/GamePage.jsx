@@ -247,17 +247,17 @@ export const GamePage = ({
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Header */}
-      <div className="bg-card border-b border-border/20 px-8 py-4 flex justify-between items-center">
+      <div className="bg-card border-b border-border/20 px-4 py-2 flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-foreground m-0">
             {gameData?.bandName || 'Your Band'}
           </h1>
-          <p className="mt-2 text-muted-foreground text-sm">
+          <p className="mt-1 text-muted-foreground text-sm">
             Week {gameData?.week || 0}
           </p>
         </div>
 
-        <div className="flex gap-8 text-sm">
+        <div className="flex gap-4 text-sm">
           <div>
             <div className="text-muted-foreground">Money</div>
             <div className="text-xl font-bold text-accent">
@@ -280,12 +280,12 @@ export const GamePage = ({
 
         {/* Theme Selector */}
         {themeSystem && (
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-1 items-center">
             <label className="text-sm font-semibold text-muted-foreground">Theme:</label>
             <select
               value={themeSystem.currentTheme || 'synthwave'}
               onChange={(e) => themeSystem.setTheme(e.target.value)}
-              className="px-3 py-2 text-sm rounded-md bg-card border border-border text-foreground cursor-pointer hover:border-primary transition-colors"
+              className="px-2 py-1 text-sm rounded-md bg-card border border-border text-foreground cursor-pointer hover:border-primary transition-colors"
             >
               {themeSystem.availableThemes && themeSystem.availableThemes.map(theme => (
                 <option key={theme} value={theme}>
@@ -295,7 +295,7 @@ export const GamePage = ({
             </select>
             <button
               onClick={themeSystem.toggleDarkMode}
-              className={`px-3 py-2 text-sm rounded-md transition-all ${
+              className={`px-2 py-1 text-sm rounded-md transition-all ${
                 themeSystem.isDarkMode
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted text-muted-foreground'
@@ -307,14 +307,14 @@ export const GamePage = ({
           </div>
         )}
 
-        <div className="flex gap-4">
+        <div className="flex gap-2">
           <button
             onClick={() => {
               setAutoSaving(true);
               onSave?.();
               setTimeout(() => setAutoSaving(false), 1000);
             }}
-            className={`px-4 py-2 rounded-md cursor-pointer flex items-center gap-2 transition-all ${
+            className={`px-2 py-1 rounded-md cursor-pointer flex items-center gap-2 transition-all ${
               autoSaving
                 ? 'bg-accent text-accent-foreground'
                 : 'bg-accent/20 text-accent hover:bg-accent/40'
@@ -326,7 +326,7 @@ export const GamePage = ({
 
           <button
             onClick={onQuit}
-            className="px-4 py-2 bg-destructive/20 text-destructive hover:bg-destructive/40 rounded-md cursor-pointer flex items-center gap-2 transition-all"
+            className="px-2 py-1 bg-destructive/20 text-destructive hover:bg-destructive/40 rounded-md cursor-pointer flex items-center gap-2 transition-all"
           >
             <LogOut size={16} />
             Quit
@@ -342,7 +342,7 @@ export const GamePage = ({
       />
 
       {/* Content Area */}
-      <div className="flex-1 p-8 overflow-auto flex flex-col">
+      <div className="flex-1 p-4 overflow-auto flex flex-col">
         <TabContent
           tabId={activeTab}
           gameData={gameData}
@@ -371,17 +371,17 @@ export const GamePage = ({
 
       {/* Week Advancement Button */}
       {activeTab === 'dashboard' && (
-        <div className="px-8 py-4 bg-card border-t border-border/20 flex justify-end gap-4">
+        <div className="px-4 py-2 bg-card border-t border-border/20 flex justify-end gap-2">
           <button
             onClick={triggerEvent}
-            className="px-6 py-3 bg-primary/20 text-primary border-2 border-primary/50 rounded-lg cursor-pointer text-lg font-bold hover:bg-primary/40 transition-all"
+            className="px-3 py-1.5 bg-primary/20 text-primary border-2 border-primary/50 rounded-lg cursor-pointer text-lg font-bold hover:bg-primary/40 transition-all"
           >
             Trigger Event
           </button>
 
           <button
             onClick={handleAdvanceWeek}
-            className="px-6 py-3 bg-accent text-accent-foreground rounded-lg cursor-pointer text-lg font-bold hover:opacity-90 transition-all flex items-center gap-2"
+            className="px-3 py-1.5 bg-accent text-accent-foreground rounded-lg cursor-pointer text-lg font-bold hover:opacity-90 transition-all flex items-center gap-2"
           >
             <ChevronRight size={18} />
             Advance Week
