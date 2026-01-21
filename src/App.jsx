@@ -211,6 +211,7 @@ function App() {
           enhancedFeatures={enhancedFeatures}
           setContentPreference={setContentPreference}
           setMaturityLevel={setMaturityLevel}
+          themeSystem={themeSystem}
           recordingSystem={recordingSystem}
           gigSystem={gigSystem}
           bandManagement={bandManagement}

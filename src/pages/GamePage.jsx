@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Music, Users, Zap, TrendingUp, Settings, Save, LogOut, ChevronRight } from 'lucide-react';
+import { Music, Users, Zap, TrendingUp, Settings, Save, LogOut, ChevronRight, Palette } from 'lucide-react';
 import { EnhancedEventModal } from '../components/EnhancedEventModal';
 import { 
   DashboardTab, 
@@ -54,7 +54,8 @@ export const GamePage = ({
   sponsorships,
   enhancedFeatures,
   setContentPreference,
-  setMaturityLevel
+  setMaturityLevel,
+  themeSystem
 }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [autoSaving, setAutoSaving] = useState(false);
@@ -276,6 +277,35 @@ export const GamePage = ({
             </div>
           </div>
         </div>
+
+        {/* Theme Selector */}
+        {themeSystem && (
+          <div className="flex gap-2 items-center">
+            <label className="text-sm font-semibold text-muted-foreground">Theme:</label>
+            <select
+              value={themeSystem.currentTheme || 'synthwave'}
+              onChange={(e) => themeSystem.setTheme(e.target.value)}
+              className="px-3 py-2 text-sm rounded-md bg-card border border-border text-foreground cursor-pointer hover:border-primary transition-colors"
+            >
+              {themeSystem.availableThemes && themeSystem.availableThemes.map(theme => (
+                <option key={theme} value={theme}>
+                  {themeSystem.THEME_NAMES?.[theme] || theme.replace('-', ' ').toUpperCase()}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={themeSystem.toggleDarkMode}
+              className={`px-3 py-2 text-sm rounded-md transition-all ${
+                themeSystem.isDarkMode
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground'
+              }`}
+              title="Toggle Dark Mode"
+            >
+              {themeSystem.isDarkMode ? '🌙' : '☀️'}
+            </button>
+          </div>
+        )}
 
         <div className="flex gap-4">
           <button
