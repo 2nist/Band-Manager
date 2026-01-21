@@ -380,6 +380,30 @@ export const useConsequenceSystem = (gameState) => {
   }, [gameState.week]);
 
   /**
+   * Apply faction decay over time (for inactive factions)
+   */
+  const applyFactionDecay = useCallback(() => {
+    setFactions(prev => {
+      const updated = { ...prev };
+
+      Object.entries(updated).forEach(([factionId, faction]) => {
+        if (faction.lastActivityWeek !== null) {
+          const weeksInactive = gameState.week - faction.lastActivityWeek;
+          if (weeksInactive > 0) {
+            const decay = faction.decayPerWeek * weeksInactive;
+            faction.currentStanding = Math.max(
+              faction.minStanding,
+              faction.currentStanding - decay
+            );
+          }
+        }
+      });
+
+      return updated;
+    });
+  }, [gameState.week]);
+
+  /**
    * Process weekly consequence escalation
    * Called each game week to check and escalate active consequences
    * Returns escalations and resurfaced consequences for event queueing
@@ -465,30 +489,6 @@ export const useConsequenceSystem = (gameState) => {
 
     return { escalations, resurfaced };
   }, [gameState.week, applyFactionDecay]);
-
-  /**
-   * Apply faction decay over time (for inactive factions)
-   */
-  const applyFactionDecay = useCallback(() => {
-    setFactions(prev => {
-      const updated = { ...prev };
-
-      Object.entries(updated).forEach(([factionId, faction]) => {
-        if (faction.lastActivityWeek !== null) {
-          const weeksInactive = gameState.week - faction.lastActivityWeek;
-          if (weeksInactive > 0) {
-            const decay = faction.decayPerWeek * weeksInactive;
-            faction.currentStanding = Math.max(
-              faction.minStanding,
-              faction.currentStanding - decay
-            );
-          }
-        }
-      });
-
-      return updated;
-    });
-  }, [gameState.week]);
 
   // Auto-save consequence data when it changes
   useEffect(() => {

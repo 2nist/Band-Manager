@@ -1,0 +1,300 @@
+/**
+ * SongPlaybackPanel - In-game playback and fan reaction display
+ * 
+ * Shows song analysis, fan reactions, and gameplay impact
+ */
+
+import React, { useEffect, useState } from 'react';
+import { Play, Pause, Square, Download, Share2, TrendingUp } from 'lucide-react';
+import TrackPlayer from './TrackPlayer';
+import { FanReactionSystem } from '../music/FanReactionSystem';
+
+export const SongPlaybackPanel = ({ 
+  song,
+  gameState,
+  onApplyGameEffects,
+  onExport
+}) => {
+  const [reactionData, setReactionData] = useState(null);
+  const [showReactions, setShowReactions] = useState(true);
+
+  // Generate reactions when song loads
+  useEffect(() => {
+    if (song && gameState) {
+      const reactions = FanReactionSystem.generateReactions(
+        song,
+        gameState.fanbase
+      );
+      setReactionData(reactions);
+
+      // Apply game effects automatically
+      if (onApplyGameEffects && reactions.impact) {
+        onApplyGameEffects(reactions.impact);
+      }
+    }
+  }, [song, gameState, onApplyGameEffects]);
+
+  if (!song) {
+    return (
+      <div style={{ padding: '20px', color: '#888' }}>
+        No song to display
+      </div>
+    );
+  }
+
+  const { reactions, impact } = reactionData || {};
+  const analysis = song.analysis;
+
+  return (
+    <div style={{
+      backgroundColor: '#0a0a0a',
+      border: '1px solid #333',
+      borderRadius: '8px',
+      color: '#fff'
+    }}>
+      {/* Song Info Header */}
+      <div style={{
+        backgroundColor: '#1a1a1a',
+        padding: '15px',
+        borderBottom: '1px solid #333',
+        borderRadius: '8px 8px 0 0'
+      }}>
+        <h2 style={{ margin: '0 0 10px 0', color: '#0ff' }}>
+          {song.metadata.name}
+        </h2>
+        <p style={{ margin: '5px 0', color: '#888', fontSize: '0.9em' }}>
+          {song.metadata.band} • {song.composition.genre} • {song.composition.tempo} BPM
+        </p>
+      </div>
+
+      {/* Player */}
+      <div style={{ padding: '15px', borderBottom: '1px solid #333' }}>
+        <TrackPlayer song={song} onExport={onExport} />
+      </div>
+
+      {/* Analysis Metrics */}
+      <div style={{
+        padding: '15px',
+        borderBottom: '1px solid #333',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: '15px'
+      }}>
+        {/* Quality Score */}
+        <div style={{
+          backgroundColor: 'rgba(0, 255, 255, 0.05)',
+          border: '1px solid #0ff',
+          borderRadius: '4px',
+          padding: '12px'
+        }}>
+          <div style={{ fontSize: '0.85em', color: '#0ff' }}>QUALITY</div>
+          <div style={{ fontSize: '2em', fontWeight: 'bold', color: '#0ff' }}>
+            {Math.round(analysis.qualityScore)}
+          </div>
+          <div style={{ fontSize: '0.75em', color: '#666', marginTop: '5px' }}>
+            Production & performance
+          </div>
+        </div>
+
+        {/* Originality Score */}
+        <div style={{
+          backgroundColor: 'rgba(0, 255, 0, 0.05)',
+          border: '1px solid #0f0',
+          borderRadius: '4px',
+          padding: '12px'
+        }}>
+          <div style={{ fontSize: '0.85em', color: '#0f0' }}>ORIGINALITY</div>
+          <div style={{ fontSize: '2em', fontWeight: 'bold', color: '#0f0' }}>
+            {Math.round(analysis.originalityScore)}
+          </div>
+          <div style={{ fontSize: '0.75em', color: '#666', marginTop: '5px' }}>
+            Freshness & innovation
+          </div>
+        </div>
+
+        {/* Commercial Viability */}
+        <div style={{
+          backgroundColor: 'rgba(255, 150, 0, 0.05)',
+          border: '1px solid #ff9600',
+          borderRadius: '4px',
+          padding: '12px'
+        }}>
+          <div style={{ fontSize: '0.85em', color: '#ff9600' }}>COMMERCIAL</div>
+          <div style={{ fontSize: '2em', fontWeight: 'bold', color: '#ff9600' }}>
+            {Math.round(analysis.commercialViability)}
+          </div>
+          <div style={{ fontSize: '0.75em', color: '#666', marginTop: '5px' }}>
+            Radio/chart potential
+          </div>
+        </div>
+      </div>
+
+      {/* Fan Reactions */}
+      {reactionData && showReactions && (
+        <div style={{
+          padding: '15px',
+          borderBottom: '1px solid #333',
+          backgroundColor: 'rgba(0, 255, 0, 0.02)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+            <TrendingUp size={18} color='#0f0' />
+            <h3 style={{ margin: 0, color: '#0f0' }}>Fan Reaction</h3>
+          </div>
+
+          {/* Overall Reaction */}
+          <div style={{
+            backgroundColor: '#1a1a1a',
+            padding: '12px',
+            borderRadius: '4px',
+            marginBottom: '12px',
+            borderLeft: '4px solid #0f0'
+          }}>
+            <p style={{ margin: 0, fontSize: '0.95em', lineHeight: '1.5' }}>
+              {reactions.overall}
+            </p>
+          </div>
+
+          {/* Feedback Points */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '10px'
+          }}>
+            {/* Quality Feedback */}
+            <div>
+              <div style={{ fontSize: '0.85em', color: '#0ff', marginBottom: '5px', fontWeight: 'bold' }}>
+                Production
+              </div>
+              {reactions.quality.map((point, idx) => (
+                <div key={idx} style={{ fontSize: '0.8em', color: '#888', marginBottom: '3px' }}>
+                  {point}
+                </div>
+              ))}
+            </div>
+
+            {/* Originality Feedback */}
+            <div>
+              <div style={{ fontSize: '0.85em', color: '#0ff', marginBottom: '5px', fontWeight: 'bold' }}>
+                Sound
+              </div>
+              {reactions.originality.map((point, idx) => (
+                <div key={idx} style={{ fontSize: '0.8em', color: '#888', marginBottom: '3px' }}>
+                  {point}
+                </div>
+              ))}
+            </div>
+
+            {/* Emotional Feedback */}
+            <div style={{ gridColumn: '1 / -1' }}>
+              <div style={{ fontSize: '0.85em', color: '#0ff', marginBottom: '5px', fontWeight: 'bold' }}>
+                Impact
+              </div>
+              {reactions.emotional.map((point, idx) => (
+                <div key={idx} style={{ fontSize: '0.8em', color: '#888', marginBottom: '3px' }}>
+                  {point}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Fan Quote */}
+          <div style={{
+            backgroundColor: '#222',
+            padding: '10px',
+            borderRadius: '4px',
+            marginTop: '12px',
+            borderLeft: '3px solid #0f0',
+            fontSize: '0.85em',
+            fontStyle: 'italic',
+            color: '#aaa'
+          }}>
+            "{reactions.fanSpecific}"
+          </div>
+        </div>
+      )}
+
+      {/* Game Impact */}
+      {impact && (
+        <div style={{
+          padding: '15px',
+          backgroundColor: 'rgba(255, 150, 0, 0.02)'
+        }}>
+          <h3 style={{ margin: '0 0 12px 0', color: '#ff9600' }}>
+            Game Impact
+          </h3>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '10px'
+          }}>
+            {/* Fame Gain */}
+            <div style={{
+              backgroundColor: '#1a1a1a',
+              padding: '10px',
+              borderRadius: '4px',
+              borderLeft: '3px solid #0f0'
+            }}>
+              <div style={{ fontSize: '0.8em', color: '#666' }}>FAME GAIN</div>
+              <div style={{ fontSize: '1.3em', fontWeight: 'bold', color: '#0f0' }}>
+                +{impact.fameGain}
+              </div>
+            </div>
+
+            {/* Money Gain */}
+            <div style={{
+              backgroundColor: '#1a1a1a',
+              padding: '10px',
+              borderRadius: '4px',
+              borderLeft: '3px solid #0ff'
+            }}>
+              <div style={{ fontSize: '0.8em', color: '#666' }}>REVENUE</div>
+              <div style={{ fontSize: '1.3em', fontWeight: 'bold', color: '#0ff' }}>
+                +${impact.moneyGain}
+              </div>
+            </div>
+
+            {/* Band Effects */}
+            <div style={{ gridColumn: '1 / -1' }}>
+              <div style={{ fontSize: '0.8em', color: '#666', marginBottom: '8px' }}>
+                BAND MORALE
+              </div>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+                gap: '8px'
+              }}>
+                {impact.psychologicalEffect.confidence_change !== 0 && (
+                  <div style={{
+                    fontSize: '0.75em',
+                    color: impact.psychologicalEffect.confidence_change > 0 ? '#0f0' : '#f00'
+                  }}>
+                    Confidence {impact.psychologicalEffect.confidence_change > 0 ? '+' : ''}{Math.round(impact.psychologicalEffect.confidence_change)}
+                  </div>
+                )}
+                {impact.psychologicalEffect.stress_change !== 0 && (
+                  <div style={{
+                    fontSize: '0.75em',
+                    color: impact.psychologicalEffect.stress_change > 0 ? '#f00' : '#0f0'
+                  }}>
+                    Stress {impact.psychologicalEffect.stress_change > 0 ? '+' : ''}{Math.round(impact.psychologicalEffect.stress_change)}
+                  </div>
+                )}
+                {impact.psychologicalEffect.burnout_change !== 0 && (
+                  <div style={{
+                    fontSize: '0.75em',
+                    color: impact.psychologicalEffect.burnout_change > 0 ? '#f00' : '#0f0'
+                  }}>
+                    Burnout {impact.psychologicalEffect.burnout_change > 0 ? '+' : ''}{Math.round(impact.psychologicalEffect.burnout_change)}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default SongPlaybackPanel;

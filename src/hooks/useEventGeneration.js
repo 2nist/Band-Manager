@@ -154,6 +154,26 @@ export const useEventGeneration = (gameState, psychologicalState, narrativeState
   }, []);
 
   /**
+   * Select a random character from an archetype
+   * @param {string} archetype - Character archetype key
+   * @returns {Object} Random character from that archetype
+   */
+  const selectCharacter = useCallback((archetype) => {
+    const arch = CHARACTER_ARCHETYPES[archetype];
+    if (!arch) return { name: 'Unknown', traits: [], dialogue: 'You meet someone.' };
+    
+    const randomName = arch.names[Math.floor(Math.random() * arch.names.length)];
+    const randomDialogue = arch.dialogues[Math.floor(Math.random() * arch.dialogues.length)];
+    
+    return {
+      name: randomName,
+      archetype: archetype,
+      traits: arch.traits,
+      dialogue: randomDialogue
+    };
+  }, [CHARACTER_ARCHETYPES]);
+
+  /**
    * Select event type based on psychological weights
    * @param {Object} weights - Event type weights
    * @returns {string} Selected event type
@@ -314,7 +334,7 @@ export const useEventGeneration = (gameState, psychologicalState, narrativeState
         }
       ]
     };
-  }, [psychologicalState.addiction_risk, selectCharacter]);
+  }, [psychologicalState, selectCharacter]);
 
   /**
    * Generate corruption opportunity

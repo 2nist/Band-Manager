@@ -30,7 +30,8 @@ import {
   useRadioChartingSystem,
   useMerchandiseSystem,
   useSponsorshipSystem,
-  useVictoryConditions
+  useVictoryConditions,
+  useTheme
 } from './hooks';
 
 // Import page components
@@ -58,6 +59,9 @@ import BandStatsModal from './components/Modals/BandStatsModal';
  * - useConsequenceSystem: Phase 2 consequence tracking (NEW)
  */
 function App() {
+  // Initialize theme system
+  const themeSystem = useTheme();
+
   // Initialize hooks
   const gameState = useGameState();
   const uiState = useUIState();
@@ -147,17 +151,6 @@ function App() {
   useEffect(() => {
     victoryConditions.updateGoalProgress(gameState.state);
   }, [gameState.state?.week, gameState.state?.fame, gameState.state?.money]);
-
-  // Apply theme to document
-  useEffect(() => {
-    const root = document.documentElement;
-    root.className = uiState.theme;
-    if (uiState.darkMode) {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-  }, [uiState.theme, uiState.darkMode]);
 
   // Render based on current step
   return (
