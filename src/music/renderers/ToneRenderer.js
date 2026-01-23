@@ -7,7 +7,7 @@
  */
 
 import * as Tone from 'tone';
-import { getGenreEffects, adjustEffectsForGameState } from './EffectsConfig.js';
+import { getGenreEffects, adjustEffectsForGameState, DEFAULT_EFFECTS } from './EffectsConfig.js';
 import { getKeyboardTypeForGenre } from './KeyboardConfig.js';
 import { SeededRandom } from '../utils/SeededRandom.js';
 
@@ -94,12 +94,7 @@ export class ToneRenderer {
     // Start Tone.js audio context
     await Tone.start();
     
-    // Setup effects first (will be connected later)
-    if (song) {
-      await this._setupEffects(song);
-    }
-    
-    // Create master effects chain
+    // Create master effects chain first
     this.masterEffects.compressor = new Tone.Compressor({
       threshold: -22,
       ratio: 4,
@@ -116,6 +111,14 @@ export class ToneRenderer {
     // Connect master effects
     this.masterEffects.compressor.connect(this.masterEffects.reverb);
     this.masterEffects.reverb.toDestination();
+    
+    // Create keyboard effects BEFORE _setupEffects (needed by _initializeKeyboard)
+    this.keyboardEffects = {
+      reverb: new Tone.Reverb({ roomSize: 0.4, wet: 0 }),
+      chorus: new Tone.Chorus(1.2, 2.5, 0.5),
+      filter: new Tone.Filter(8000, 'lowpass'),
+      delay: new Tone.FeedbackDelay('8n', 0)
+    };
     
     // Create melody synth with effects
     this.melodySynth = new Tone.PolySynth(Tone.Synth, {
@@ -143,21 +146,18 @@ export class ToneRenderer {
       .connect(this.masterEffects.compressor);
     
     this.melodySynth.volume.value = -8;
-
-    // Create keyboard effects
-    this.keyboardEffects = {
-      reverb: new Tone.Reverb({ roomSize: 0.4, wet: 0 }),
-      chorus: new Tone.Chorus(1.2, 2.5, 0.5),
-      filter: new Tone.Filter(8000, 'lowpass'),
-      delay: new Tone.FeedbackDelay('8n', 0)
-    };
     
-    // Connect keyboard effects
+    // Connect keyboard effects (already created above)
     this.keyboardEffects.filter
       .connect(this.keyboardEffects.chorus)
       .connect(this.keyboardEffects.delay)
       .connect(this.keyboardEffects.reverb)
       .connect(this.masterEffects.compressor);
+    
+    // Setup effects AFTER keyboard effects are created (needed by _initializeKeyboard)
+    if (song) {
+      await this._setupEffects(song);
+    }
 
     // Create harmony voices (4-voice polyphony for chords) with effects
     this.harmonyEffects.reverb = new Tone.Reverb({ roomSize: 0.3, wet: 0 });
@@ -196,7 +196,8 @@ export class ToneRenderer {
     });
     this.drumEffects.reverb = new Tone.Reverb({ roomSize: 0.2, wet: 0 });
     this.drumEffects.distortion = new Tone.Distortion(0);
-    this.drumEffects.filter = new Tone.Filter(10000, 'highpass');
+    // Use lowpass filter for drums to preserve low frequencies (kick needs bass)
+    this.drumEffects.filter = new Tone.Filter(8000, 'lowpass');
     
     // Connect drum effects
     this.drumEffects.filter
@@ -205,8 +206,13 @@ export class ToneRenderer {
       .connect(this.drumEffects.reverb)
       .connect(this.masterEffects.compressor);
     
-    this.drums.kick = new Tone.Synth({
-      oscillator: { type: 'sine' },
+    // Kick drum - use MembraneSynth for better kick sound (more realistic)
+    this.drums.kick = new Tone.MembraneSynth({
+      pitchDecay: 0.05,
+      octaves: 10,
+      oscillator: {
+        type: 'sine'
+      },
       envelope: {
         attack: 0.001,
         decay: 0.4,
@@ -215,8 +221,9 @@ export class ToneRenderer {
       }
     });
     this.drums.kick.connect(this.drumEffects.filter);
-    this.drums.kick.volume.value = -6;
+    this.drums.kick.volume.value = 0; // Increased from -6 to 0 for better audibility
 
+    // Snare drum
     this.drums.snare = new Tone.MembraneSynth({
       pitchDecay: 0.08,
       octaves: 1,
@@ -228,7 +235,7 @@ export class ToneRenderer {
       }
     });
     this.drums.snare.connect(this.drumEffects.filter);
-    this.drums.snare.volume.value = -8;
+    this.drums.snare.volume.value = -2; // Increased from -8 to -2
 
     // Hi-hat (high-frequency click)
     this.drums.hihat = new Tone.MetalSynth({
@@ -241,7 +248,7 @@ export class ToneRenderer {
       harmonics: [12, 8, 4]
     });
     this.drums.hihat.connect(this.drumEffects.filter);
-    this.drums.hihat.volume.value = -14;
+    this.drums.hihat.volume.value = -8; // Increased from -14 to -8
 
     // Keyboard will be initialized when song is rendered (needs genre info)
     this.keyboardSynth = null;
@@ -254,6 +261,16 @@ export class ToneRenderer {
    * Initialize keyboard synth based on genre
    */
   async _initializeKeyboard(genre) {
+    // Ensure keyboardEffects exists
+    if (!this.keyboardEffects || !this.keyboardEffects.reverb) {
+      console.warn('_initializeKeyboard: keyboardEffects not initialized, creating defaults');
+      this.keyboardEffects = {
+        reverb: new Tone.Reverb({ roomSize: 0.4, wet: 0 }),
+        chorus: new Tone.Chorus(1.2, 2.5, 0.5),
+        filter: new Tone.Filter(8000, 'lowpass'),
+        delay: new Tone.FeedbackDelay('8n', 0)
+      };
+    }
     if (this.keyboardSynth && this.keyboardType === getKeyboardTypeForGenre(genre)) {
       return; // Already initialized with correct type
     }
@@ -369,7 +386,13 @@ export class ToneRenderer {
     await this._initializeKeyboard(genre);
     
     // Get genre-specific effects
-    const baseEffects = getGenreEffects(genre);
+    let baseEffects = getGenreEffects(genre);
+    
+    // Ensure baseEffects is valid
+    if (!baseEffects || typeof baseEffects !== 'object') {
+      console.error('_setupEffects: Invalid baseEffects, using DEFAULT_EFFECTS', { genre, baseEffects });
+      baseEffects = DEFAULT_EFFECTS;
+    }
     
     // Adjust for game state - pass the full gameContext for proper extraction
     const effects = adjustEffectsForGameState(baseEffects, {
@@ -381,6 +404,12 @@ export class ToneRenderer {
       psychState: gameState.psychState || gameState.psychologicalState || gameState.psychConstraints,
       constraints: gameState.constraints
     });
+    
+    // Ensure effects object is valid
+    if (!effects || typeof effects !== 'object') {
+      console.error('_setupEffects: Invalid effects after adjustment', { effects });
+      throw new Error('Failed to generate effects configuration');
+    }
     
     // Apply master effects
     if (effects.master) {
@@ -742,17 +771,136 @@ export class ToneRenderer {
 
     if (this.isPlaying) return;
 
+    // Ensure drums are initialized
+    if (!this.drums.kick || !this.drums.snare || !this.drums.hihat) {
+      console.warn('Drums not initialized, re-initializing...');
+      await this.initialize(this.currentSong);
+    }
+
+    // Ensure audio context is running
+    if (Tone.context.state !== 'running') {
+      await Tone.start();
+    }
+    
+    // Ensure we have scheduled notes before starting
+    if (this.scheduledNotes.length === 0) {
+      console.warn('No notes scheduled, cannot start playback');
+      this.isPlaying = false;
+      return;
+    }
+    
+    // Reset transport to beginning - must stop before canceling
+    if (Tone.Transport.state !== 'stopped') {
+      Tone.Transport.stop();
+    }
+    
+    // Clear any existing scheduled events
+    Tone.Transport.cancel();
+    
+    // Reset transport time BEFORE scheduling new events
+    Tone.Transport.seconds = 0;
+    
+    // Re-schedule all notes (they may have been cleared by cancel)
+    // Filter out notes with negative times and clamp to 0
+    const validNotes = this.scheduledNotes.map(note => ({
+      ...note,
+      time: Math.max(0, note.time) // Clamp negative times to 0
+    })).filter(note => note.time >= 0 && isFinite(note.time)); // Remove any invalid notes
+    
+    console.log(`Scheduling ${validNotes.length} notes for playback (filtered from ${this.scheduledNotes.length})`);
+    let scheduledCount = 0;
+    validNotes.forEach((note, index) => {
+      // Clamp time before logging
+      const clampedTime = Math.max(0, note.time);
+      if (index < 10) {
+        console.log(`Scheduling note ${index}: ${note.type} at ${clampedTime.toFixed(3)}s, note:`, note.note || 'N/A');
+      }
+      try {
+        // Use clamped time for scheduling
+        const scheduleTime = clampedTime;
+        Tone.Transport.schedule((time) => {
+          scheduledCount++;
+          if (scheduledCount <= 10) {
+            console.log(`Transport callback triggered for note ${index}: ${note.type} at scheduled time ${time.toFixed(3)}s`);
+          }
+          this._playNote(note, time);
+        }, scheduleTime);
+      } catch (error) {
+        console.error(`Error scheduling note ${index}:`, error, note);
+      }
+    });
+    console.log(`Successfully scheduled ${validNotes.length} notes`);
+    
     this.isPlaying = true;
     
-    // Trigger all scheduled notes
-    this.scheduledNotes.forEach(note => {
+    // Ensure audio context is running before starting Transport
+    if (Tone.context.state !== 'running') {
+      console.warn('Audio context not running, attempting to start...');
+      try {
+        await Tone.start();
+        console.log('Audio context started, state:', Tone.context.state);
+      } catch (error) {
+        console.error('Failed to start audio context:', error);
+      }
+    }
+    
+    // Reset Transport to beginning
+    Tone.Transport.seconds = 0;
+    
+    // Start transport - use start() without arguments to start from current position (0)
+    try {
+      // Ensure Transport is stopped before starting
+      if (Tone.Transport.state === 'started') {
+        Tone.Transport.stop();
+        await new Promise(resolve => setTimeout(resolve, 10));
+      }
+      
+      // Test: Schedule a simple callback to verify Transport is working
       Tone.Transport.schedule((time) => {
-        this._playNote(note, time);
-      }, note.time);
-    });
-
-    // Start transport
-    Tone.Transport.start();
+        console.log('TEST: Transport callback fired at time:', time);
+      }, 0.1);
+      
+      Tone.Transport.start();
+      console.log('Tone.Transport.start() called, state:', Tone.Transport.state, 'seconds:', Tone.Transport.seconds, 'context state:', Tone.context.state);
+      
+      // Small delay to let Transport initialize
+      await new Promise(resolve => setTimeout(resolve, 10));
+      
+      // Check if Transport actually started
+      console.log('After start delay, Transport state:', Tone.Transport.state, 'seconds:', Tone.Transport.seconds);
+      
+    } catch (error) {
+      console.error('Error starting Transport:', error);
+    }
+    
+    // Verify transport started (give it a moment)
+    await new Promise(resolve => setTimeout(resolve, 100));
+    if (Tone.Transport.state !== 'started') {
+      console.warn('Tone.Transport did not start, current state:', Tone.Transport.state, 'context state:', Tone.context.state);
+      // Try starting again with full reset
+      try {
+        Tone.Transport.stop();
+        Tone.Transport.cancel();
+        Tone.Transport.seconds = 0;
+        
+        // Re-schedule notes (they may have been cleared)
+        validNotes.forEach((note) => {
+          Tone.Transport.schedule((time) => {
+            this._playNote(note, time);
+          }, note.time);
+        });
+        
+        Tone.Transport.start();
+        await new Promise(resolve => setTimeout(resolve, 50));
+        console.log('Retry start, Transport state:', Tone.Transport.state, 'seconds:', Tone.Transport.seconds);
+      } catch (error) {
+        console.error('Error retrying Transport start:', error);
+      }
+    } else {
+      console.log('Tone.Transport started successfully, state:', Tone.Transport.state, 'seconds:', Tone.Transport.seconds);
+    }
+    
+    console.log(`Playing ${this.scheduledNotes.length} scheduled notes (${this.scheduledNotes.filter(n => n.type === 'kick').length} kicks, ${this.scheduledNotes.filter(n => n.type === 'snare').length} snares, ${this.scheduledNotes.filter(n => n.type === 'hihat').length} hihats), Transport state: ${Tone.Transport.state}`);
   }
 
   /**
@@ -762,7 +910,8 @@ export class ToneRenderer {
     Tone.Transport.stop();
     Tone.Transport.cancel();
     this.isPlaying = false;
-    this.scheduledNotes = [];
+    // Don't clear scheduledNotes - allow replay without re-rendering
+    // this.scheduledNotes = [];
   }
 
   /**
@@ -787,10 +936,45 @@ export class ToneRenderer {
    * Schedule drum pattern playback with member skill traits
    */
   _scheduleDrumPattern(drumData, secondsPerBeat) {
-    const { pattern, tempo } = drumData;
-    if (!pattern) return;
+    if (!drumData) {
+      console.warn('_scheduleDrumPattern: No drumData provided');
+      return;
+    }
+    
+    const { pattern, tempo, beats } = drumData;
+    
+    // Handle different pattern structures
+    // DrumEngine returns: { pattern: { beats: { kick, snare, hihat } }, tempo }
+    let drumBeats = null;
+    if (pattern?.beats) {
+      drumBeats = pattern.beats;
+    } else if (beats) {
+      drumBeats = beats;
+    } else if (pattern && (pattern.kick || pattern.snare || pattern.hihat)) {
+      // Pattern is the beats object directly
+      drumBeats = pattern;
+    } else {
+      console.warn('_scheduleDrumPattern: No pattern or beats found in drumData', { 
+        hasPattern: !!pattern, 
+        hasBeats: !!beats,
+        patternKeys: pattern ? Object.keys(pattern) : [],
+        drumDataKeys: Object.keys(drumData)
+      });
+      return;
+    }
 
-    const { kick = [], snare = [], hihat = [], ghostSnare = [] } = pattern;
+    const { kick = [], snare = [], hihat = [], ghostSnare = [] } = drumBeats;
+    
+    // Log if no drum beats found
+    if (kick.length === 0 && snare.length === 0 && hihat.length === 0) {
+      console.warn('_scheduleDrumPattern: No drum beats found in pattern', { 
+        kick: kick.length, 
+        snare: snare.length, 
+        hihat: hihat.length, 
+        pattern: drumBeats,
+        drumData: drumData 
+      });
+    }
     const drummerTraits = this.memberTraits.drummer;
     
     // Calculate timing variance (bad timing = more variance)
@@ -809,7 +993,7 @@ export class ToneRenderer {
     kick.forEach(beatTime => {
       // Apply timing variance
       const timingOffset = (this.traitRNG.next() - 0.5) * timingVariance;
-      const actualTime = beatTime * secondsPerBeat + timingOffset;
+      const actualTime = Math.max(0, beatTime * secondsPerBeat + timingOffset); // Clamp to 0 to prevent negative times
       
       // Apply dynamics
       const baseVelocity = 1.0;
@@ -908,9 +1092,9 @@ export class ToneRenderer {
     chords.forEach((chord, index) => {
       const baseStartTime = index * beatDuration * secondsPerBeat;
       
-      // Apply timing variance
-      const timingOffset = (this.traitRNG.next() - 0.5) * timingVariance;
-      const startTime = baseStartTime + timingOffset;
+          // Apply timing variance
+          const timingOffset = (this.traitRNG.next() - 0.5) * timingVariance;
+          const startTime = Math.max(0, baseStartTime + timingOffset); // Clamp to 0 to prevent negative times
       
       const duration = beatDuration * secondsPerBeat;
 
@@ -1038,27 +1222,72 @@ export class ToneRenderer {
    * Play individual note with velocity from member traits
    */
   _playNote(note, time) {
+    // Only check drums for drum notes - don't block melody/harmony
+    const isDrumNote = ['kick', 'snare', 'hihat'].includes(note.type);
+    if (isDrumNote && (!this.drums.kick || !this.drums.snare || !this.drums.hihat)) {
+      console.warn('Drums not initialized when trying to play drum note:', note.type);
+      return;
+    }
+
+    // Debug: Log first few notes to verify they're being triggered
+    const noteIndex = this.scheduledNotes.findIndex(n => n === note);
+    if (noteIndex < 5) {
+      console.log(`Playing note ${noteIndex}: ${note.type} at time ${time.toFixed(3)}s`, note);
+    }
+
     switch (note.type) {
       case 'kick':
+        if (!this.drums.kick) {
+          console.warn('Kick drum not initialized');
+          return;
+        }
         // Apply velocity to kick (affects volume)
-        const kickVolume = -6 + (1 - (note.velocity || 1.0)) * 10; // -6 to -16 dB
+        // Base volume is 0, adjust down based on velocity
+        const kickVolume = 0 - ((1 - (note.velocity || 1.0)) * 8); // 0 to -8 dB
         this.drums.kick.volume.value = kickVolume;
-        this.drums.kick.triggerAttackRelease('C1', '0.4', time);
+        // Use lower note (C1) for kick drum - MembraneSynth will produce proper kick sound
+        try {
+          this.drums.kick.triggerAttackRelease('C1', '0.4', time);
+        } catch (error) {
+          console.error('Error triggering kick:', error);
+        }
         break;
 
       case 'snare':
-        const snareVolume = -8 + (1 - (note.velocity || 1.0)) * 12; // -8 to -20 dB
+        if (!this.drums.snare) {
+          console.warn('Snare drum not initialized');
+          return;
+        }
+        // Base volume is -2, adjust down based on velocity
+        const snareVolume = -2 - ((1 - (note.velocity || 1.0)) * 10); // -2 to -12 dB
         this.drums.snare.volume.value = snareVolume;
-        this.drums.snare.triggerAttackRelease('C2', '0.2', time);
+        try {
+          this.drums.snare.triggerAttackRelease('C2', '0.2', time);
+        } catch (error) {
+          console.error('Error triggering snare:', error);
+        }
         break;
 
       case 'hihat':
-        const hihatVolume = -14 + (1 - (note.velocity || 0.7)) * 10; // -14 to -24 dB
+        if (!this.drums.hihat) {
+          console.warn('Hihat not initialized');
+          return;
+        }
+        // Base volume is -8, adjust down based on velocity
+        const hihatVolume = -8 - ((1 - (note.velocity || 0.7)) * 8); // -8 to -16 dB
         this.drums.hihat.volume.value = hihatVolume;
-        this.drums.hihat.triggerAttackRelease('16n', time);
+        try {
+          this.drums.hihat.triggerAttackRelease('16n', time);
+        } catch (error) {
+          console.error('Error triggering hihat:', error);
+        }
         break;
 
       case 'harmony':
+        if (!this.harmonyVoices || this.harmonyVoices.length === 0) {
+          console.warn('Harmony voices not initialized');
+          return;
+        }
         if (this.harmonyVoices[note.voiceIndex]) {
           // Apply velocity to harmony voices
           const harmonyVolume = -12 + (1 - (note.velocity || 0.8)) * 8;
@@ -1068,10 +1297,16 @@ export class ToneRenderer {
             note.duration,
             time
           );
+        } else {
+          console.warn(`Harmony voice ${note.voiceIndex} not found, total voices: ${this.harmonyVoices.length}`);
         }
         break;
 
       case 'melody':
+        if (!this.melodySynth) {
+          console.warn('Melody synth not initialized');
+          return;
+        }
         // Apply velocity to melody (guitar)
         const melodyVolume = -8 + (1 - (note.velocity || 0.8)) * 10;
         this.melodySynth.volume.value = melodyVolume;
@@ -1083,16 +1318,22 @@ export class ToneRenderer {
         break;
 
       case 'keyboard':
-        // Apply velocity to keyboard
-        if (this.keyboardSynth) {
-          const keyboardVolume = -10 + (1 - (note.velocity || 0.8)) * 10;
-          this.keyboardSynth.volume.value = keyboardVolume;
-          this.keyboardSynth.triggerAttackRelease(
-            note.note,
-            note.duration,
-            time
-          );
+        if (!this.keyboardSynth) {
+          console.warn('Keyboard synth not initialized');
+          return;
         }
+        // Apply velocity to keyboard
+        const keyboardVolume = -10 + (1 - (note.velocity || 0.8)) * 10;
+        this.keyboardSynth.volume.value = keyboardVolume;
+        this.keyboardSynth.triggerAttackRelease(
+          note.note,
+          note.duration,
+          time
+        );
+        break;
+        
+      default:
+        console.warn('Unknown note type:', note.type);
         break;
     }
   }

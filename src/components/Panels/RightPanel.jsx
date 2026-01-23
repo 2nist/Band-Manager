@@ -2,38 +2,48 @@
  * RightPanel.jsx - Right sidebar with charts and analytics
  * 
  * Tabs:
- * - topChart: Top performing songs
- * - albums: Released albums
- * - songChart: Individual song performance
+ * - topChart: Top 20 Artists (ranked by fame)
+ * - albums: Top 20 Albums (ranked by chartScore)
+ * - songChart: Top 30 Songs (ranked by chartScore)
  */
+import React, { useState } from 'react';
 import { TopChartPanel } from './TopChartPanel';
 import { AlbumsPanel } from './AlbumsPanel';
 import { SongChartPanel } from './SongChartPanel';
 
-export const RightPanel = ({ activeTab = 'topChart', gameData }) => {
+export const RightPanel = ({ 
+  activeTab: controlledTab,
+  onTabChange: controlledOnTabChange,
+  chartLeaders,
+  albumChart,
+  songChart,
+  onBandClick,
+  playerLogoState = {}
+}) => {
+  // Internal state if not controlled
+  const [internalTab, setInternalTab] = useState('topChart');
+  const activeTab = controlledTab !== undefined ? controlledTab : internalTab;
+  const handleTabChange = controlledOnTabChange || setInternalTab;
+
   const tabs = [
-    { id: 'topChart', label: 'Top Chart' },
-    { id: 'albums', label: 'Albums' },
-    { id: 'songChart', label: 'Song Chart' }
+    { id: 'topChart', label: 'Top 20 Artists' },
+    { id: 'albums', label: 'Top 20 Albums' },
+    { id: 'songChart', label: 'Top 30 Songs' }
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div className="flex flex-col gap-4 w-full h-full">
       {/* Tab Navigation */}
-      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+      <div className="flex gap-2 border-b border-border/20 pb-2">
         {tabs.map(tab => (
           <button
             key={tab.id}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: activeTab === tab.id ? 'rgba(131, 56, 236, 0.4)' : 'rgba(255, 255, 255, 0.05)',
-              color: activeTab === tab.id ? '#fff' : '#aaa',
-              border: `1px solid ${activeTab === tab.id ? 'rgba(131, 56, 236, 0.8)' : 'rgba(131, 56, 236, 0.2)'}`,
-              borderRadius: '0.375rem',
-              cursor: 'pointer',
-              fontSize: '0.85rem',
-              transition: 'all 0.3s ease'
-            }}
+            onClick={() => handleTabChange(tab.id)}
+            className={`px-3 py-2 text-sm font-medium transition-all border-b-2 ${
+              activeTab === tab.id
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
           >
             {tab.label}
           </button>
@@ -41,10 +51,26 @@ export const RightPanel = ({ activeTab = 'topChart', gameData }) => {
       </div>
 
       {/* Tab Content */}
-      <div>
-        {activeTab === 'topChart' && <TopChartPanel gameData={gameData} />}
-        {activeTab === 'albums' && <AlbumsPanel gameData={gameData} />}
-        {activeTab === 'songChart' && <SongChartPanel gameData={gameData} />}
+      <div className="flex-1 overflow-auto">
+        {activeTab === 'topChart' && (
+          <TopChartPanel 
+            chartLeaders={chartLeaders} 
+            onBandClick={onBandClick}
+            playerLogoState={playerLogoState}
+          />
+        )}
+        {activeTab === 'albums' && (
+          <AlbumsPanel 
+            albumChart={albumChart}
+            playerLogoState={playerLogoState}
+          />
+        )}
+        {activeTab === 'songChart' && (
+          <SongChartPanel 
+            songChart={songChart}
+            playerLogoState={playerLogoState}
+          />
+        )}
       </div>
     </div>
   );

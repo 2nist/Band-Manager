@@ -1,12 +1,15 @@
 /**
  * UpgradesModal.jsx - Equipment and skill upgrades modal
  */
+import Card from '../../ui/Card';
+import Button from '../../ui/Button';
+
 export const UpgradesModal = ({ isOpen, onClose, gameData, onPurchase }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-1000">
-      <div className="bg-card rounded-xl p-8 max-w-2xl w-11/12 max-h-[80vh] overflow-y-auto border-2 border-primary/30">
+      <Card className="rounded-xl p-8 max-w-2xl w-11/12 max-h-[80vh] overflow-y-auto border-2 border-primary/30">
         <h3 className="m-0 mb-6 text-foreground text-xl font-bold">Equipment Upgrades</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -22,28 +25,16 @@ export const UpgradesModal = ({ isOpen, onClose, gameData, onPurchase }) => {
             >
               <h4 className="m-0 mb-2 text-sm font-semibold text-foreground">{upgrade.name}</h4>
               <p className="m-2 text-xs text-muted-foreground">{upgrade.benefit}</p>
-              <button
-                onClick={() => onPurchase?.(upgrade)}
-                disabled={gameData?.money < upgrade.cost}
-                className={`w-full px-3 py-2 rounded text-xs font-medium transition-colors ${
-                  gameData?.money >= upgrade.cost 
-                    ? 'bg-secondary hover:bg-secondary/90 text-secondary-foreground' 
-                    : 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
-                }`}
-              >
+              <Button onClick={() => onPurchase?.(upgrade)} disabled={gameData?.money < upgrade.cost} className={`w-full px-3 py-2 rounded text-xs font-medium ${gameData?.money >= upgrade.cost ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'}`}>
                 ${upgrade.cost.toLocaleString()}
-              </button>
+              </Button>
             </div>
           ))}
         </div>
-
-        <button
-          onClick={onClose}
-          className="w-full px-6 py-3 bg-destructive/30 hover:bg-destructive/40 text-foreground rounded font-medium transition-colors"
-        >
+        <Button onClick={onClose} className="w-full px-6 py-3 bg-destructive/30 hover:bg-destructive/40 text-foreground rounded font-medium">
           Close
-        </button>
-      </div>
+        </Button>
+      </Card>
     </div>
   );
 };

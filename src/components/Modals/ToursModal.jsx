@@ -1,6 +1,8 @@
 /**
  * ToursModal.jsx - Tour management modal
  */
+import Button from '../../ui/Button';
+import Card from '../../ui/Card';
 export const ToursModal = ({ isOpen, onClose, gameData, onStartTour }) => {
   if (!isOpen) return null;
 
@@ -13,7 +15,7 @@ export const ToursModal = ({ isOpen, onClose, gameData, onStartTour }) => {
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-1000">
-      <div className="bg-card rounded-xl p-8 max-w-2xl w-11/12 max-h-[80vh] overflow-y-auto border-2 border-primary/30">
+      <Card className="rounded-xl p-8 max-w-2xl w-11/12 max-h-[80vh] overflow-y-auto border-2 border-primary/30">
         <h3 className="m-0 mb-6 text-foreground text-xl font-bold">Manage Tours</h3>
 
         <div className="flex flex-col gap-4 mb-8">
@@ -29,7 +31,7 @@ export const ToursModal = ({ isOpen, onClose, gameData, onStartTour }) => {
                     {tour.region} • {tour.duration} weeks
                   </p>
                 </div>
-                <button
+                <Button
                   onClick={() => onStartTour?.(tour)}
                   disabled={gameData?.money < tour.cost}
                   className={`px-6 py-2 rounded font-medium transition-colors flex-shrink-0 ${
@@ -39,7 +41,7 @@ export const ToursModal = ({ isOpen, onClose, gameData, onStartTour }) => {
                   }`}
                 >
                   Start
-                </button>
+                </Button>
               </div>
               <div className="text-sm text-muted-foreground flex justify-between">
                 <span>Cost: <span className="text-accent">${tour.cost.toLocaleString()}</span></span>
@@ -49,13 +51,13 @@ export const ToursModal = ({ isOpen, onClose, gameData, onStartTour }) => {
           ))}
         </div>
 
-        <button
+        <Button
           onClick={onClose}
           className="w-full px-6 py-3 bg-destructive/30 hover:bg-destructive/40 text-foreground rounded font-medium transition-colors"
         >
           Close
-        </button>
-      </div>
+        </Button>
+      </Card>
     </div>
   );
 };

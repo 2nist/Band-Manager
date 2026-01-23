@@ -70,7 +70,7 @@ export const EnhancedEventModal = ({
   // Dynamic styling based on event type and intensity
   const getEventStyling = () => {
     const baseStyle = {
-      background: '#000000',
+      background: 'var(--background)',
       border: '2px solid',
       borderRadius: '12px',
       overflow: 'hidden',
@@ -85,30 +85,30 @@ export const EnhancedEventModal = ({
       case 'substance_abuse':
         return {
           ...baseStyle,
-          borderColor: '#dc2626',
-          background: 'linear-gradient(135deg, #000000, #1a0606)',
-          boxShadow: '0 0 30px rgba(220, 38, 38, 0.5)'
+          borderColor: 'hsl(var(--destructive))',
+          background: 'linear-gradient(135deg, var(--background), hsl(var(--destructive) / 0.1))',
+          boxShadow: '0 0 30px hsl(var(--destructive) / 0.5)'
         };
       case 'criminal_activity':
         return {
           ...baseStyle,
-          borderColor: '#7f1d1d',
-          background: 'linear-gradient(135deg, #000000, #1c0a00)',
-          boxShadow: '0 0 40px rgba(127, 29, 29, 0.7)'
+          borderColor: 'hsl(var(--destructive))',
+          background: 'linear-gradient(135deg, var(--background), hsl(var(--destructive) / 0.15))',
+          boxShadow: '0 0 40px hsl(var(--destructive) / 0.7)'
         };
       case 'psychological_horror':
         return {
           ...baseStyle,
-          borderColor: '#581c87',
-          background: 'linear-gradient(135deg, #000000, #0f0a1a)',
-          boxShadow: '0 0 35px rgba(88, 28, 135, 0.6)'
+          borderColor: 'hsl(var(--accent))',
+          background: 'linear-gradient(135deg, var(--background), hsl(var(--accent) / 0.1))',
+          boxShadow: '0 0 35px hsl(var(--accent) / 0.6)'
         };
       default:
         return {
           ...baseStyle,
-          borderColor: '#0ff',
-          background: 'linear-gradient(135deg, #000000, #0a0a0a)',
-          boxShadow: '0 0 20px rgba(0, 255, 255, 0.3)'
+          borderColor: 'hsl(var(--primary))',
+          background: 'linear-gradient(135deg, var(--background), hsl(var(--primary) / 0.05))',
+          boxShadow: '0 0 20px hsl(var(--primary) / 0.3)'
         };
     }
   };
@@ -145,7 +145,7 @@ export const EnhancedEventModal = ({
         <div style={{ padding: '24px', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
           <div 
             style={{ 
-              color: '#fff', 
+              color: 'var(--foreground)', 
               fontSize: '1.1em', 
               lineHeight: '1.6',
               minHeight: '100px'
@@ -154,7 +154,7 @@ export const EnhancedEventModal = ({
             {event.description?.slice(0, dialogueTypewriterIndex)}
             {dialogueTypewriterIndex < (event.description?.length || 0) && (
               <span style={{ 
-                color: '#0ff', 
+                color: 'hsl(var(--primary))', 
                 animation: 'typing-cursor 1s infinite',
                 marginLeft: '2px'
               }}>|</span>
@@ -406,8 +406,8 @@ function EventHeader({ event, psychologicalState }) {
           borderRadius: '4px',
           borderLeft: '3px solid #0ff'
         }}>
-          <p style={{ margin: 0, color: '#fff', fontStyle: 'italic' }}>
-            <strong style={{ color: '#0ff' }}>{event.character.name}</strong>: {event.character.dialogue || event.character.speech}
+          <p style={{ margin: 0, color: 'hsl(var(--foreground))', fontStyle: 'italic' }}>
+            <strong style={{ color: 'hsl(var(--primary))' }}>{event.character.name}</strong>: {event.character.dialogue || event.character.speech}
           </p>
         </div>
       )}
@@ -539,7 +539,7 @@ function EnhancedChoice({
             background: 'rgba(255, 255, 255, 0.1)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '4px',
-            color: '#fff',
+            color: 'hsl(var(--foreground))',
             cursor: 'pointer',
             fontSize: '0.85em',
             display: 'flex',
@@ -558,10 +558,10 @@ function EnhancedChoice({
             }}
             style={{
               padding: '6px 12px',
-              background: '#0f0',
+              background: 'hsl(var(--primary))',
               border: 'none',
               borderRadius: '4px',
-              color: '#000',
+              color: 'hsl(var(--primary-foreground))',
               cursor: 'pointer',
               fontSize: '0.85em',
               fontWeight: 'bold',
@@ -580,11 +580,11 @@ function EnhancedChoice({
 function RiskIndicator({ level }) {
   const getIcon = () => {
     switch (level) {
-      case 'low': return <Shield size={16} color="#10b981" />;
-      case 'medium': return <AlertTriangle size={16} color="#f59e0b" />;
-      case 'high': return <AlertTriangle size={16} color="#ef4444" />;
-      case 'extreme': return <Skull size={16} color="#7f1d1d" />;
-      case 'critical': return <Skull size={16} color="#7f1d1d" />;
+      case 'low': return <Shield size={16} style={{ color: 'hsl(var(--secondary))' }} />;
+      case 'medium': return <AlertTriangle size={16} style={{ color: 'hsl(var(--accent))' }} />;
+      case 'high': return <AlertTriangle size={16} style={{ color: 'hsl(var(--destructive))' }} />;
+      case 'extreme': return <Skull size={16} style={{ color: 'hsl(var(--destructive))' }} />;
+      case 'critical': return <Skull size={16} style={{ color: 'hsl(var(--destructive))' }} />;
       default: return null;
     }
   };
@@ -592,7 +592,7 @@ function RiskIndicator({ level }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
       {getIcon()}
-      <span style={{ fontSize: '0.75em', color: '#888', textTransform: 'uppercase' }}>
+      <span style={{ fontSize: '0.75em', color: 'hsl(var(--muted-foreground))', textTransform: 'uppercase' }}>
         {level}
       </span>
     </div>
@@ -643,10 +643,10 @@ function CharacterDialogue({ character, psychologicalState }) {
       borderRadius: '8px',
       borderLeft: '3px solid #0ff'
     }}>
-      <div style={{ fontWeight: 'bold', color: '#0ff', marginBottom: '8px' }}>
+      <div style={{ fontWeight: 'bold', color: 'hsl(var(--primary))', marginBottom: '8px' }}>
         {character.name}
       </div>
-      <div style={{ color: '#fff', fontStyle: 'italic' }}>
+      <div style={{ color: 'hsl(var(--foreground))', fontStyle: 'italic' }}>
         "{dialogues[currentDialogueIndex]}"
       </div>
     </div>
@@ -663,7 +663,7 @@ function ConsequencePreview({ choice, gameState, onClose, onConfirm }) {
         display: 'flex',
         justifyContent: 'space-between',
         padding: '4px 0',
-        color: isPositive ? '#10b981' : '#ef4444',
+        color: isPositive ? 'hsl(var(--secondary))' : 'hsl(var(--destructive))',
         fontSize: '0.9em'
       }}>
         <span>{key.replace(/_/g, ' ')}</span>
@@ -688,14 +688,15 @@ function ConsequencePreview({ choice, gameState, onClose, onConfirm }) {
     >
       <div 
         style={{
-          background: '#0a0a0a',
-          border: '2px solid #0ff',
+          background: 'hsl(var(--card))',
+          border: '2px solid hsl(var(--primary))',
           borderRadius: '8px',
           padding: '24px',
           maxWidth: '600px',
           width: '100%',
           maxHeight: '80vh',
-          overflow: 'auto'
+          overflow: 'auto',
+          color: 'hsl(var(--card-foreground))'
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -718,7 +719,7 @@ function ConsequencePreview({ choice, gameState, onClose, onConfirm }) {
         {/* Psychological Effects */}
         {choice.psychologicalEffects && Object.keys(choice.psychologicalEffects).length > 0 && (
           <div style={{ marginBottom: '20px' }}>
-            <h4 style={{ color: '#fff', fontSize: '0.9em', marginBottom: '10px', textTransform: 'uppercase' }}>
+            <h4 style={{ color: 'hsl(var(--foreground))', fontSize: '0.9em', marginBottom: '10px', textTransform: 'uppercase' }}>
               Psychological Impact
             </h4>
             <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '4px' }}>
@@ -751,12 +752,12 @@ function ConsequencePreview({ choice, gameState, onClose, onConfirm }) {
             borderRadius: '4px'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <Skull size={16} color="#dc2626" />
-              <span style={{ color: '#dc2626', fontWeight: 'bold' }}>
+              <Skull size={16} color="hsl(var(--destructive))" />
+              <span style={{ color: 'hsl(var(--destructive))', fontWeight: 'bold' }}>
                 Trauma Risk: {((choice.traumaRisk.probability || 0) * 100).toFixed(0)}%
               </span>
             </div>
-            <div style={{ color: '#888', fontSize: '0.85em' }}>
+            <div style={{ color: 'hsl(var(--muted-foreground))', fontSize: '0.85em' }}>
               {choice.traumaRisk.description}
             </div>
           </div>
@@ -767,10 +768,10 @@ function ConsequencePreview({ choice, gameState, onClose, onConfirm }) {
             onClick={onClose}
             style={{
               padding: '10px 20px',
-              background: '#444',
-              border: '1px solid #666',
+              background: 'hsl(var(--muted))',
+              border: '1px solid hsl(var(--border))',
               borderRadius: '4px',
-              color: '#fff',
+              color: 'hsl(var(--muted-foreground))',
               cursor: 'pointer',
               flex: 1
             }}
@@ -782,10 +783,10 @@ function ConsequencePreview({ choice, gameState, onClose, onConfirm }) {
               onClick={onConfirm}
               style={{
                 padding: '10px 20px',
-                background: '#0f0',
+                background: 'hsl(var(--primary))',
                 border: 'none',
                 borderRadius: '4px',
-                color: '#000',
+                color: 'hsl(var(--primary-foreground))',
                 cursor: 'pointer',
                 fontWeight: 'bold',
                 flex: 1
@@ -814,12 +815,12 @@ function PsychologicalStateIndicator({ state }) {
       position: 'absolute',
       bottom: '16px',
       right: '16px',
-      background: 'rgba(0, 0, 0, 0.8)',
+      background: 'hsl(var(--card) / 0.8)',
       padding: '12px',
       borderRadius: '4px',
       fontSize: '0.8em',
       minWidth: '200px',
-      border: '1px solid #333'
+      border: '1px solid hsl(var(--border))'
     }}>
       <div style={{ color: '#0ff', fontWeight: 'bold', marginBottom: '8px' }}>
         Psychological State
@@ -856,10 +857,10 @@ function PsychologicalStateIndicator({ state }) {
         {(state.addiction_risk || 0) > 0 && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-              <span style={{ color: '#888' }}>Addiction Risk</span>
-              <span style={{ color: '#dc2626' }}>{Math.round(state.addiction_risk || 0)}%</span>
+              <span style={{ color: 'hsl(var(--muted-foreground))' }}>Addiction Risk</span>
+              <span style={{ color: 'hsl(var(--destructive))' }}>{Math.round(state.addiction_risk || 0)}%</span>
             </div>
-            <div style={{ height: '4px', background: '#222', borderRadius: '2px', overflow: 'hidden' }}>
+            <div style={{ height: '4px', background: 'hsl(var(--muted))', borderRadius: '2px', overflow: 'hidden' }}>
               <div style={{
                 height: '100%',
                 width: `${state.addiction_risk || 0}%`,

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Users, DollarSign, Zap, TrendingUp } from 'lucide-react';
+import Card from '../../ui/Card';
+import Button from '../../ui/Button';
 
 export const GigsModal = ({ 
   isOpen, 
@@ -69,7 +71,7 @@ export const GigsModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-1000" onClick={handleClose}>
-      <div className="bg-card rounded-lg p-8 max-w-4xl w-11/12 max-h-[90vh] overflow-y-auto border-2 border-primary/30" onClick={(e) => e.stopPropagation()}>
+      <Card className="rounded-lg p-8 max-w-4xl w-11/12 max-h-[90vh] overflow-y-auto border-2 border-primary/30" onClick={(e) => e.stopPropagation()}>
         <h2 className="mb-2 text-foreground text-xl font-bold">Book a Gig</h2>
         <p className="mb-6 text-muted-foreground">
           Select a venue to perform at. Better venues require higher fame and morale.
@@ -86,10 +88,10 @@ export const GigsModal = ({
                   const prestigeBars = '★'.repeat(venue.prestige) + '☆'.repeat(6 - venue.prestige);
                   
                   return (
-                    <button
+                    <Card
                       key={venue.id}
                       onClick={() => handleSelectVenue(venue)}
-                      className="bg-card border-2 border-primary/30 hover:border-primary/60 p-4 rounded-lg text-left transition-all cursor-pointer text-foreground"
+                      className="border-2 border-primary/30 hover:border-primary/60 p-4 rounded-lg text-left transition-all cursor-pointer text-foreground"
                     >
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="font-bold text-lg">{venue.name}</h4>
@@ -118,7 +120,7 @@ export const GigsModal = ({
                           </div>
                         </div>
                       </div>
-                    </button>
+                    </Card>
                   );
                 })}
               </div>
@@ -131,12 +133,12 @@ export const GigsModal = ({
             )}
 
             <div className="flex gap-3">
-              <button
+              <Button
                 className="flex-1 px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded font-medium transition-colors"
                 onClick={handleClose}
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         ) : (
@@ -223,13 +225,13 @@ export const GigsModal = ({
               })()}
 
               <div className="flex gap-3">
-                <button
+                <Button
                   className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded font-medium transition-colors"
                   onClick={handleBook}
                 >
                   Book Gig
-                </button>
-                <button
+                </Button>
+                <Button
                   className="flex-1 px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded font-medium transition-colors"
                   onClick={() => {
                     setShowDetails(false);
@@ -237,12 +239,12 @@ export const GigsModal = ({
                   }}
                 >
                   Back
-                </button>
+                </Button>
               </div>
             </div>
           )
         )}
-      </div>
+      </Card>
     </div>
   );
 };

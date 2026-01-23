@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { STUDIO_TIERS } from '../../utils/constants';
+import Card from '../../ui/Card';
+import Button from '../../ui/Button';
 
 export default function WriteSongModal({ 
   isOpen, 
@@ -75,7 +77,7 @@ export default function WriteSongModal({
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-1000" onClick={handleClose}>
-      <div className="bg-card rounded-lg p-8 max-w-2xl w-11/12 max-h-[90vh] overflow-y-auto border-2 border-primary/30" onClick={(e) => e.stopPropagation()}>
+      <Card className="rounded-lg p-8 max-w-2xl w-11/12 max-h-[90vh] overflow-y-auto border-2 border-primary/30" onClick={(e) => e.stopPropagation()}>
         <h2 className="mb-3 text-foreground text-xl font-bold">Write & Record Song</h2>
         <p className="mb-6 text-muted-foreground">
           Create a new single at {STUDIO_TIERS[studioTier].name}. Customize title, genre, energy, and themes.
@@ -182,21 +184,14 @@ export default function WriteSongModal({
         </div>
 
         <div className="flex gap-3">
-          <button 
-            className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded font-medium transition-colors disabled:opacity-50" 
-            onClick={handleRecord}
-            disabled={!songTitle || !songTitle.trim()}
-          >
+          <Button onClick={handleRecord} disabled={!songTitle || !songTitle.trim()} className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded font-medium">
             Record Song
-          </button>
-          <button 
-            className="flex-1 px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded font-medium transition-colors" 
-            onClick={handleClose}
-          >
+          </Button>
+          <Button onClick={handleClose} className="flex-1 px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded font-medium">
             Cancel
-          </button>
+          </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import Card from '../../ui/Card';
+import Button from '../../ui/Button';
 
 export default function SaveModal({ 
   isOpen, 
@@ -27,10 +29,10 @@ export default function SaveModal({
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-1000" onClick={onClose}>
-      <div className="bg-card rounded-lg p-8 max-w-md w-11/12 max-h-[80vh] overflow-y-auto border-2 border-primary/30" onClick={(e) => e.stopPropagation()}>
+      <Card className="rounded-lg p-8 max-w-md w-11/12 max-h-[80vh] overflow-y-auto border-2 border-primary/30" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-foreground m-0">Save Game</h2>
-          <button className="text-muted-foreground hover:text-destructive transition-colors text-xl" onClick={onClose}>✕</button>
+          <Button className="text-muted-foreground hover:text-destructive transition-colors text-xl" onClick={onClose}>✕</Button>
         </div>
         <div className="mb-6">
           <label className="block text-foreground font-medium mb-2">Save Slot Name</label>
@@ -62,12 +64,12 @@ export default function SaveModal({
                       </div>
                     </div>
                     <div className="flex gap-1 ml-2">
-                      <button className="px-2 py-1 text-xs bg-primary/20 hover:bg-primary/30 text-foreground rounded transition-colors" onClick={() => onSave(name)}>
+                      <Button className="px-2 py-1 text-xs bg-primary/20 hover:bg-primary/30 text-foreground rounded transition-colors" onClick={() => onSave(name)}>
                         Overwrite
-                      </button>
-                      <button className="px-2 py-1 text-xs bg-destructive/20 hover:bg-destructive/30 text-destructive rounded transition-colors" onClick={() => onDelete(name)}>
+                      </Button>
+                      <Button className="px-2 py-1 text-xs bg-destructive/20 hover:bg-destructive/30 text-destructive rounded transition-colors" onClick={() => onDelete(name)}>
                         Delete
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -76,10 +78,10 @@ export default function SaveModal({
           )}
         </div>
         <div className="flex gap-3 mb-4">
-          <button className="flex-1 px-4 py-2 bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded font-medium transition-colors" onClick={handleSave}>
+          <Button className="flex-1 px-4 py-2 bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded font-medium transition-colors" onClick={handleSave}>
             Save
-          </button>
-          <button className="flex-1 px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded font-medium transition-colors" onClick={onClose}>Cancel</button>
+          </Button>
+          <Button className="flex-1 px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded font-medium transition-colors" onClick={onClose}>Cancel</Button>
         </div>
         <div className="mt-4 p-3 bg-secondary/10 rounded border border-secondary/30">
           <label className="flex items-center gap-2 cursor-pointer text-foreground text-sm">
@@ -91,7 +93,7 @@ export default function SaveModal({
             Enable Auto-Save (saves automatically each week)
           </label>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

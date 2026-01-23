@@ -8,6 +8,9 @@
  * - Key performance indicators
  * - Gameplay action buttons
  */
+import Card from '../../ui/Card';
+import Button from '../../ui/Button';
+
 export const DashboardTab = ({ 
   gameData, 
   dialogueState,
@@ -68,7 +71,7 @@ export const DashboardTab = ({
     <div className="flex flex-col gap-8">
       {/* Scenario Goals Card */}
       {gameState?.state?.selectedScenario && (
-        <div className="bg-card border-2 border-secondary/40 p-6 rounded-lg">
+        <Card className="border-2 border-secondary/40 p-6 rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-bold text-foreground">🎯 {gameState.state.selectedScenario.name}</h3>
             <span className="text-xs text-muted-foreground">Week {gameState.state.week || 0}</span>
@@ -102,12 +105,12 @@ export const DashboardTab = ({
           ) : (
             <p className="text-sm text-muted-foreground">Sandbox mode - no specific goals. Just have fun!</p>
           )}
-        </div>
+        </Card>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {/* Psychological State Card */}
-        <div className="bg-card border-2 border-primary/30 p-6 rounded-lg">
+        <Card className="border-2 border-primary/30 p-6 rounded-lg">
           <h3 className="text-lg font-bold text-foreground mb-4">Psychological State</h3>
           <div className="flex flex-col gap-3 text-sm">
             <div>
@@ -141,10 +144,10 @@ export const DashboardTab = ({
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Quick Stats Card */}
-        <div className="bg-card border-2 border-primary/30 p-6 rounded-lg">
+        <Card className="border-2 border-primary/30 p-6 rounded-lg">
           <h3 className="text-lg font-bold text-foreground mb-4">Quick Stats</h3>
           <div className="flex flex-col gap-3 text-sm">
             <div className="text-muted-foreground">Money: <strong className="text-accent">${(gameState?.state?.money || 0).toLocaleString()}</strong></div>
@@ -154,10 +157,10 @@ export const DashboardTab = ({
             <div className="text-muted-foreground">Gigs: <strong className="text-foreground">{(gameState?.state?.gigHistory || []).length}</strong></div>
             <div className="text-muted-foreground">Band: <strong className="text-foreground">{(gameState?.state?.bandMembers || []).length}</strong></div>
           </div>
-        </div>
+        </Card>
 
         {/* Faction Standing Card */}
-        <div className="bg-card border-2 border-primary/30 p-6 rounded-lg">
+        <Card className="border-2 border-primary/30 p-6 rounded-lg">
           <h3 className="text-lg font-bold text-foreground mb-4">Faction Standing</h3>
           <div className="flex flex-col gap-3 text-sm">
             {dialogueState?.narrativeState?.factionReputation ? (
@@ -181,74 +184,50 @@ export const DashboardTab = ({
               <div className="text-muted-foreground">No faction data yet</div>
             )}
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* Quick Action Buttons */}
-      <div className="bg-card border-2 border-primary/30 p-6 rounded-lg">
+      <Card className="border-2 border-primary/30 p-6 rounded-lg">
         <h3 className="text-lg font-bold text-foreground mb-4">Quick Actions</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          <button
-            onClick={() => handleQuickAction('write-song')}
-            className="px-4 py-3 bg-primary/20 hover:bg-primary/40 text-primary border border-primary/50 rounded-lg transition-all text-sm font-semibold"
-          >
+          <Button onClick={() => handleQuickAction('write-song')} className="px-4 py-3 bg-primary/20 hover:bg-primary/40 text-primary border border-primary/50 rounded-lg text-sm font-semibold">
             Write Song
-          </button>
-          <button
-            onClick={() => handleQuickAction('book-gig')}
-            className="px-4 py-3 bg-secondary/20 hover:bg-secondary/40 text-secondary border border-secondary/50 rounded-lg transition-all text-sm font-semibold"
-          >
+          </Button>
+          <Button onClick={() => handleQuickAction('book-gig')} className="px-4 py-3 bg-secondary/20 hover:bg-secondary/40 text-secondary border border-secondary/50 rounded-lg text-sm font-semibold">
             Book Gig
-          </button>
-          <button
-            onClick={() => handleQuickAction('practice-band')}
-            className="px-4 py-3 bg-accent/20 hover:bg-accent/40 text-accent border border-accent/50 rounded-lg transition-all text-sm font-semibold"
-          >
+          </Button>
+          <Button onClick={() => handleQuickAction('practice-band')} className="px-4 py-3 bg-accent/20 hover:bg-accent/40 text-accent border border-accent/50 rounded-lg text-sm font-semibold">
             Practice
-          </button>
-          <button
-            onClick={() => handleQuickAction('upgrade-studio')}
-            className="px-4 py-3 bg-primary/20 hover:bg-primary/40 text-primary border border-primary/50 rounded-lg transition-all text-sm font-semibold"
-          >
+          </Button>
+          <Button onClick={() => handleQuickAction('upgrade-studio')} className="px-4 py-3 bg-primary/20 hover:bg-primary/40 text-primary border border-primary/50 rounded-lg text-sm font-semibold">
             Upgrade
-          </button>
-          <button
-            onClick={() => handleQuickAction('sign-label')}
-            className="px-4 py-3 bg-secondary/20 hover:bg-secondary/40 text-secondary border border-secondary/50 rounded-lg transition-all text-sm font-semibold"
-          >
+          </Button>
+          <Button onClick={() => handleQuickAction('sign-label')} className="px-4 py-3 bg-secondary/20 hover:bg-secondary/40 text-secondary border border-secondary/50 rounded-lg text-sm font-semibold">
             Label Deal
-          </button>
-          <button
-            onClick={() => handleQuickAction('merchandise')}
-            className="px-4 py-3 bg-accent/20 hover:bg-accent/40 text-accent border border-accent/50 rounded-lg transition-all text-sm font-semibold"
-          >
+          </Button>
+          <Button onClick={() => handleQuickAction('merchandise')} className="px-4 py-3 bg-accent/20 hover:bg-accent/40 text-accent border border-accent/50 rounded-lg text-sm font-semibold">
             Merchandise
-          </button>
+          </Button>
         </div>
-      </div>
+      </Card>
 
       {/* Week Advancement */}
-      <div className="bg-card border-2 border-accent/30 p-8 rounded-lg flex flex-col gap-4">
+      <Card className="border-2 border-accent/30 p-8 rounded-lg flex flex-col gap-4">
         <h3 className="text-lg font-bold text-foreground">Game Progress</h3>
         <div className="flex gap-4 flex-wrap">
-          <button
-            onClick={onTriggerEvent}
-            className="px-6 py-3 bg-primary/20 hover:bg-primary/30 text-foreground border-2 border-primary/40 rounded-lg transition-all text-sm font-medium"
-          >
+          <Button onClick={onTriggerEvent} className="px-6 py-3 bg-primary/20 hover:bg-primary/30 text-foreground border-2 border-primary/40 rounded-lg text-sm font-medium">
             Trigger Event
-          </button>
+          </Button>
 
-          <button
-            onClick={onAdvanceWeek}
-            className="flex-1 min-w-[200px] px-6 py-3 bg-accent hover:opacity-90 text-accent-foreground border-none rounded-lg transition-all text-base font-bold"
-          >
+          <Button onClick={onAdvanceWeek} className="flex-1 min-w-[200px] px-6 py-3 bg-accent hover:opacity-90 text-accent-foreground rounded-lg text-base font-bold">
             Advance Week
-          </button>
+          </Button>
         </div>
         <p className="text-xs text-muted-foreground m-0">
           Week {gameState?.state?.week || 0} • All systems process automatically each week
         </p>
-      </div>
+      </Card>
     </div>
   );
 };

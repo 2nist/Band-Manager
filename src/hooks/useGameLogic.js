@@ -164,7 +164,7 @@ export function useGameLogic(gameState, updateGameState, addLog, data = {}) {
 
     const studio = STUDIO_TIERS[gameState.studioTier || 0];
     if (!studio) {
-      addLog('No studio available for recording.', true);
+      addLog('No studio available for recording.', 'error');
       return;
     }
 
@@ -173,10 +173,9 @@ export function useGameLogic(gameState, updateGameState, addLog, data = {}) {
     const cost = Math.floor(studio.recordCost * costMultiplier);
 
     if (gameState.money < cost) {
-      addLog(`Not enough money to record (need $${cost})`, true, {
+      addLog(`Not enough money to record (need $${cost})`, 'warning', {
         title: 'Insufficient Funds',
-        message: `You need $${cost} to record a song at ${studio.name}.`,
-        type: 'warning'
+        message: `You need $${cost} to record a song at ${studio.name}.`
       });
       return;
     }
@@ -191,10 +190,9 @@ export function useGameLogic(gameState, updateGameState, addLog, data = {}) {
 
     // Check if title already exists
     if (gameState.songs && gameState.songs.find((s) => s.title === title)) {
-      addLog(`A song with the title "${title}" already exists.`, true, {
+      addLog(`A song with the title "${title}" already exists.`, 'warning', {
         title: 'Duplicate Title',
-        message: `A song with the title "${title}" already exists. Please choose a different title.`,
-        type: 'warning'
+        message: `A song with the title "${title}" already exists. Please choose a different title.`
       });
       return;
     }
@@ -394,7 +392,7 @@ export function useGameLogic(gameState, updateGameState, addLog, data = {}) {
   const bookGig = useCallback((venueId, advanceMultiplier = 1) => {
     const venue = VENUES[venueId];
     if (!venue) {
-      addLog(`Venue "${venueId}" not found.`, true);
+      addLog(`Venue "${venueId}" not found.`, 'error');
       return;
     }
 
@@ -402,7 +400,7 @@ export function useGameLogic(gameState, updateGameState, addLog, data = {}) {
     const travelCost = transport?.travelCost || 0;
 
     if (gameState.money < travelCost) {
-      addLog(`Need $${travelCost} for travel to ${venue.name}.`, true);
+      addLog(`Need $${travelCost} for travel to ${venue.name}.`, 'warning');
       return;
     }
 
@@ -464,7 +462,7 @@ export function useGameLogic(gameState, updateGameState, addLog, data = {}) {
     if (!nextStudio) return;
 
     if (gameState.money < nextStudio.upgradeCost) {
-      addLog(`Need $${nextStudio.upgradeCost} to upgrade to ${nextStudio.name}.`, true);
+      addLog(`Need $${nextStudio.upgradeCost} to upgrade to ${nextStudio.name}.`, 'warning');
       return;
     }
 
@@ -490,7 +488,7 @@ export function useGameLogic(gameState, updateGameState, addLog, data = {}) {
     if (!nextTransport) return;
 
     if (gameState.money < nextTransport.upgradeCost) {
-      addLog(`Need $${nextTransport.upgradeCost} to upgrade transport.`, true);
+      addLog(`Need $${nextTransport.upgradeCost} to upgrade transport.`, 'warning');
       return;
     }
 
@@ -516,7 +514,7 @@ export function useGameLogic(gameState, updateGameState, addLog, data = {}) {
     if (!nextGear) return;
 
     if (gameState.money < nextGear.upgradeCost) {
-      addLog(`Need $${nextGear.upgradeCost} to upgrade gear.`, true);
+      addLog(`Need $${nextGear.upgradeCost} to upgrade gear.`, 'warning');
       return;
     }
 
@@ -596,25 +594,19 @@ export function useGameLogic(gameState, updateGameState, addLog, data = {}) {
       const nextWeek = (updated.week || 0) + 1;
       updated = { ...updated, week: nextWeek };
       
-      // Process week effects (expenses, revenue, song aging, etc.)
-      // Pass gameData for genre trends
-      const { next: processedState, summary } = processWeekEffects(updated, data);
-      
-      // Update state with processed week
-      updateGameState(processedState);
+      const { next: processedState, summary, detailedSummary } = processWeekEffects(updated, data);
 
-      // Log entry if provided
+      updateGameState(processedState);
       if (entry) addLog(entry);
-      
-      // Log weekly summary
-      if (summary) {
-        addLog(summary);
-      }
+      if (summary) addLog(summary);
+
+      return detailedSummary;
     } catch (error) {
       console.error('Error in advanceWeek:', error);
       addLog(`Error advancing week: ${error.message}`);
+      return null;
     }
-  }, [gameState, addLog, updateGameState]);
+  }, [gameState, addLog, updateGameState, data]);
 
   // ==================== UTILITIES ====================
 
@@ -666,7 +658,7 @@ export function useGameLogic(gameState, updateGameState, addLog, data = {}) {
 
     const cost = tourCosts[tourType] || 500;
     if (gameState.money < cost) {
-      addLog(`Need $${cost} to start a ${tourType} tour.`, true);
+      addLog(`Need $${cost} to start a ${tourType} tour.`, 'warning');
       return;
     }
 

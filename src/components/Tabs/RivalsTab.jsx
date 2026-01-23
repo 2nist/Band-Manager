@@ -6,13 +6,14 @@
  * - Competition metrics
  * - Relationship status and hostility levels
  */
+import Card from '../../ui/Card';
 export const RivalsTab = ({ gameData }) => (
   <div>
     <h3 className="text-xl font-bold text-foreground mb-4">Rival Bands</h3>
     {gameData?.rivals?.length > 0 ? (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {gameData.rivals.map(rival => (
-          <div key={rival.id} className="bg-card border border-border/20 p-4 rounded-lg hover:border-destructive/30 transition-all">
+          <Card key={rival.id} className="border border-border/20 p-4 rounded-lg hover:border-destructive/30 transition-all">
             <h4 className={`font-semibold mb-3 ${rival.hostility > 70 ? 'text-destructive' : 'text-foreground'}`}>{rival.name}</h4>
             
             <div className="mb-3">
@@ -38,7 +39,7 @@ export const RivalsTab = ({ gameData }) => (
               </div>
               <p className="text-xs text-muted-foreground">{rival.hostility}%</p>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     ) : (

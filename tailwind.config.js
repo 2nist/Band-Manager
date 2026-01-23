@@ -70,5 +70,25 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/aspect-ratio'),
+    require('@tailwindcss/line-clamp'),
+    require('daisyui'),
+  ],
+  safelist: [
+    { pattern: /bg-(primary|secondary|accent|muted)(?:-\\d+)?/ },
+    { pattern: /text-(primary|secondary|accent)(?:-\\d+)?/ },
+    'btn-base',
+    'card'
+  ],
+  daisyui: {
+    themes: ['light', 'dark', 'cupcake'],
+    darkTheme: 'dark',
+    styled: true,
+    base: true,
+    utils: true,
+    logs: false,
+  },
 }

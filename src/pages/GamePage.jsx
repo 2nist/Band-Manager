@@ -1,16 +1,21 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Music, Users, Zap, TrendingUp, Settings, Save, LogOut, ChevronRight, Palette, Sun, Moon } from 'lucide-react';
+import Card from '../ui/Card';
+import Button from '../ui/Button';
 import { EnhancedEventModal } from '../components/EnhancedEventModal';
-import { 
-  DashboardTab, 
-  InventoryTab, 
-  BandTab, 
-  GigsTab, 
-  UpgradesTab, 
-  RivalsTab, 
-  LogTab, 
-  TabNavigation 
+import { WeeklySummaryModal } from '../components/Modals';
+import {
+  DashboardTab,
+  InventoryTab,
+  BandTab,
+  GigsTab,
+  UpgradesTab,
+  RivalsTab,
+  LogTab,
+  TabNavigation
 } from '../components/Tabs';
+import { RightPanel } from '../components/Panels';
+import { useChartSystem } from '../hooks/useChartSystem';
 
 /**
  * GamePage - Main game interface with tabs
@@ -59,22 +64,53 @@ export const GamePage = ({
   victoryConditions
 }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [chartTab, setChartTab] = useState('topChart'); // Chart sidebar tab
   const [autoSaving, setAutoSaving] = useState(false);
-  const [pendingEvent, setPendingEvent] = useState(null);
-  const [showEventModal, setShowEventModal] = useState(false);
   const [eventQueue, setEventQueue] = useState([]);
+  const [weeklySummaryData, setWeeklySummaryData] = useState(null);
+  const [showWeeklySummaryModal, setShowWeeklySummaryModal] = useState(false);
+  const [renderError, setRenderError] = useState(null);
+  const eventQueueAfterSummaryRef = useRef([]);
+
+  // Error boundary effect
+  useEffect(() => {
+    const errorHandler = (error) => {
+      console.error('GamePage render error:', error);
+      setRenderError(error.message);
+    };
+    
+    window.addEventListener('error', errorHandler);
+    return () => window.removeEventListener('error', errorHandler);
+  }, []);
+
+  // Get rivals data for charts
+  const rivalBands = gameState?.state?.rivalBands || [];
+  const rivalSongs = gameState?.state?.rivalSongs || {};
+
+  // Ensure rival songs are generated when charts are visible
+  useEffect(() => {
+    if (radioCharting?.ensureRivalSongsGenerated && rivalBands.length > 0) {
+      radioCharting.ensureRivalSongsGenerated();
+    }
+  }, [radioCharting, rivalBands.length, gameState?.state?.week]);
+
+  // Calculate charts
+  const { chartLeaders, albumChart, songChart } = useChartSystem(
+    gameState?.state || {},
+    rivalBands,
+    rivalSongs
+  );
 
   // Trigger a random event from event generation
   const triggerEvent = useCallback(() => {
     if (eventGen?.generateEvent) {
       const newEvent = eventGen.generateEvent();
-      if (newEvent) {
-        setPendingEvent(newEvent);
-        setShowEventModal(true);
+      if (newEvent && modalState?.openEventPopup) {
+        modalState.openEventPopup(newEvent);
         return newEvent;
       }
     }
-  }, [eventGen]);
+  }, [eventGen, modalState]);
 
   // Handle week advancement with consequence processing and event generation
   const handleAdvanceWeek = useCallback(() => {
@@ -147,30 +183,50 @@ export const GamePage = ({
       }
     }
 
-    // Update game state (week advancement + processing)
+    let detailedSummary = null;
     if (gameLogic?.advanceWeek) {
-      gameLogic.advanceWeek((s) => ({ ...s }));
+      detailedSummary = gameLogic.advanceWeek((s) => ({ ...s }));
     } else if (gameState?.updateGameState) {
       gameState.updateGameState({
         week: (gameState.state?.week || 0) + 1
       });
     }
 
-    // Queue all events and show first one if exists
     setEventQueue(weekEvents);
-    if (weekEvents.length > 0) {
-      setPendingEvent(weekEvents[0]);
-      setShowEventModal(true);
+
+    if (detailedSummary) {
+      eventQueueAfterSummaryRef.current = weekEvents;
+      setWeeklySummaryData(detailedSummary);
+      setShowWeeklySummaryModal(true);
+    } else if (weekEvents.length > 0 && modalState?.openEventPopup) {
+      // Show first event using modalState
+      modalState.openEventPopup(weekEvents[0]);
     }
-  }, [onAdvanceWeek, bandManagement, radioCharting, merchandise, sponsorships, labelDeals, rivalCompetition, eventGen, gameState, gameLogic, dialogueState]);
+  }, [onAdvanceWeek, bandManagement, radioCharting, merchandise, sponsorships, labelDeals, rivalCompetition, eventGen, gameState, gameLogic, dialogueState, modalState]);
+
+  const handleWeeklySummaryClose = useCallback(() => {
+    setShowWeeklySummaryModal(false);
+    setWeeklySummaryData(null);
+    const queued = eventQueueAfterSummaryRef.current || [];
+    eventQueueAfterSummaryRef.current = [];
+    if (queued.length > 0 && modalState?.openEventPopup) {
+      // Show first queued event using modalState
+      modalState.openEventPopup(queued[0]);
+    }
+  }, [modalState]);
 
   /**
    * Handle player choice in event modal
    * Updates psychological state, applies consequences, and advances game state
+   * This is called from App.jsx when EnhancedEventModal's onChoice is triggered
    */
   const handleEventChoice = useCallback((eventId, choiceId, choiceText, impacts) => {
-    // Find the full choice object from the pending event
-    const choice = pendingEvent?.choices?.find(c => c.id === choiceId);
+    // Get the current event from modalState
+    const currentEvent = modalState?.modalData?.eventPopupData;
+    if (!currentEvent) return;
+    
+    // Find the full choice object from the current event
+    const choice = currentEvent?.choices?.find(c => c.id === choiceId);
     
     // Apply psychological effects from the choice
     if (choice?.psychologicalEffects && dialogueState?.updatePsychologicalState) {
@@ -193,7 +249,7 @@ export const GamePage = ({
           const effects = Object.entries(updates)
             .map(([k, v]) => `${k.replace(/_/g, ' ')} ${v > 0 ? '+' : ''}${v}`)
             .join(', ');
-          gameState.addLog(`Psychological effects: ${effects}`);
+          gameState.addLog(`Psychological effects: ${effects}`, 'info');
         }
       }
     }
@@ -210,21 +266,23 @@ export const GamePage = ({
     
     // Log the choice made
     if (gameState?.addLog && choiceText) {
-      gameState.addLog(`You chose: "${choiceText}"`);
+      gameState.addLog(`You chose: "${choiceText}"`, 'info');
+    }
+    
+    // Close current event modal
+    if (modalState?.closeEventPopup) {
+      modalState.closeEventPopup();
     }
     
     // Remove event from queue and show next one
     const remainingEvents = eventQueue.slice(1);
     setEventQueue(remainingEvents);
     
-    if (remainingEvents.length > 0) {
-      setPendingEvent(remainingEvents[0]);
-      setShowEventModal(true);
-    } else {
-      setShowEventModal(false);
-      setPendingEvent(null);
+    if (remainingEvents.length > 0 && modalState?.openEventPopup) {
+      // Show next event
+      modalState.openEventPopup(remainingEvents[0]);
     }
-  }, [dialogueState, gameState, onHandleEventChoice, pendingEvent, eventQueue]);
+  }, [dialogueState, gameState, onHandleEventChoice, modalState, eventQueue]);
 
   // Auto-save every 5 minutes
   useEffect(() => {
@@ -249,114 +307,172 @@ export const GamePage = ({
 
   // Safety check - ensure we have required data
   if (!gameState) {
+    console.error('GamePage: gameState is missing', { gameState });
     return (
-      <div className="min-h-screen bg-red-500 text-white p-8">
+      <div className="min-h-screen p-8 text-white bg-red-500">
         <h1>Error: Game state not available</h1>
         <p>gameState: {JSON.stringify(gameState)}</p>
+        <button onClick={() => window.location.reload()} className="px-4 py-2 mt-4 text-red-500 bg-white rounded">Reload Page</button>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
-      {/* Header */}
-      <div className="bg-card border-b border-border/20 px-4 py-2 flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground m-0">
-            {gameState?.state?.bandName || 'Your Band'}
-          </h1>
-          <p className="mt-1 text-muted-foreground text-sm">
-            Week {gameState?.state?.week || 0}
-          </p>
-        </div>
-
-        <div className="flex gap-4 text-sm">
-          <div>
-            <div className="text-muted-foreground">Money</div>
-            <div className="text-xl font-bold text-accent">
-              ${(gameState?.state?.money || 0).toLocaleString()}
-            </div>
-          </div>
-          <div>
-            <div className="text-muted-foreground">Fame</div>
-            <div className="text-xl font-bold text-primary">
-              {gameState?.state?.fame || 0}
-            </div>
-          </div>
-          <div>
-            <div className="text-muted-foreground">Members</div>
-            <div className="text-xl font-bold text-secondary">
-              {(gameState?.state?.bandMembers || []).length}
-            </div>
-          </div>
-        </div>
-
-        {/* Theme Selector */}
-        {themeSystem && (
-          <div className="flex gap-1 items-center">
-            <label className="text-sm font-semibold text-muted-foreground">Theme:</label>
-            <select
-              value={themeSystem.currentTheme || 'synthwave'}
-              onChange={(e) => themeSystem.setTheme(e.target.value)}
-              className="px-2 py-1 text-sm rounded-md bg-card border border-border text-foreground cursor-pointer hover:border-primary transition-colors"
-            >
-              {themeSystem.availableThemes && themeSystem.availableThemes.map(theme => (
-                <option key={theme} value={theme}>
-                  {themeSystem.THEME_NAMES?.[theme] || theme.replace('-', ' ').toUpperCase()}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={themeSystem.toggleDarkMode}
-              className={`px-2 py-1 text-sm rounded-md transition-all ${
-                themeSystem.isDarkMode
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground'
-              }`}
-              title="Toggle Dark Mode"
-            >
-              {themeSystem.isDarkMode ? <Moon size={16} className="text-accent" /> : <Sun size={16} className="text-accent" />}
-            </button>
-          </div>
-        )}
-
-        <div className="flex gap-2">
-          <button
-            onClick={() => {
-              setAutoSaving(true);
-              onSave?.();
-              setTimeout(() => setAutoSaving(false), 1000);
-            }}
-            className={`px-2 py-1 rounded-md cursor-pointer flex items-center gap-2 transition-all ${
-              autoSaving
-                ? 'bg-accent text-accent-foreground'
-                : 'bg-accent/20 text-accent hover:bg-accent/40'
-            }`}
-          >
-            <Save size={16} />
-            {autoSaving ? 'Saving...' : 'Save'}
-          </button>
-
-          <button
-            onClick={onQuit}
-            className="px-2 py-1 bg-destructive/20 text-destructive hover:bg-destructive/40 rounded-md cursor-pointer flex items-center gap-2 transition-all"
-          >
-            <LogOut size={16} />
-            Quit
-          </button>
-        </div>
+  // Ensure gameState.state exists - initialize if missing
+  if (!gameState.state) {
+    console.warn('GamePage: gameState.state is missing, initializing...', { gameState });
+    // Try to initialize state
+    if (gameState.updateGameState) {
+      gameState.updateGameState({
+        bandName: 'Your Band',
+        week: 0,
+        money: 0,
+        fame: 0,
+        bandMembers: []
+      });
+    }
+    // Return loading state while initializing
+    return (
+      <div className="min-h-screen p-8 text-black bg-yellow-500">
+        <h1>Initializing game state...</h1>
+        <p>Please wait...</p>
       </div>
+    );
+  }
 
-      {/* Tab Bar */}
-      <TabNavigation 
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-      />
+  // Show render error if one occurred
+  if (renderError) {
+    return (
+      <div className="min-h-screen p-8 text-white bg-red-500">
+        <h1>Render Error</h1>
+        <p>{renderError}</p>
+        <button onClick={() => {
+          setRenderError(null);
+          window.location.reload();
+        }} className="px-4 py-2 mt-4 text-red-500 bg-white rounded">Reload Page</button>
+      </div>
+    );
+  }
 
-      {/* Content Area */}
-      <div className="flex-1 p-4 overflow-auto flex flex-col">
-        <TabContent
+  // Fallback background color if CSS variables aren't set
+  let backgroundColor = '#0a0a0a';
+  let foregroundColor = '#ffffff';
+  
+  try {
+    if (typeof window !== 'undefined' && document.documentElement) {
+      const bg = getComputedStyle(document.documentElement).getPropertyValue('--background');
+      const fg = getComputedStyle(document.documentElement).getPropertyValue('--foreground');
+      if (bg) backgroundColor = bg.trim();
+      if (fg) foregroundColor = fg.trim();
+    }
+  } catch (e) {
+    console.warn('Could not read CSS variables, using defaults', e);
+  }
+
+  return (
+    <div className="flex min-h-screen bg-background text-foreground" style={{ backgroundColor: backgroundColor, color: foregroundColor }}>
+      {/* Main Content Area */}
+      <div className="flex flex-col flex-1 min-w-0">
+        {/* Header - Compact */}
+        <Card className="px-4 py-1.5 border-b flex-shrink-0" style={{ borderColor: 'var(--border)' }}>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <h1 className="m-0 text-xl font-bold truncate text-foreground">
+                {gameState?.state?.bandName || 'Your Band'}
+              </h1>
+              <p className="mt-0.5 text-muted-foreground text-xs">
+                Week {gameState?.state?.week || 0}
+              </p>
+            </div>
+            
+            {/* Stats - Compact */}
+            <div className="flex flex-shrink-0 gap-3 text-xs">
+              <div>
+                <div className="text-xs text-muted-foreground">Money</div>
+                <div className="text-lg font-bold text-accent">
+                  ${(gameState?.state?.money || 0).toLocaleString()}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">Fame</div>
+                <div className="text-lg font-bold text-primary">
+                  {gameState?.state?.fame || 0}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">Members</div>
+                <div className="text-lg font-bold text-secondary">
+                  {(gameState?.state?.bandMembers || []).length}
+                </div>
+              </div>
+            </div>
+
+            {/* Theme Selector & Actions - Compact */}
+            <div className="flex items-center flex-shrink-0 gap-2">
+              {themeSystem && (
+                <>
+                  <label className="hidden text-xs font-semibold text-muted-foreground sm:inline">Theme:</label>
+                  <select
+                    value={themeSystem.currentTheme || 'synthwave'}
+                    onChange={(e) => themeSystem.setTheme(e.target.value)}
+                    className="px-1.5 py-0.5 text-xs rounded-md bg-input border border-border text-foreground cursor-pointer hover:border-primary transition-colors"
+                  >
+                    {themeSystem.availableThemes && themeSystem.availableThemes.map(theme => (
+                      <option key={theme} value={theme}>
+                        {themeSystem.THEME_NAMES?.[theme] || theme.replace('-', ' ').toUpperCase()}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={themeSystem.toggleDarkMode}
+                    className={`px-1.5 py-0.5 text-xs rounded-md transition-all ${
+                      themeSystem.isDarkMode
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                    title="Toggle Dark Mode"
+                  >
+                    {themeSystem.isDarkMode ? <Moon size={14} className="text-accent" /> : <Sun size={14} className="text-accent" />}
+                  </button>
+                </>
+              )}
+
+              <button
+                onClick={() => {
+                  setAutoSaving(true);
+                  onSave?.();
+                  setTimeout(() => setAutoSaving(false), 1000);
+                }}
+                className={`px-2 py-1 rounded-md cursor-pointer flex items-center gap-1 transition-all text-xs ${
+                  autoSaving
+                    ? 'bg-accent text-accent-foreground'
+                    : 'bg-accent/20 text-accent hover:bg-accent/40'
+                }`}
+              >
+                <Save size={14} />
+                {autoSaving ? 'Saving...' : 'Save'}
+              </button>
+
+              <button
+                onClick={onQuit}
+                className="flex items-center gap-1 px-2 py-1 text-xs transition-all rounded-md cursor-pointer bg-destructive/20 text-destructive hover:bg-destructive/40"
+              >
+                <LogOut size={14} />
+                Quit
+              </button>
+            </div>
+          </div>
+        </Card>
+
+        {/* Tab Bar - Compact */}
+        <TabNavigation 
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
+
+        {/* Content Area */}
+        <div className="flex flex-col flex-1 min-h-0 p-4 overflow-auto">
+          <TabContent
           tabId={activeTab}
           gameData={gameData}
           dialogueState={dialogueState}
@@ -380,43 +496,52 @@ export const GamePage = ({
           setContentPreference={setContentPreference}
           setMaturityLevel={setMaturityLevel}
           victoryConditions={victoryConditions}
-        />
+          />
+
+          {/* Week Advancement Button */}
+        {activeTab === 'dashboard' && (
+          <Card className="flex justify-end gap-2 px-4 py-2 border-t" style={{ borderColor: 'var(--border)' }}>
+            <Button onClick={triggerEvent} className="px-3 py-1.5 bg-primary/20 text-primary border-2 border-primary/50 rounded-lg text-lg font-bold hover:bg-primary/40 transition-all">
+              Trigger Event
+            </Button>
+
+            <Button onClick={handleAdvanceWeek} className="px-3 py-1.5 bg-accent text-accent-foreground rounded-lg text-lg font-bold hover:opacity-90 transition-all flex items-center gap-2">
+              <ChevronRight size={18} />
+              Advance Week
+            </Button>
+          </Card>
+        )}
+        </div>
       </div>
 
-      {/* Week Advancement Button */}
-      {activeTab === 'dashboard' && (
-        <div className="px-4 py-2 bg-card border-t border-border/20 flex justify-end gap-2">
-          <button
-            onClick={triggerEvent}
-            className="px-3 py-1.5 bg-primary/20 text-primary border-2 border-primary/50 rounded-lg cursor-pointer text-lg font-bold hover:bg-primary/40 transition-all"
-          >
-            Trigger Event
-          </button>
+      {/* Weekly Summary Modal (after Advance Week) */}
+      <WeeklySummaryModal
+        isOpen={showWeeklySummaryModal}
+        data={weeklySummaryData}
+        onClose={handleWeeklySummaryClose}
+      />
 
-          <button
-            onClick={handleAdvanceWeek}
-            className="px-3 py-1.5 bg-accent text-accent-foreground rounded-lg cursor-pointer text-lg font-bold hover:opacity-90 transition-all flex items-center gap-2"
-          >
-            <ChevronRight size={18} />
-            Advance Week
-          </button>
-        </div>
-      )}
-
-      {/* Enhanced Event Modal */}
-      {showEventModal && pendingEvent && (
-        <EnhancedEventModal
-          isOpen={true}
-          event={pendingEvent}
-          psychologicalState={dialogueState?.psychologicalState}
-          gameState={gameState?.state || gameState}
-          onChoice={handleEventChoice}
-          onClose={() => {
-            setShowEventModal(false);
-            setPendingEvent(null);
+      {/* Right Sidebar - Charts */}
+      <Card className="flex-shrink-0 hidden p-4 border-l w-80 border-border/20 lg:block">
+        <RightPanel
+          activeTab={chartTab}
+          onTabChange={setChartTab}
+          chartLeaders={chartLeaders}
+          albumChart={albumChart}
+          songChart={songChart}
+          playerLogoState={gameState?.state || {}}
+          onBandClick={(band) => {
+            // Handle band click - could open band stats modal
+            if (band.isPlayer) {
+              // Show player stats
+              console.log('Player band clicked:', band);
+            } else {
+              // Show rival stats
+              console.log('Rival band clicked:', band);
+            }
           }}
         />
-      )}
+      </Card>
     </div>
   );
 };

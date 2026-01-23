@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Zap, Plus } from 'lucide-react';
+import Card from '../../ui/Card';
+import Button from '../../ui/Button';
 
 /**
  * UpgradesTab.jsx - Equipment and skill upgrades
@@ -34,50 +36,43 @@ export const UpgradesTab = ({ gameData, equipmentUpgrades, gameState }) => {
   return (
     <div className="space-y-8">
       {/* Current Status */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-card border border-primary/30 p-6 rounded-lg">
-          <div className="text-muted-foreground text-xs uppercase mb-2">Budget</div>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <Card className="p-6 border rounded-lg border-primary/30">
+          <div className="mb-2 text-xs uppercase text-muted-foreground">Budget</div>
           <div className="text-2xl font-bold text-accent">${money.toLocaleString()}</div>
-        </div>
-        <div className="bg-card border border-secondary/30 p-6 rounded-lg">
-          <div className="text-muted-foreground text-xs uppercase mb-2">Performance Bonus</div>
+        </Card>
+        <Card className="p-6 border rounded-lg border-secondary/30">
+          <div className="mb-2 text-xs uppercase text-muted-foreground">Performance Bonus</div>
           <div className="text-2xl font-bold text-secondary">+{stats}%</div>
-        </div>
-        <div className="bg-card border border-primary/30 p-6 rounded-lg">
-          <div className="text-muted-foreground text-xs uppercase mb-2">Total Investments</div>
+        </Card>
+        <Card className="p-6 border rounded-lg border-primary/30">
+          <div className="mb-2 text-xs uppercase text-muted-foreground">Total Investments</div>
           <div className="text-2xl font-bold text-primary">${((gameState?.state?.totalUpgradeCost || 0)).toLocaleString()}</div>
-        </div>
+        </Card>
       </div>
 
       {/* Studio Upgrades */}
-      <div className="border-t border-border/20 pt-6">
+      <div className="pt-6 border-t border-border/20">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-foreground">Studio Equipment</h3>
-          <button
-            onClick={() => setShowStudio(!showStudio)}
-            className="text-sm px-3 py-1 bg-muted text-muted-foreground rounded hover:bg-muted/80 transition-all"
-          >
+          <Button onClick={() => setShowStudio(!showStudio)} className="px-3 py-1 text-sm rounded bg-muted text-muted-foreground hover:bg-muted/80">
             {showStudio ? 'Hide' : 'Show'}
-          </button>
+          </Button>
         </div>
 
         {showStudio && (
           <div className="space-y-3">
             {studioUpgrades.length > 0 ? (
               studioUpgrades.map((upgrade, idx) => (
-                <div key={idx} className="bg-card border border-primary/30 p-4 rounded-lg flex justify-between items-center">
+                <Card key={idx} className="flex items-center justify-between p-4 border rounded-lg border-primary/30">
                   <div>
-                    <h4 className="text-foreground font-semibold">{upgrade.name}</h4>
+                    <h4 className="font-semibold text-foreground">{upgrade.name}</h4>
                     <p className="text-sm text-muted-foreground">Quality: +{upgrade.qualityBonus} • Cost: ${upgrade.cost.toLocaleString()}</p>
                   </div>
-                  <button
-                    onClick={() => handleUpgrade('studio', upgrade.id)}
-                    disabled={money < upgrade.cost}
-                    className="px-4 py-2 bg-primary text-primary-foreground rounded hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all"
-                  >
+                  <Button onClick={() => handleUpgrade('studio', upgrade.id)} disabled={money < upgrade.cost} className="px-4 py-2 font-semibold rounded bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50">
                     Upgrade
-                  </button>
-                </div>
+                  </Button>
+                </Card>
               ))
             ) : (
               <p className="text-muted-foreground">No studio upgrades available</p>
@@ -87,12 +82,12 @@ export const UpgradesTab = ({ gameData, equipmentUpgrades, gameState }) => {
       </div>
 
       {/* Instrument Upgrades */}
-      <div className="border-t border-border/20 pt-6">
+      <div className="pt-6 border-t border-border/20">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-foreground">Instruments</h3>
           <button
             onClick={() => setShowInstruments(!showInstruments)}
-            className="text-sm px-3 py-1 bg-muted text-muted-foreground rounded hover:bg-muted/80 transition-all"
+            className="px-3 py-1 text-sm transition-all rounded bg-muted text-muted-foreground hover:bg-muted/80"
           >
             {showInstruments ? 'Hide' : 'Show'}
           </button>
@@ -101,70 +96,62 @@ export const UpgradesTab = ({ gameData, equipmentUpgrades, gameState }) => {
         {showInstruments && (
           <div className="space-y-3">
             {instrumentUpgrades.slice(0, 4).map((tier, idx) => (
-              <div key={idx} className="bg-card border border-secondary/30 p-4 rounded-lg flex justify-between items-center">
+              <Card key={idx} className="flex items-center justify-between p-4 border rounded-lg border-secondary/30">
                 <div>
-                  <h4 className="text-foreground font-semibold">{tier.name}</h4>
+                  <h4 className="font-semibold text-foreground">{tier.name}</h4>
                   <p className="text-sm text-muted-foreground">Bonus: +{tier.performanceBonus}% • Cost: ${tier.cost.toLocaleString()}</p>
                 </div>
-                <button
-                  onClick={() => handleUpgrade('instruments', idx)}
-                  disabled={money < tier.cost}
-                  className="px-4 py-2 bg-secondary text-secondary-foreground rounded hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all"
-                >
+                <Button onClick={() => handleUpgrade('instruments', idx)} disabled={money < tier.cost} className="px-4 py-2 font-semibold rounded bg-secondary text-secondary-foreground hover:opacity-90 disabled:opacity-50">
                   Buy
-                </button>
-              </div>
+                </Button>
+              </Card>
             ))}
           </div>
         )}
       </div>
 
       {/* Stage Gear */}
-      <div className="border-t border-border/20 pt-6">
+      <div className="pt-6 border-t border-border/20">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-foreground">Stage Gear</h3>
           <button
             onClick={() => setShowStageGear(!showStageGear)}
-            className="text-sm px-3 py-1 bg-muted text-muted-foreground rounded hover:bg-muted/80 transition-all"
+            className="px-3 py-1 text-sm transition-all rounded bg-muted text-muted-foreground hover:bg-muted/80"
           >
             {showStageGear ? 'Hide' : 'Show'}
           </button>
         </div>
 
         {showStageGear && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {stageEquipment.slice(0, 6).map((gear, idx) => (
-              <div key={idx} className="bg-card border border-accent/30 p-4 rounded-lg">
-                <h4 className="text-foreground font-semibold mb-2">{gear.name}</h4>
-                <p className="text-sm text-muted-foreground mb-3">
+              <Card key={idx} className="p-4 border rounded-lg border-accent/30">
+                <h4 className="mb-2 font-semibold text-foreground">{gear.name}</h4>
+                <p className="mb-3 text-sm text-muted-foreground">
                   Bonus: +{gear.prestige}pts • Cost: ${gear.cost.toLocaleString()}
                 </p>
-                <button
-                  onClick={() => handleUpgrade('stage-gear', gear.id)}
-                  disabled={money < gear.cost}
-                  className="w-full px-3 py-2 bg-accent text-accent-foreground rounded hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-semibold transition-all"
-                >
+                <Button onClick={() => handleUpgrade('stage-gear', gear.id)} disabled={money < gear.cost} className="w-full px-3 py-2 text-sm font-semibold rounded bg-accent text-accent-foreground hover:opacity-90 disabled:opacity-50">
                   Purchase
-                </button>
-              </div>
+                </Button>
+              </Card>
             ))}
           </div>
         )}
       </div>
 
       {/* Upgrade History */}
-      <div className="border-t border-border/20 pt-6">
-        <h3 className="text-xl font-bold text-foreground mb-4">Upgrade History</h3>
+      <div className="pt-6 border-t border-border/20">
+        <h3 className="mb-4 text-xl font-bold text-foreground">Upgrade History</h3>
         {(gameState?.state?.upgrades || []).length > 0 ? (
           <div className="flex flex-col gap-2">
             {(gameState?.state?.upgrades || []).slice(-10).reverse().map((upgrade, idx) => (
-              <div key={idx} className="bg-card border border-border/20 p-4 rounded-lg flex justify-between items-start hover:border-primary/30 transition-all">
+              <Card key={idx} className="flex items-start justify-between p-4 transition-all border rounded-lg border-border/20 hover:border-primary/30">
                 <div>
-                  <p className="text-foreground font-semibold m-0">{upgrade.name || upgrade}</p>
-                  {upgrade.type && <p className="text-sm text-muted-foreground mt-1">Type: {upgrade.type}</p>}
+                  <p className="m-0 font-semibold text-foreground">{upgrade.name || upgrade}</p>
+                  {upgrade.type && <p className="mt-1 text-sm text-muted-foreground">Type: {upgrade.type}</p>}
                 </div>
-                {upgrade.cost && <div className="text-secondary font-bold ml-4">-${upgrade.cost.toLocaleString()}</div>}
-              </div>
+                {upgrade.cost && <div className="ml-4 font-bold text-secondary">-${upgrade.cost.toLocaleString()}</div>}
+              </Card>
             ))}
           </div>
         ) : (

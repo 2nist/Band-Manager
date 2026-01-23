@@ -1,4 +1,6 @@
 import React from 'react';
+import Card from '../../ui/Card';
+import Button from '../../ui/Button';
 
 export default function LoadModal({ 
   isOpen, 
@@ -10,15 +12,15 @@ export default function LoadModal({
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-1000" onClick={onClose}>
-      <div className="bg-card rounded-lg p-8 max-w-md w-11/12 max-h-[80vh] overflow-y-auto border-2 border-primary/30" onClick={(e) => e.stopPropagation()}>
+      <Card className="rounded-lg p-8 max-w-md w-11/12 max-h-[80vh] overflow-y-auto border-2 border-primary/30" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-foreground m-0">Load Game</h2>
-          <button className="text-muted-foreground hover:text-destructive transition-colors text-xl" onClick={onClose}>✕</button>
+          <Button className="text-muted-foreground hover:text-destructive transition-colors text-xl" onClick={onClose}>✕</Button>
         </div>
         {Object.keys(saveSlots).length === 0 ? (
           <div>
             <p className="text-muted-foreground mb-6">No saved games found</p>
-            <button className="w-full px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded font-medium transition-colors" onClick={onClose}>Close</button>
+            <Button className="w-full px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded font-medium transition-colors" onClick={onClose}>Close</Button>
           </div>
         ) : (
           <div className="max-h-[400px] overflow-y-auto">
@@ -32,14 +34,14 @@ export default function LoadModal({
                     Saved: {new Date(data.timestamp).toLocaleString()}
                   </div>
                 </div>
-                <button className="w-full px-4 py-2 bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded font-medium transition-colors text-sm" onClick={() => onLoad(name)}>
+                <Button className="w-full px-4 py-2 bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded font-medium transition-colors text-sm" onClick={() => onLoad(name)}>
                   Load This Game
-                </button>
+                </Button>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 }

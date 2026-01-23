@@ -69,7 +69,7 @@ export function useGigSystem(gameState, updateGameState, addLog) {
   const bookGig = useCallback((venueId) => {
     const venue = VENUES[venueId];
     if (!venue) {
-      addLog('Venue not found.', true);
+      addLog('Venue not found.', 'error');
       return { success: false, reason: 'venue_not_found' };
     }
 
@@ -77,7 +77,7 @@ export function useGigSystem(gameState, updateGameState, addLog) {
     const travelCost = transport.travelCost || 0;
 
     if (gameState.money < travelCost) {
-      addLog(`Need $${travelCost} for travel to ${venue.name}.`, true);
+      addLog(`Need $${travelCost} for travel to ${venue.name}.`, 'warning');
       return { success: false, reason: 'insufficient_funds', cost: travelCost };
     }
 
@@ -181,7 +181,7 @@ export function useGigSystem(gameState, updateGameState, addLog) {
     const cost = tourCosts[tourType] || 1000;
 
     if (gameState.money < cost) {
-      addLog(`Need $${cost} to start a ${tourType} tour.`, true);
+      addLog(`Need $${cost} to start a ${tourType} tour.`, 'warning');
       return { success: false, reason: 'insufficient_funds', cost };
     }
 
@@ -195,7 +195,7 @@ export function useGigSystem(gameState, updateGameState, addLog) {
     });
 
     if (tourVenues.length === 0) {
-      addLog(`No venues available for ${tourType} tour.`, true);
+      addLog(`No venues available for ${tourType} tour.`, 'warning');
       return { success: false, reason: 'no_venues' };
     }
 
@@ -299,7 +299,7 @@ export function useGigSystem(gameState, updateGameState, addLog) {
     const restCost = 500;
 
     if (gameState.money < restCost) {
-      addLog(`Need $${restCost} for proper rest facilities.`, true);
+      addLog(`Need $${restCost} for proper rest facilities.`, 'warning');
       return { success: false };
     }
 

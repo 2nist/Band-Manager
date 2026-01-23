@@ -19,3 +19,4 @@ export { useSponsorshipSystem } from './useSponsorshipSystem';
 export { useVictoryConditions } from './useVictoryConditions';
 export { useTheme } from './useTheme';
 export { useMusicGeneration } from './useMusicGeneration';
+export { useChartSystem } from './useChartSystem';

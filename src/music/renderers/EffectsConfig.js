@@ -180,7 +180,19 @@ export function getGenreEffects(genre) {
  * @returns {Object} Adjusted effects configuration
  */
 export function adjustEffectsForGameState(effectsConfig, gameState = {}) {
+  // Ensure effectsConfig exists and has required structure
+  if (!effectsConfig || typeof effectsConfig !== 'object') {
+    console.warn('adjustEffectsForGameState: Invalid effectsConfig, using DEFAULT_EFFECTS');
+    effectsConfig = DEFAULT_EFFECTS;
+  }
+  
   const adjusted = JSON.parse(JSON.stringify(effectsConfig));
+  
+  // Ensure all required top-level properties exist
+  if (!adjusted.master) adjusted.master = {};
+  if (!adjusted.melody) adjusted.melody = {};
+  if (!adjusted.harmony) adjusted.harmony = {};
+  if (!adjusted.drums) adjusted.drums = {};
   
   // Extract equipment/studio quality (handle multiple possible locations)
   const equipmentQuality = gameState.equipmentQuality || 
@@ -225,41 +237,33 @@ export function adjustEffectsForGameState(effectsConfig, gameState = {}) {
   const substanceAmount = substanceUse / 100;
   
   // Adjust master effects
-  if (adjusted.master) {
-    if (adjusted.master.reverb) {
-      adjusted.master.reverb.wet = (adjusted.master.reverb.wet || 0.1) * studioMultiplier;
-    }
-    if (adjusted.master.compression) {
-      adjusted.master.compression.ratio = (adjusted.master.compression.ratio || 4) * (1 + qualityMultiplier * 0.5);
-    }
+  if (adjusted.master.reverb) {
+    adjusted.master.reverb.wet = (adjusted.master.reverb.wet || 0.1) * studioMultiplier;
+  }
+  if (adjusted.master.compression) {
+    adjusted.master.compression.ratio = (adjusted.master.compression.ratio || 4) * (1 + qualityMultiplier * 0.5);
   }
   
   // Adjust melody effects
-  if (adjusted.melody) {
-    if (adjusted.melody.distortion) {
-      adjusted.melody.distortion.distortion = Math.min(1, (adjusted.melody.distortion.distortion || 0) + stressAmount * 0.3 + substanceAmount * 0.2);
-      adjusted.melody.distortion.wet = Math.min(1, (adjusted.melody.distortion.wet || 0) + stressAmount * 0.2);
-    }
-    if (adjusted.melody.delay) {
-      adjusted.melody.delay.feedback = Math.min(0.9, (adjusted.melody.delay.feedback || 0) + substanceAmount * 0.1);
-    }
+  if (adjusted.melody.distortion) {
+    adjusted.melody.distortion.distortion = Math.min(1, (adjusted.melody.distortion.distortion || 0) + stressAmount * 0.3 + substanceAmount * 0.2);
+    adjusted.melody.distortion.wet = Math.min(1, (adjusted.melody.distortion.wet || 0) + stressAmount * 0.2);
+  }
+  if (adjusted.melody.delay) {
+    adjusted.melody.delay.feedback = Math.min(0.9, (adjusted.melody.delay.feedback || 0) + substanceAmount * 0.1);
   }
   
   // Adjust harmony effects
-  if (adjusted.harmony) {
-    if (adjusted.harmony.distortion) {
-      adjusted.harmony.distortion.distortion = Math.min(1, (adjusted.harmony.distortion.distortion || 0) + stressAmount * 0.2);
-    }
+  if (adjusted.harmony.distortion) {
+    adjusted.harmony.distortion.distortion = Math.min(1, (adjusted.harmony.distortion.distortion || 0) + stressAmount * 0.2);
   }
   
   // Adjust drum effects
-  if (adjusted.drums) {
-    if (adjusted.drums.compression) {
-      adjusted.drums.compression.ratio = (adjusted.drums.compression.ratio || 5) * (1 + qualityMultiplier * 0.3);
-    }
-    if (adjusted.drums.distortion) {
-      adjusted.drums.distortion.distortion = Math.min(1, (adjusted.drums.distortion.distortion || 0) + stressAmount * 0.2);
-    }
+  if (adjusted.drums.compression) {
+    adjusted.drums.compression.ratio = (adjusted.drums.compression.ratio || 5) * (1 + qualityMultiplier * 0.3);
+  }
+  if (adjusted.drums.distortion) {
+    adjusted.drums.distortion.distortion = Math.min(1, (adjusted.drums.distortion.distortion || 0) + stressAmount * 0.2);
   }
   
   return adjusted;

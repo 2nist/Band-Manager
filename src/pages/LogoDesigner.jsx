@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ChevronLeft, Copy, RotateCcw } from 'lucide-react';
+import Card from '../ui/Card';
+import Button from '../ui/Button';
 import { calculateLogoStyle, ensureFontLoaded } from '../utils/helpers';
 
 /**
@@ -105,7 +107,7 @@ export const LogoDesigner = ({
       <div className="grid grid-cols-3 gap-4 max-w-7xl mx-auto">
         {/* Preview - Left Column */}
         <div className="col-span-1 flex flex-col gap-3">
-          <div className="bg-card rounded-lg p-4 border border-border/20 h-48 flex items-center justify-center shadow-lg">
+          <Card className="rounded-lg p-4 h-48 flex items-center justify-center shadow-lg" style={{ borderColor: 'var(--border)' }}>
             <div
               style={{
                 ...logoStyle,
@@ -116,10 +118,10 @@ export const LogoDesigner = ({
             >
               {bandName || 'Your Band'}
             </div>
-          </div>
+          </Card>
 
           {/* Presets - Compact */}
-          <div className="bg-card rounded-lg p-3 border border-border/20 shadow-lg">
+          <Card className="rounded-lg p-3 shadow-lg" style={{ borderColor: 'var(--border)' }}>
             <h3 className="text-sm font-bold mb-2 text-foreground">Quick Presets</h3>
             <div className="space-y-1">
               {LOGO_PRESETS.map((preset) => (
@@ -132,11 +134,11 @@ export const LogoDesigner = ({
                 </button>
               ))}
             </div>
-          </div>
+          </Card>
         </div>
 
         {/* Controls - Middle & Right Columns */}
-        <div className="col-span-2 bg-card rounded-lg p-4 border border-border/20 shadow-lg overflow-y-auto max-h-[calc(100vh-120px)]">
+        <Card className="col-span-2 rounded-lg p-4 shadow-lg overflow-y-auto max-h-[calc(100vh-120px)]">
           <h3 className="text-lg font-bold mb-3 text-foreground">Customization</h3>
           
           {/* Two-column grid for controls */}
@@ -419,7 +421,7 @@ export const LogoDesigner = ({
               </button>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

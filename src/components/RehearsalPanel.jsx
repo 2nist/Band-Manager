@@ -31,7 +31,25 @@ export const RehearsalPanel = ({ gameState, onClose }) => {
   const handleGenerateSong = useCallback(async () => {
     setIsGenerating(true);
     setCurrentTime(0);
+    setIsPlaying(false);
+    
+    // Stop any current playback
+    if (rendererRef.current) {
+      rendererRef.current.stop();
+    }
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+    
     try {
+      // Ensure Tone.js is available
+      if (typeof window !== 'undefined' && !window.Tone) {
+        const ToneLib = await import('tone');
+        const Tone = ToneLib.default || ToneLib;
+        window.Tone = Tone;
+      }
+
       // Ensure gameState has bandMembers
       const fullGameState = {
         ...gameState,
@@ -50,16 +68,22 @@ export const RehearsalPanel = ({ gameState, onClose }) => {
       // Initialize renderer if needed
       if (!rendererRef.current) {
         rendererRef.current = new ToneRenderer();
+      }
+      
+      // Initialize renderer with song (this sets up all synths and effects)
+      if (!rendererRef.current.isInitialized) {
         await rendererRef.current.initialize(song);
       }
       
-      // Render the song
+      // Render the song (schedules all notes)
       const renderResult = await rendererRef.current.render(song);
       setDuration(renderResult.duration || 32); // Default to 32 seconds if not provided
       
+      console.log('RehearsalPanel: Song rendered, duration:', renderResult.duration);
+      
     } catch (error) {
       console.error('Failed to generate rehearsal song:', error);
-      alert('Failed to generate song. Check console for details.');
+      alert('Failed to generate song: ' + error.message);
     } finally {
       setIsGenerating(false);
     }
@@ -85,24 +109,85 @@ export const RehearsalPanel = ({ gameState, onClose }) => {
       }
     } else {
       try {
+        // Ensure Tone.js audio context is started (required for browser autoplay policy)
+        if (typeof window !== 'undefined' && window.Tone) {
+          if (window.Tone.context.state !== 'running') {
+            await window.Tone.start();
+            console.log('RehearsalPanel: Tone.js audio context started');
+          }
+        } else {
+          // Try to load Tone.js if not available
+          const ToneLib = await import('tone');
+          const Tone = ToneLib.default || ToneLib;
+          window.Tone = Tone;
+          if (Tone.context.state !== 'running') {
+            await Tone.start();
+          }
+        }
+
+        // Ensure renderer is initialized
+        if (!rendererRef.current.isInitialized) {
+          await rendererRef.current.initialize(testSongRef.current);
+        }
+        
+        // Re-render song if notes were cleared (e.g., after previous playback completed)
+        if (!rendererRef.current.scheduledNotes || rendererRef.current.scheduledNotes.length === 0) {
+          console.log('RehearsalPanel: Re-rendering song (notes were cleared)');
+          await rendererRef.current.render(testSongRef.current);
+        }
+
+        // Play the song
         await rendererRef.current.play();
         setIsPlaying(true);
         
+        // Reset current time when starting
+        setCurrentTime(0);
+        
         // Track progress using Tone.Transport
+        let lastLoggedSecond = -1;
         progressIntervalRef.current = setInterval(() => {
           if (window.Tone?.Transport) {
-            const transportTime = window.Tone.Transport.seconds;
-            setCurrentTime(transportTime);
+            const transportTime = window.Tone.Transport.seconds || 0;
+            const transportState = window.Tone.Transport.state; // 'started', 'stopped', 'paused'
+            
+            // Clamp transport time to duration (prevent showing times way past end)
+            const clampedTime = Math.min(transportTime, duration || transportTime);
+            
+            // Update current time
+            setCurrentTime(clampedTime);
+            
+            // Debug log every second
+            const currentSecond = Math.floor(clampedTime);
+            if (currentSecond !== lastLoggedSecond && currentSecond > 0 && currentSecond <= duration) {
+              console.log(`RehearsalPanel: Transport time: ${clampedTime.toFixed(2)}s, state: ${transportState}, duration: ${duration}`);
+              lastLoggedSecond = currentSecond;
+            }
             
             // Stop if we've reached the end
-            if (duration > 0 && transportTime >= duration) {
+            if (duration > 0 && clampedTime >= duration) {
+              console.log('RehearsalPanel: Reached end of song');
               handleStop();
             }
+            
+            // If transport stopped unexpectedly, update state
+            if (transportState === 'stopped' && isPlaying) {
+              console.warn('RehearsalPanel: Transport stopped unexpectedly');
+              setIsPlaying(false);
+              if (progressIntervalRef.current) {
+                clearInterval(progressIntervalRef.current);
+                progressIntervalRef.current = null;
+              }
+            }
+          } else {
+            console.warn('Tone.Transport not available for progress tracking');
           }
         }, 100);
+        
+        console.log('RehearsalPanel: Playback started, duration:', duration, 'scheduled notes:', rendererRef.current?.scheduledNotes?.length || 0);
       } catch (error) {
         console.error('Failed to play:', error);
         setIsPlaying(false);
+        alert('Failed to start playback: ' + error.message + '\n\nMake sure you clicked the Play button (browser requires user interaction for audio).');
       }
     }
   }, [isPlaying, handleGenerateSong, duration]);
@@ -118,6 +203,12 @@ export const RehearsalPanel = ({ gameState, onClose }) => {
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
         progressIntervalRef.current = null;
+      }
+      // Reset Transport
+      if (window.Tone?.Transport) {
+        window.Tone.Transport.stop();
+        window.Tone.Transport.cancel();
+        window.Tone.Transport.seconds = 0;
       }
     }
   }, []);

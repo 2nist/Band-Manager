@@ -72,8 +72,8 @@ export const useMusicGeneration = () => {
     setGenerationError(null);
 
     try {
-      // Generate song and normalize structure
-      const generatedSong = MusicGenerator.generateSong(gameState, genre, {
+      // Generate song and normalize structure (await async call)
+      const generatedSong = await MusicGenerator.generateSong(gameState, genre, {
         seed: key,
         songName: songTitle || `${gameState.bandName} - Week ${gameState.week}`,
         ...options
@@ -117,7 +117,7 @@ export const useMusicGeneration = () => {
     setGenerationError(null);
 
     try {
-      const album = MusicGenerator.generateAlbum(gameState, genre, {
+      const album = await MusicGenerator.generateAlbum(gameState, genre, {
         trackCount,
         albumName: `${gameState.bandName} - Week ${gameState.currentWeek}`
       });

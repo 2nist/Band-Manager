@@ -1,5 +1,7 @@
 import React from 'react';
 import { ChevronRight, Target, DollarSign, Zap } from 'lucide-react';
+import Button from '../ui/Button';
+import Card from '../ui/Card';
 import { SCENARIOS } from '../utils/constants';
 
 /**
@@ -23,14 +25,14 @@ export const ScenarioSelection = ({
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/10 flex flex-col">
       {/* Header */}
-      <div className="bg-card border-b border-border/20 px-8 py-6">
+      <Card className="px-8 py-6 border-b">
         <h1 className="text-4xl font-bold text-foreground mb-2">
           Choose Your Path
         </h1>
         <p className="text-muted-foreground">
           Different scenarios offer unique challenges and starting conditions for <span className="text-primary font-semibold">{bandName}</span>
         </p>
-      </div>
+      </Card>
 
       {/* Scenarios Grid */}
       <div className="flex-1 px-8 py-8 overflow-auto">
@@ -42,9 +44,9 @@ export const ScenarioSelection = ({
             - max-w-3xl: Container max width (reduce for narrower cards) */}
         <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-6 max-w-3xl mx-auto">
           {SCENARIOS.map(scenario => (
-            <div
+            <Card
               key={scenario.id}
-              className="bg-card border-2 border-border/30 hover:border-primary/60 rounded-lg p-6 cursor-pointer transition-all hover:shadow-lg hover:shadow-primary/20"
+              className="border-2 border-border/30 hover:border-primary/60 p-6 cursor-pointer transition-all hover:shadow-lg hover:shadow-primary/20"
               onClick={() => handleScenarioSelect(scenario)}
             >
               {/* Scenario Header */}
@@ -108,27 +110,24 @@ export const ScenarioSelection = ({
               )}
 
               {/* Select Button */}
-              <button className="w-full px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-all font-semibold flex items-center justify-center gap-2 cursor-pointer">
+              <Button className="w-full bg-primary text-primary-foreground hover:opacity-90 transition-all font-semibold flex items-center justify-center gap-2">
                 Select Scenario
                 <ChevronRight size={18} />
-              </button>
-            </div>
+              </Button>
+            </Card>
           ))}
         </div>
       </div>
 
       {/* Footer */}
-      <div className="bg-card border-t border-border/20 px-8 py-4 flex justify-between">
-        <button
-          onClick={onBack}
-          className="px-6 py-2 bg-muted text-muted-foreground hover:bg-muted/80 rounded-lg cursor-pointer transition-all"
-        >
+      <Card className="px-8 py-4 border-t flex justify-between">
+        <Button onClick={onBack} className="px-6 bg-muted text-muted-foreground hover:bg-muted/80">
           Back
-        </button>
+        </Button>
         <p className="text-xs text-muted-foreground">
           You can always play Sandbox mode for a free-form experience
         </p>
-      </div>
+      </Card>
     </div>
   );
 };

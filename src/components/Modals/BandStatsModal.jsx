@@ -1,6 +1,8 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import { getBandLogoStyle } from '../../utils/helpers';
+import Card from '../../ui/Card';
+import Button from '../../ui/Button';
 
 export default function BandStatsModal({ 
   isOpen, 
@@ -12,7 +14,7 @@ export default function BandStatsModal({
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-1000" onClick={onClose}>
-      <div className="bg-card rounded-lg p-8 max-w-2xl w-11/12 max-h-[90vh] overflow-y-auto border-2 border-primary/30" onClick={(e) => e.stopPropagation()}>
+      <Card className="rounded-lg p-8 max-w-2xl w-11/12 max-h-[90vh] overflow-y-auto border-2 border-primary/30" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-6">
           <h2 className="m-0 flex items-center gap-3 text-foreground text-xl font-bold">
             {bandStats.isPlayer ? (
@@ -28,12 +30,12 @@ export default function BandStatsModal({
               </span>
             )}
           </h2>
-          <button 
+          <Button
             onClick={onClose}
             className="bg-none border-none text-muted-foreground hover:text-destructive cursor-pointer p-1 transition-colors"
           >
             <X size={20} />
-          </button>
+          </Button>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -126,9 +128,9 @@ export default function BandStatsModal({
         )}
 
         <div className="mt-6 flex justify-end">
-          <button className="px-6 py-2 bg-muted hover:bg-muted/80 text-foreground rounded font-medium transition-colors" onClick={onClose}>Close</button>
+          <Button className="px-6 py-2 bg-muted hover:bg-muted/80 text-foreground rounded font-medium transition-colors" onClick={onClose}>Close</Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

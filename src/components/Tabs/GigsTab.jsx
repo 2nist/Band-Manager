@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Zap, MapPin } from 'lucide-react';
+import Card from '../../ui/Card';
+import Button from '../../ui/Button';
 
 /**
  * GigsTab.jsx - Performance history and booking
@@ -38,32 +40,32 @@ export const GigsTab = ({ gameData, gigSystem, gameState, gameLogic }) => {
     <div>
       {/* Band Status */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-card border border-primary/30 p-6 rounded-lg">
+        <Card className="border border-primary/30 p-6 rounded-lg">
           <div className="text-muted-foreground text-sm mb-2">Total Gigs</div>
           <div className="text-4xl font-bold text-primary">{gigHistory.length}</div>
-        </div>
-        <div className="bg-card border border-secondary/30 p-6 rounded-lg">
+        </Card>
+        <Card className="border border-secondary/30 p-6 rounded-lg">
           <div className="text-muted-foreground text-sm mb-2">Gig Earnings</div>
           <div className="text-4xl font-bold text-secondary">${gigEarnings.toLocaleString()}</div>
-        </div>
-        <div className="bg-card border border-accent/30 p-6 rounded-lg">
+        </Card>
+        <Card className="border border-accent/30 p-6 rounded-lg">
           <div className="text-muted-foreground text-sm mb-2">Band Size</div>
           <div className="text-4xl font-bold text-accent">{bandMembers.length}</div>
-        </div>
+        </Card>
       </div>
 
       {/* Current Tour Status */}
       {currentTour && (
-        <div className="bg-card border border-accent/50 p-6 rounded-lg mb-8">
+        <Card className="border border-accent/50 p-6 rounded-lg mb-8">
           <h3 className="text-lg font-bold text-accent mb-3">Currently Touring</h3>
           <p className="text-sm text-muted-foreground mb-4">{currentTour.venues?.length || 0} venues scheduled</p>
-          <button
+          <Button
             onClick={() => gigSystem?.advanceTourWeek?.()}
             className="px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:opacity-90 font-semibold transition-all"
           >
             Next Tour Stop
-          </button>
-        </div>
+          </Button>
+        </Card>
       )}
 
       {/* Booking Section */}
@@ -77,9 +79,9 @@ export const GigsTab = ({ gameData, gigSystem, gameState, gameLogic }) => {
         ) : availableVenues.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             {availableVenues.slice(0, 6).map(venue => (
-              <div
+              <Card
                 key={venue.id}
-                className="bg-card border border-border/30 p-4 rounded-lg hover:border-primary/50 transition-all cursor-pointer"
+                className="border border-border/30 p-4 rounded-lg hover:border-primary/50 transition-all cursor-pointer"
                 onClick={() => setSelectedVenue(venue.id)}
               >
                 <div className="flex items-start justify-between mb-3">
@@ -101,7 +103,7 @@ export const GigsTab = ({ gameData, gigSystem, gameState, gameLogic }) => {
                 <p className="text-sm text-muted-foreground mb-4">{venue.description}</p>
                 <div className="flex gap-2 items-center">
                   <span className="text-lg font-bold text-accent">${venue.payday?.toLocaleString()}</span>
-                  <button
+                  <Button
                     onClick={(e) => {
                       e.stopPropagation();
                       handleBookGig(venue.id);
@@ -109,9 +111,9 @@ export const GigsTab = ({ gameData, gigSystem, gameState, gameLogic }) => {
                     className="ml-auto px-3 py-1 bg-primary text-primary-foreground rounded text-sm hover:opacity-90 transition-all font-semibold"
                   >
                     Book Now
-                  </button>
+                  </Button>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         ) : (
@@ -120,12 +122,9 @@ export const GigsTab = ({ gameData, gigSystem, gameState, gameLogic }) => {
 
         {availableVenues.length > 0 && (
           <div className="border-t border-border/20 pt-6">
-            <button
-              onClick={() => gigSystem?.startTour?.(availableVenues.map(v => v.id).slice(0, 4))}
-              className="w-full px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:opacity-90 font-bold transition-all"
-            >
+            <Button onClick={() => gigSystem?.startTour?.(availableVenues.map(v => v.id).slice(0, 4))} className="w-full px-6 py-3 bg-accent text-accent-foreground rounded-lg font-bold">
               Start National Tour (4 venues, $15,000)
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -136,7 +135,7 @@ export const GigsTab = ({ gameData, gigSystem, gameState, gameLogic }) => {
         {gigHistory.length > 0 ? (
           <div className="flex flex-col gap-2">
             {gigHistory.slice(-10).reverse().map((gig, idx) => (
-              <div key={idx} className="bg-card border border-border/20 p-4 rounded-lg flex justify-between items-center hover:border-primary/30 transition-all">
+              <Card key={idx} className="border border-border/20 p-4 rounded-lg flex justify-between items-center hover:border-primary/30 transition-all">
                 <div>
                   <p className="text-foreground font-semibold mb-1">{gig.venue || 'Unknown Venue'}</p>
                   <p className="text-sm text-muted-foreground">Week {gig.week}</p>
@@ -147,7 +146,7 @@ export const GigsTab = ({ gameData, gigSystem, gameState, gameLogic }) => {
                     {gig.success ? 'Great show' : 'Rough night'}
                   </p>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         ) : (

@@ -247,11 +247,26 @@ function App() {
           bandName={gameState.state?.bandName || 'Your Band'}
           logo={gameState.state?.logo}
           onComplete={(members, genre) => {
+            // Ensure state exists before updating
+            if (!gameState.state) {
+              console.warn('gameState.state is undefined, initializing...');
+              gameState.updateGameState({
+                bandName: gameState.state?.bandName || 'Your Band',
+                week: gameState.state?.week || 0,
+                money: gameState.state?.money || 0,
+                fame: gameState.state?.fame || 0
+              });
+            }
+            
             gameState.updateGameState({ 
               bandMembers: members,
               genre: genre || 'Pop' // Default to Pop if not provided
             });
-            gameState.setStep('game');
+            
+            // Small delay to ensure state is updated before transition
+            setTimeout(() => {
+              gameState.setStep('game');
+            }, 0);
           }}
         />
       ) : (
@@ -345,15 +360,56 @@ function App() {
         }}
       />
 
-      {/* Global Modals */}
-      {modalState.showEventModal && (
+      {/* Global Modals - Enhanced Event Modal */}
+      {modalState.modals.eventPopup && modalState.modalData.eventPopupData && (
         <EnhancedEventModal
-          event={modalState.currentEvent}
-          onChoice={(choiceId) => {
-            // Handle event choice through game logic
-            modalState.setShowEventModal(false);
+          isOpen={true}
+          event={modalState.modalData.eventPopupData}
+          psychologicalState={dialogueState?.psychologicalState}
+          gameState={gameState?.state || gameState}
+          onChoice={(eventId, choiceId, choiceText, impacts) => {
+            // Find the choice object from the event
+            const event = modalState.modalData.eventPopupData;
+            const choice = event?.choices?.find(c => c.id === choiceId);
+            
+            if (!choice) return;
+            
+            // Apply psychological effects from the choice
+            if (choice.psychologicalEffects && dialogueState?.updatePsychologicalState) {
+              const updates = {};
+              Object.entries(choice.psychologicalEffects).forEach(([key, value]) => {
+                if (key === 'stress_level' || key === 'stress') updates.stress_level = value;
+                if (key === 'moral_integrity' || key === 'morality') updates.moral_integrity = value;
+                if (key === 'addiction_risk' || key === 'addiction') updates.addiction_risk = value;
+                if (key === 'paranoia') updates.paranoia = value;
+                if (key === 'depression') updates.depression = value;
+              });
+              
+              if (Object.keys(updates).length > 0) {
+                dialogueState.updatePsychologicalState(updates);
+                if (gameState?.addLog) {
+                  const effects = Object.entries(updates)
+                    .map(([k, v]) => `${k.replace(/_/g, ' ')} ${v > 0 ? '+' : ''}${v}`)
+                    .join(', ');
+                  gameState.addLog(`Psychological effects: ${effects}`, 'info');
+                }
+              }
+            }
+            
+            // Handle through consequence system
+            if (onHandleEventChoice) {
+              onHandleEventChoice(choice);
+            }
+            
+            // Log the choice made
+            if (gameState?.addLog && choiceText) {
+              gameState.addLog(`You chose: "${choiceText}"`, 'info');
+            }
+            
+            // Close the modal
+            modalState.closeEventPopup();
           }}
-          onClose={() => modalState.setShowEventModal(false)}
+          onClose={() => modalState.closeEventPopup()}
         />
       )}
 

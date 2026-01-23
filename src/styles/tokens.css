@@ -1,0 +1,10 @@
+:root {
+  --color-primary: 59 130 246; /* rgb as space-separated to support tailwind rgba like rgb(var(--color-primary)) */
+  --color-primary-hex: #3b82f6;
+  --color-card-bg: #ffffff;
+  --ring-color: rgba(59,130,246,0.5);
+}
+
+.dark {
+  --color-card-bg: #0b1220;
+}

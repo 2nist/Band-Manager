@@ -9,6 +9,17 @@ import { Play, Pause, Square, Download, Music } from 'lucide-react';
 import { ToneRenderer } from '../music/renderers/ToneRenderer';
 import { MIDIExporter } from '../music/renderers/MIDIExporter';
 
+// Import Tone.js to ensure it's available
+let Tone = null;
+if (typeof window !== 'undefined') {
+  import('tone').then(ToneLib => {
+    Tone = ToneLib.default || ToneLib;
+    window.Tone = Tone;
+  }).catch(err => {
+    console.warn('Could not load Tone.js:', err);
+  });
+}
+
 export const TrackPlayer = ({ song, onExport }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -26,14 +37,29 @@ export const TrackPlayer = ({ song, onExport }) => {
     
     setIsLoading(true);
     try {
+      // Ensure Tone.js is available and audio context can start
+      if (typeof window !== 'undefined' && window.Tone) {
+        // Start audio context if not already running (required for browser autoplay policy)
+        if (window.Tone.context.state !== 'running') {
+          try {
+            await window.Tone.start();
+            console.log('Tone.js audio context started');
+          } catch (err) {
+            console.warn('Could not start Tone.js audio context:', err);
+            // Continue anyway - might work on user interaction
+          }
+        }
+      }
+
       if (!rendererRef.current) {
         rendererRef.current = new ToneRenderer();
       }
 
       const renderResult = await rendererRef.current.render(song);
-      setDuration(renderResult.duration);
+      setDuration(renderResult.duration || 0);
     } catch (error) {
       console.error('Failed to render song:', error);
+      alert('Failed to render song: ' + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -43,22 +69,52 @@ export const TrackPlayer = ({ song, onExport }) => {
    * Play track
    */
   const handlePlay = async () => {
-    if (!rendererRef.current) {
-      await handleRender();
+    if (!song) {
+      console.error('No song to play');
+      return;
     }
 
     try {
-      await rendererRef.current.play();
-      setIsPlaying(true);
+      // Ensure Tone.js audio context is started (required for browser autoplay policy)
+      if (window.Tone && window.Tone.context && window.Tone.context.state !== 'running') {
+        await window.Tone.start();
+      }
 
-      // Update progress
-      progressIntervalRef.current = setInterval(() => {
-        const time = window.Tone?.Transport?.seconds || 0;
-        setCurrentTime(time);
-      }, 100);
+      // Render if needed
+      if (!rendererRef.current) {
+        await handleRender();
+      }
+
+      // Ensure renderer is initialized
+      if (rendererRef.current && !rendererRef.current.isInitialized) {
+        await rendererRef.current.initialize(song);
+      }
+
+      // Play the song
+      if (rendererRef.current) {
+        await rendererRef.current.play();
+        setIsPlaying(true);
+
+        // Update progress
+        progressIntervalRef.current = setInterval(() => {
+          if (window.Tone?.Transport) {
+            const time = window.Tone.Transport.seconds || 0;
+            setCurrentTime(time);
+            
+            // Stop if we've reached the end
+            if (duration > 0 && time >= duration) {
+              handleStop();
+            }
+          }
+        }, 100);
+      } else {
+        throw new Error('Renderer not initialized');
+      }
 
     } catch (error) {
       console.error('Failed to play:', error);
+      setIsPlaying(false);
+      alert('Failed to start playback: ' + error.message + '\n\nNote: Browsers require user interaction to start audio. Make sure you clicked the Play button.');
     }
   };
 

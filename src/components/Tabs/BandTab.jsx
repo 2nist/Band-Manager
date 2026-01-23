@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Users, Plus, Trash2, Zap, Music, Mic, Settings } from 'lucide-react';
+import Card from '../../ui/Card';
+import Button from '../../ui/Button';
 import { AuditionPanel } from '../AuditionPanel.jsx';
 import { RehearsalPanel } from '../RehearsalPanel.jsx';
 import { MemberToneSettingsPanel } from '../MemberToneSettingsPanel.jsx';
@@ -126,51 +128,37 @@ export const BandTab = ({
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="flex items-center gap-2 text-xl font-bold text-foreground">
           <Users size={24} />
           Band Members ({members.length}/6)
         </h3>
         <div className="flex gap-2">
-          <button
-            onClick={() => setShowRehearsal(true)}
-            className="px-4 py-2 bg-accent text-accent-foreground rounded-md cursor-pointer hover:opacity-90 transition-all flex items-center gap-2"
-            disabled={members.length === 0}
-          >
+          <Button onClick={() => setShowRehearsal(true)} disabled={members.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-md bg-accent text-accent-foreground">
             <Music size={16} />
             Rehearse
-          </button>
-          <button
-            onClick={() => setShowAuditions(true)}
-            className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md cursor-pointer hover:opacity-90 transition-all flex items-center gap-2"
-          >
+          </Button>
+          <Button onClick={() => setShowAuditions(true)} className="flex items-center gap-2 px-4 py-2 rounded-md bg-secondary text-secondary-foreground">
             <Mic size={16} />
             Auditions
-          </button>
-          <button
-            onClick={() => setShowRecruitment(!showRecruitment)}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md cursor-pointer hover:opacity-90 transition-all flex items-center gap-2"
-          >
+          </Button>
+          <Button onClick={() => setShowRecruitment(!showRecruitment)} className="flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground">
             <Plus size={16} />
             Recruit
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Recruitment Panel */}
       {showRecruitment && members.length < 6 && (
-        <div className="bg-primary/10 border-2 border-primary/30 p-6 rounded-lg mb-6">
-          <h4 className="text-lg font-semibold text-foreground mb-4">Recruit a Musician</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="p-6 mb-6 border-2 rounded-lg bg-primary/10 border-primary/30">
+          <h4 className="mb-4 text-lg font-semibold text-foreground">Recruit a Musician</h4>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
             {MUSICIAN_ROLES.map(role => (
-              <button
-                key={role.id}
-                onClick={() => handleRecruitMember(role.id)}
-                className="p-3 bg-card border border-primary/30 rounded-md hover:border-primary/60 hover:bg-primary/5 transition-all text-left cursor-pointer"
-              >
+              <Card key={role.id} className="p-3 text-left transition-all border rounded-md cursor-pointer border-primary/30 hover:border-primary/60 hover:bg-primary/5" onClick={() => handleRecruitMember(role.id)}>
                 <div className="font-semibold text-foreground">{role.name}</div>
                 <div className="text-sm text-muted-foreground">${role.cost}</div>
-              </button>
+              </Card>
             ))}
           </div>
         </div>
@@ -178,31 +166,31 @@ export const BandTab = ({
 
       {/* Member List */}
       {members.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {members.map(member => (
-            <div 
+            <Card 
               key={member.id}
               onClick={() => setSelectedMember(selectedMember?.id === member.id ? null : member)}
-              className="bg-card border-2 border-primary/30 p-4 rounded-lg hover:border-primary/60 transition-all cursor-pointer"
+              className="p-4 transition-all border-2 rounded-lg cursor-pointer border-primary/30 hover:border-primary/60"
             >
-              <div className="flex justify-between items-start mb-2">
+              <div className="flex items-start justify-between mb-2">
                 <div>
-                  <h4 className="text-foreground font-semibold">{member.name}</h4>
-                  <p className="text-sm text-muted-foreground">Role: <span className="text-primary font-medium">{member.type}</span></p>
+                  <h4 className="font-semibold text-foreground">{member.name}</h4>
+                  <p className="text-sm text-muted-foreground">Role: <span className="font-medium text-primary">{member.type}</span></p>
                 </div>
               </div>
 
               {/* Stats */}
-              <div className="space-y-2 text-sm mb-3">
+              <div className="mb-3 space-y-2 text-sm">
                 <div>
-                  <div className="text-muted-foreground mb-1">Skill ({member.skill || 5}/10)</div>
-                  <div className="h-2 bg-input rounded overflow-hidden">
+                  <div className="mb-1 text-muted-foreground">Skill ({member.skill || 5}/10)</div>
+                  <div className="h-2 overflow-hidden rounded bg-input">
                     <div className="h-full bg-secondary" style={{ width: `${(member.skill || 5) * 10}%` }} />
                   </div>
                 </div>
                 <div>
-                  <div className="text-muted-foreground mb-1">Morale ({member.morale || 80}%)</div>
-                  <div className="h-2 bg-input rounded overflow-hidden">
+                  <div className="mb-1 text-muted-foreground">Morale ({member.morale || 80}%)</div>
+                  <div className="h-2 overflow-hidden rounded bg-input">
                     <div className="h-full bg-accent" style={{ width: `${member.morale || 80}%` }} />
                   </div>
                 </div>
@@ -210,8 +198,8 @@ export const BandTab = ({
 
               {/* Skill Traits */}
               {member.traits && typeof member.traits === 'object' && !Array.isArray(member.traits) && Object.keys(member.traits).length > 0 && (
-                <div className="text-xs text-muted-foreground/70 pt-2 border-t border-border/20 mb-3">
-                  <div className="font-semibold mb-1">Skills:</div>
+                <div className="pt-2 mb-3 text-xs border-t text-muted-foreground/70 border-border/20">
+                  <div className="mb-1 font-semibold">Skills:</div>
                   {Object.entries(member.traits).slice(0, 3).map(([trait, value]) => (
                     <div key={trait} className="text-xs">
                       {trait}: {value}/100
@@ -221,61 +209,39 @@ export const BandTab = ({
               )}
               {/* Legacy traits array */}
               {member.traits && Array.isArray(member.traits) && member.traits.length > 0 && (
-                <div className="text-xs text-muted-foreground/70 pt-2 border-t border-border/20 mb-3">
+                <div className="pt-2 mb-3 text-xs border-t text-muted-foreground/70 border-border/20">
                   Traits: {member.traits.join(', ')}
                 </div>
               )}
 
               {/* Expanded View */}
               {selectedMember?.id === member.id && (
-                <div className="border-t border-border/20 pt-3 mt-3 space-y-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setToneSettingsMember(member);
-                      setShowToneSettings(true);
-                    }}
-                    className="w-full px-3 py-2 bg-primary/20 text-primary hover:bg-primary/40 rounded-md cursor-pointer text-sm font-medium flex items-center justify-center gap-2 transition-all"
-                  >
+                <div className="pt-3 mt-3 space-y-2 border-t border-border/20">
+                  <Button onClick={(e) => { e.stopPropagation(); setToneSettingsMember(member); setShowToneSettings(true); }} className="flex items-center justify-center w-full gap-2 px-3 py-2 text-sm font-medium rounded-md bg-primary/20 text-primary">
                     <Settings size={14} />
                     Tone Settings
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handlePracticeMember(member.id);
-                    }}
-                    className="w-full px-3 py-2 bg-secondary/20 text-secondary hover:bg-secondary/40 rounded-md cursor-pointer text-sm font-medium flex items-center justify-center gap-2 transition-all"
-                  >
+                  </Button>
+                  <Button onClick={(e) => { e.stopPropagation(); handlePracticeMember(member.id); }} className="flex items-center justify-center w-full gap-2 px-3 py-2 text-sm font-medium rounded-md bg-secondary/20 text-secondary">
                     <Zap size={14} />
                     Practice ($100)
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleFireMember(member.id);
-                    }}
-                    className="w-full px-3 py-2 bg-destructive/20 text-destructive hover:bg-destructive/40 rounded-md cursor-pointer text-sm font-medium flex items-center justify-center gap-2 transition-all"
-                  >
+                  </Button>
+                  <Button onClick={(e) => { e.stopPropagation(); handleFireMember(member.id); }} className="flex items-center justify-center w-full gap-2 px-3 py-2 text-sm font-medium rounded-md bg-destructive/20 text-destructive">
                     <Trash2 size={14} />
                     Fire
-                  </button>
+                  </Button>
                 </div>
               )}
-            </div>
+            </Card>
           ))}
         </div>
       ) : (
-        <div className="bg-card border-2 border-border/20 p-8 rounded-lg text-center">
-          <p className="text-muted-foreground mb-4">No band members yet. Recruit some musicians to get started!</p>
-          <button
-            onClick={() => setShowRecruitment(true)}
-            className="px-6 py-2 bg-primary text-primary-foreground rounded-md cursor-pointer hover:opacity-90 transition-all flex items-center gap-2 mx-auto"
-          >
+        <Card className="p-8 text-center border-2 rounded-lg border-border/20">
+          <p className="mb-4 text-muted-foreground">No band members yet. Recruit some musicians to get started!</p>
+          <Button onClick={() => setShowRecruitment(true)} className="flex items-center gap-2 px-6 py-2 mx-auto rounded-md bg-primary text-primary-foreground">
             <Plus size={16} />
             Recruit First Member
-          </button>
-        </div>
+          </Button>
+        </Card>
       )}
 
       {/* Audition Panel Modal */}

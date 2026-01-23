@@ -41,7 +41,7 @@ export function useRecordingSystem(gameState, updateGameState, addLog) {
     const recordingCost = Math.floor(studio.recordCost * costMultiplier);
 
     if (gameState.money < recordingCost) {
-      addLog(`Insufficient funds to record song. Need $${recordingCost}, have $${gameState.money}.`, true);
+      addLog(`Insufficient funds to record song. Need $${recordingCost}, have $${gameState.money}.`, 'warning');
       return { success: false, reason: 'insufficient_funds', cost: recordingCost };
     }
 
@@ -50,7 +50,7 @@ export function useRecordingSystem(gameState, updateGameState, addLog) {
     
     // Check for duplicate titles
     if (gameState.songs && gameState.songs.find(s => s.title === title)) {
-      addLog(`Song "${title}" already exists. Choose a different name.`, true);
+      addLog(`Song "${title}" already exists. Choose a different name.`, 'warning');
       return { success: false, reason: 'duplicate_title' };
     }
 
@@ -141,12 +141,12 @@ export function useRecordingSystem(gameState, updateGameState, addLog) {
     
     // Validate song count
     if (songIds.length < 8) {
-      addLog('Albums require at least 8 songs.', true);
+      addLog('Albums require at least 8 songs.', 'warning');
       return { success: false, reason: 'insufficient_songs' };
     }
     
     if (songIds.length > 12) {
-      addLog('Albums can contain maximum 12 songs.', true);
+      addLog('Albums can contain maximum 12 songs.', 'warning');
       return { success: false, reason: 'too_many_songs' };
     }
 
@@ -154,13 +154,13 @@ export function useRecordingSystem(gameState, updateGameState, addLog) {
     const selectedSongs = gameState.songs.filter(s => songIds.includes(s.id) || songIds.includes(s.title));
     
     if (selectedSongs.length !== songIds.length) {
-      addLog('One or more selected songs not found.', true);
+      addLog('One or more selected songs not found.', 'warning');
       return { success: false, reason: 'songs_not_found' };
     }
 
     // Check songs aren't already in albums
     if (selectedSongs.some(s => s.inAlbum)) {
-      addLog('Cannot include songs already in another album.', true);
+      addLog('Cannot include songs already in another album.', 'warning');
       return { success: false, reason: 'songs_in_album' };
     }
 
@@ -178,7 +178,7 @@ export function useRecordingSystem(gameState, updateGameState, addLog) {
     const releaseCost = Math.floor(baseCost + marketingCost);
 
     if (gameState.money < releaseCost) {
-      addLog(`Need $${releaseCost} to release album.`, true);
+      addLog(`Need $${releaseCost} to release album.`, 'warning');
       return { success: false, reason: 'insufficient_funds', cost: releaseCost };
     }
 
@@ -364,13 +364,13 @@ export function useRecordingSystem(gameState, updateGameState, addLog) {
    */
   const releaseVideoForSong = useCallback((songId, budget = 5000) => {
     if (gameState.money < budget) {
-      addLog(`Need $${budget} for music video production.`, true);
+      addLog(`Need $${budget} for music video production.`, 'warning');
       return { success: false };
     }
 
     const song = gameState.songs?.find(s => s.id === songId);
     if (!song) {
-      addLog('Song not found.', true);
+      addLog('Song not found.', 'error');
       return { success: false };
     }
 

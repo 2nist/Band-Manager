@@ -1,12 +1,14 @@
 /**
  * SettingsModal.jsx - Game settings and preferences
  */
+import Card from '../../ui/Card';
+import Button from '../../ui/Button';
 export const SettingsModal = ({ isOpen, onClose, gameData, onSettingChange }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-1000">
-      <div className="bg-card rounded-xl p-8 max-w-md w-11/12 max-h-[80vh] overflow-y-auto border-2 border-primary/30">
+      <Card className="rounded-xl p-8 max-w-md w-11/12 max-h-[80vh] overflow-y-auto border-2 border-primary/30">
         <h3 className="m-0 mb-6 text-foreground text-xl font-bold">Settings</h3>
 
         <div className="flex flex-col gap-6 mb-8">
@@ -62,20 +64,20 @@ export const SettingsModal = ({ isOpen, onClose, gameData, onSettingChange }) =>
         </div>
 
         <div className="flex gap-4">
-          <button
+          <Button
             onClick={onClose}
             className="flex-1 px-6 py-2 bg-secondary/30 hover:bg-secondary/40 text-foreground rounded transition-colors font-medium"
           >
             Save
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onClose}
             className="flex-1 px-6 py-2 bg-destructive/30 hover:bg-destructive/40 text-foreground rounded transition-colors font-medium"
           >
             Cancel
-          </button>
+          </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

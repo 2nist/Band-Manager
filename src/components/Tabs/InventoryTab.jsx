@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Music, Plus, Zap } from 'lucide-react';
+import Card from '../../ui/Card';
+import Button from '../../ui/Button';
 import { useMusicGeneration } from '../../hooks/useMusicGeneration';
 import { SongPlaybackPanel } from '../SongPlaybackPanel';
 import { SongGenerationPanel } from '../SongGenerationPanel';
@@ -71,23 +73,20 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState, gameLogic, 
     <div>
       {/* Write Song Section */}
       <div className="mb-8">
-        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-foreground">Songs</h3>
-          <button
-            onClick={() => setShowSongForm(!showSongForm)}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-all"
-          >
+          <Button onClick={() => setShowSongForm(!showSongForm)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground">
             <Plus size={18} />
             Write Song
-          </button>
+          </Button>
         </div>
 
         {showSongForm && (
-          <div className="bg-card border border-primary/30 p-6 rounded-lg mb-6">
+          <Card className="p-6 mb-6 border rounded-lg border-primary/30">
             <div className="space-y-4">
               {/* Generation Mode Toggle */}
               <div>
-                <label className="block text-sm font-semibold mb-2">Generation Mode</label>
+                <label className="block mb-2 text-sm font-semibold">Generation Mode</label>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setGeneratingMode('legacy')}
@@ -111,7 +110,7 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState, gameLogic, 
                     Procedural
                   </button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="mt-2 text-xs text-muted-foreground">
                   {generatingMode === 'legacy'
                     ? 'Quick basic song (instant)'
                     : 'Advanced AI generation (constraint-based, audio playback)'}
@@ -121,22 +120,22 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState, gameLogic, 
               {generatingMode === 'legacy' ? (
                 <>
                   <div>
-                    <label className="block text-sm font-semibold mb-2">Song Name</label>
+                    <label className="block mb-2 text-sm font-semibold">Song Name</label>
                     <input
                       type="text"
                       value={songName}
                       onChange={(e) => setSongName(e.target.value)}
                       placeholder="Enter song name"
-                      className="w-full px-4 py-2 bg-input border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-4 py-2 border rounded-lg bg-input border-border text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold mb-2">Genre</label>
+                    <label className="block mb-2 text-sm font-semibold">Genre</label>
                     <select
                       value={songGenre}
                       onChange={(e) => setSongGenre(e.target.value)}
-                      className="w-full px-4 py-2 bg-input border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-4 py-2 border rounded-lg bg-input border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                       <option>Rock</option>
                       <option>Pop</option>
@@ -162,7 +161,7 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState, gameLogic, 
                     <button
                       onClick={() => setShowSongForm(false)}
                       disabled={isGenerating}
-                      className="flex-1 px-4 py-2 bg-muted text-muted-foreground rounded-lg hover:bg-muted/80 transition-all disabled:opacity-50"
+                      className="flex-1 px-4 py-2 transition-all rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 disabled:opacity-50"
                     >
                       Cancel
                     </button>
@@ -172,13 +171,13 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState, gameLogic, 
               ) : (
                 <>
                   <div>
-                    <label className="block text-sm font-semibold mb-2">Song Name</label>
+                    <label className="block mb-2 text-sm font-semibold">Song Name</label>
                     <input
                       type="text"
                       value={songName}
                       onChange={(e) => setSongName(e.target.value)}
                       placeholder="Enter song name"
-                      className="w-full px-4 py-2 bg-input border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-4 py-2 border rounded-lg bg-input border-border text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
                   <SongGenerationPanel
@@ -216,32 +215,32 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState, gameLogic, 
                 </>
               )}
             </div>
-          </div>
+          </Card>
         )}
 
         {songs.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 gap-4 mb-8 md:grid-cols-2 lg:grid-cols-3">
             {songs.map(song => (
-              <div key={song.id} className="bg-card border border-primary/30 p-4 rounded-lg hover:border-primary/60 transition-all">
-                <h4 className="text-foreground font-semibold mb-2">{song.name || song.title}</h4>
-                <p className="text-sm text-muted-foreground mb-1">Quality: <span className="text-accent font-medium">{song.quality || 0}%</span></p>
-                <p className="text-sm text-muted-foreground mb-3">Genre: {song.genre}</p>
-              <div className="text-xs text-muted-foreground">
-                Popularity: <span className="text-secondary font-medium">{song.popularity || 0}</span>
-              </div>
-              </div>
+              <Card key={song.id} className="p-4 transition-all border rounded-lg border-primary/30 hover:border-primary/60">
+                <h4 className="mb-2 font-semibold text-foreground">{song.name || song.title}</h4>
+                <p className="mb-1 text-sm text-muted-foreground">Quality: <span className="font-medium text-accent">{song.quality || 0}%</span></p>
+                <p className="mb-3 text-sm text-muted-foreground">Genre: {song.genre}</p>
+                <div className="text-xs text-muted-foreground">
+                  Popularity: <span className="font-medium text-secondary">{song.popularity || 0}</span>
+                </div>
+              </Card>
             ))}
           </div>
         ) : (
-          <p className="text-muted-foreground mb-8">No songs recorded yet. Start writing!</p>
+          <p className="mb-8 text-muted-foreground">No songs recorded yet. Start writing!</p>
         )}
 
         {/* Playback Panel Modal for Generated Songs */}
         {generatedSong && showPlaybackPanel && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-card border border-primary max-w-2xl w-full max-h-[90vh] overflow-y-auto rounded-lg">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+            <Card className="border border-primary max-w-2xl w-full max-h-[90vh] overflow-y-auto rounded-lg">
               <div className="p-6">
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold text-foreground">
                     🎵 {generatedSong.title || 'Generated Song'}
                   </h3>
@@ -250,7 +249,7 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState, gameLogic, 
                       setShowPlaybackPanel(false);
                       setGeneratedSong(null);
                     }}
-                    className="text-muted-foreground hover:text-foreground transition-colors text-2xl leading-none"
+                    className="text-2xl leading-none transition-colors text-muted-foreground hover:text-foreground"
                   >
                     ✕
                   </button>
@@ -319,19 +318,19 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState, gameLogic, 
                   }}
                 />
               </div>
-            </div>
+            </Card>
           </div>
         )}
       </div>
 
       {/* Create Album Section */}
       <div>
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-foreground">Albums</h3>
           {songs.length > 0 && (
             <button
               onClick={() => modalState?.openModal?.('albumBuilder', null, true)}
-              className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="flex items-center gap-2 px-4 py-2 transition-all rounded-lg bg-secondary text-secondary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Music size={18} />
               Build Album
@@ -340,17 +339,17 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState, gameLogic, 
         </div>
 
         {albums.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {albums.map(album => (
-              <div key={album.id} className="bg-card border border-secondary/30 p-4 rounded-lg hover:border-secondary/60 transition-all">
-                <h4 className="text-foreground font-semibold mb-2">{album.name}</h4>
-                <p className="text-sm text-muted-foreground mb-1">
-                  Songs: <span className="text-secondary font-medium">{album.songIds?.length || album.songTitles?.length || 0}</span>
+              <Card key={album.id} className="p-4 transition-all border rounded-lg border-secondary/30 hover:border-secondary/60">
+                <h4 className="mb-2 font-semibold text-foreground">{album.name}</h4>
+                <p className="mb-1 text-sm text-muted-foreground">
+                  Songs: <span className="font-medium text-secondary">{album.songIds?.length || album.songTitles?.length || 0}</span>
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Popularity: <span className="text-accent font-medium">{album.popularity || 0}</span>
+                  Popularity: <span className="font-medium text-accent">{album.popularity || 0}</span>
                 </p>
-              </div>
+              </Card>
             ))}
           </div>
         ) : (

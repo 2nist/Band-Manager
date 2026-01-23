@@ -1,5 +1,7 @@
 import React from 'react';
 import { Trophy, Zap, Users, Music, DollarSign, ChevronRight, Star, Disc, Sparkles } from 'lucide-react';
+import Card from '../ui/Card';
+import Button from '../ui/Button';
 
 /**
  * VictoryScreen.jsx - End game screen for victory or defeat
@@ -23,7 +25,7 @@ export const VictoryScreen = ({
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-card border-2 border-border/50 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
+      <Card className="border-2 border-border/50 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
         {/* Header */}
         <div className={`p-8 text-center border-b border-border/20 ${
           isVictory 
@@ -185,21 +187,15 @@ export const VictoryScreen = ({
 
         {/* Action Buttons */}
         <div className="p-8 bg-background/50 flex flex-col sm:flex-row gap-4 justify-center">
-          <button
-            onClick={onNewGame}
-            className="flex-1 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:opacity-90 font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
-          >
+          <Button onClick={onNewGame} className="flex-1 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:opacity-90 font-bold flex items-center justify-center gap-2">
             <ChevronRight size={18} />
             Play Again
-          </button>
-          <button
-            onClick={onMainMenu}
-            className="flex-1 px-6 py-3 bg-muted text-muted-foreground hover:bg-muted/80 rounded-lg font-bold transition-all cursor-pointer"
-          >
+          </Button>
+          <Button onClick={onMainMenu} className="flex-1 px-6 py-3 bg-muted text-muted-foreground hover:bg-muted/80 rounded-lg font-bold">
             Main Menu
-          </button>
+          </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

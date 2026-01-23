@@ -30,58 +30,48 @@ import { GENRES } from './constants';
 import { randomFrom } from './helpers';
 
 /**
+ * Calculate weekly expenses breakdown (for Weekly Summary modal)
+ * @param {Object} state - Game state
+ * @returns {Object} { total, base, memberSalaries, equipment, transport, staff, label }
+ */
+export function calculateWeeklyExpensesBreakdown(state) {
+  const difficulty = state.difficulty || 'normal';
+  const costMultiplier = difficulty === 'easy' ? 0.8 : difficulty === 'hard' ? 1.2 : 1;
+
+  const base = Math.floor(100 * costMultiplier);
+  const members = state.bandMembers || state.members || [];
+  const memberSalaries = Math.floor(members.length * 50 * costMultiplier);
+
+  const equipmentTierMap = { basic: 20, good: 50, professional: 100 };
+  const equipmentLevel = state.equipment?.instruments || 'basic';
+  const equipment = Math.floor((equipmentTierMap[equipmentLevel] || 20) * costMultiplier);
+
+  const transportTierMap = { none: 0, van: 50, bus: 150, tourBus: 300 };
+  const transportLevel = state.equipment?.transport || state.transportTier || 'none';
+  const transport = Math.floor((typeof transportLevel === 'number'
+    ? [0, 50, 150, 300][transportLevel] || 0
+    : transportTierMap[transportLevel] || 0) * costMultiplier);
+
+  const managerCost = state.staffManager === 'dodgy' ? 80 : state.staffManager === 'pro' ? 150 : 0;
+  const lawyerCost = state.staffLawyer ? 90 : 0;
+  const staff = Math.floor((managerCost + lawyerCost) * costMultiplier);
+
+  let label = 0;
+  if (state.labelDeal && state.labelDeal.type === 'independent') {
+    label = Math.floor((state.labelDeal.monthlyFee || 20) * costMultiplier);
+  }
+
+  const total = base + memberSalaries + equipment + transport + staff + label;
+  return { total, base, memberSalaries, equipment, transport, staff, label };
+}
+
+/**
  * Calculate weekly expenses (Phase 3: Enhanced with equipment tiers)
  * @param {Object} state - Game state
  * @returns {number} Total weekly expenses
  */
 export function calculateWeeklyExpenses(state) {
-  const difficulty = state.difficulty || 'normal';
-  const costMultiplier = difficulty === 'easy' ? 0.8 : difficulty === 'hard' ? 1.2 : 1;
-  
-  // Base expenses
-  const baseExpenses = Math.floor(100 * costMultiplier);
-  
-  // Member salaries (50 per member per week)
-  const members = state.bandMembers || state.members || [];
-  const memberSalaries = Math.floor(members.length * 50 * costMultiplier);
-  
-  // Equipment costs based on tiers (Phase 3)
-  const equipmentTierMap = {
-    basic: 20,
-    good: 50,
-    professional: 100
-  };
-  
-  const equipmentLevel = state.equipment?.instruments || 'basic';
-  const baseEquipmentCost = equipmentTierMap[equipmentLevel] || 20;
-  const equipmentCosts = Math.floor(baseEquipmentCost * costMultiplier);
-  
-  // Transport costs
-  const transportTierMap = {
-    none: 0,
-    van: 50,
-    bus: 150,
-    tourBus: 300
-  };
-  
-  const transportLevel = state.equipment?.transport || state.transportTier || 'none';
-  const baseTransportCost = typeof transportLevel === 'number' 
-    ? [0, 50, 150, 300][transportLevel] || 0
-    : transportTierMap[transportLevel] || 0;
-  const transportCosts = Math.floor(baseTransportCost * costMultiplier);
-  
-  // Staff costs
-  const managerCost = state.staffManager === 'dodgy' ? 80 : state.staffManager === 'pro' ? 150 : 0;
-  const lawyerCost = state.staffLawyer ? 90 : 0;
-  const staffCosts = Math.floor((managerCost + lawyerCost) * costMultiplier);
-  
-  // Label costs (independent has monthly fee)
-  let labelCosts = 0;
-  if (state.labelDeal && state.labelDeal.type === 'independent') {
-    labelCosts = Math.floor((state.labelDeal.monthlyFee || 20) * costMultiplier);
-  }
-  
-  return baseExpenses + memberSalaries + equipmentCosts + transportCosts + staffCosts + labelCosts;
+  return calculateWeeklyExpensesBreakdown(state).total;
 }
 
 /**
@@ -506,9 +496,9 @@ export function calculateMerchandiseRevenue(merchandise, state) {
  * @returns {Object} { next: updatedState, summary: summaryString }
  */
 export function processWeekEffects(state, gameData = {}) {
-  // Calculate expenses
-  const weeklyExpenses = calculateWeeklyExpenses(state);
-  
+  const expensesBreakdown = calculateWeeklyExpensesBreakdown(state);
+  const weeklyExpenses = expensesBreakdown.total;
+
   // Process genre trends
   const availableGenres = gameData.genres || GENRES;
   const trendResult = processGenreTrends(state, availableGenres);
@@ -538,13 +528,14 @@ export function processWeekEffects(state, gameData = {}) {
   // Total net revenue (music + merchandise)
   const netRevenue = netMusicRevenue + merchandiseRevenue;
   
-  // Calculate fan growth
   const fanGrowth = calculateFanGrowth(state, agedSongs);
-  const newFans = (state.fans || 0) + fanGrowth;
-  
-  // Calculate net change
+  const oldFans = state.fans || 0;
+  const newFans = oldFans + fanGrowth;
+
   const netChange = netRevenue - weeklyExpenses;
-  const newMoney = Math.max(0, (state.money || 0) + netChange);
+  const oldMoney = state.money || 0;
+  const newMoney = Math.max(0, oldMoney + netChange);
+  const weekNumber = (state.week || 0) + 1;
   
   // Build summary with trend notes
   const trendSummary = trendResult.notes.length > 0 
@@ -559,7 +550,7 @@ export function processWeekEffects(state, gameData = {}) {
     ? `\n- Merchandise Sales: $${merchandiseRevenue.toLocaleString()} (${itemsSold} items)`
     : '';
   
-  const summary = `Week ${(state.week || 0) + 1} Summary:
+  const summary = `Week ${weekNumber} Summary:
 - Expenses: $${weeklyExpenses.toLocaleString()}
 - Song Streaming: $${songStreamingRevenue.toLocaleString()}
 - Radio Plays: ${radioPlays} ($${radioRevenue.toLocaleString()})
@@ -569,7 +560,25 @@ export function processWeekEffects(state, gameData = {}) {
 - Fan Growth: +${fanGrowth}
 - New Balance: $${newMoney.toLocaleString()}${trendSummary}`;
   
-  // Return updated state
+  const detailedSummary = {
+    weekNumber,
+    expenses: { total: weeklyExpenses, breakdown: expensesBreakdown },
+    revenue: {
+      streaming: songStreamingRevenue,
+      radio: radioRevenue,
+      radioPlays,
+      album: albumRevenue,
+      merchandise: merchandiseRevenue,
+      itemsSold,
+      labelRoyaltySplit,
+      gross: grossMusicRevenue,
+      net: netRevenue
+    },
+    fans: { old: oldFans, growth: fanGrowth, new: newFans },
+    money: { old: oldMoney, netChange, new: newMoney },
+    trendNotes: trendResult.notes
+  };
+
   return {
     next: {
       ...state,
@@ -583,6 +592,7 @@ export function processWeekEffects(state, gameData = {}) {
       weeklyExpenses,
       totalRevenue: (state.totalRevenue || 0) + netRevenue
     },
-    summary
+    summary,
+    detailedSummary
   };
 }

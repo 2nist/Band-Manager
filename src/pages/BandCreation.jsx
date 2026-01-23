@@ -1,5 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Mic, Music, Zap, Radio } from 'lucide-react';
+import Card from '../ui/Card';
+import Button from '../ui/Button';
 import { getAvatarUrl } from '../utils/helpers';
 import { GENRES } from '../utils/constants';
 
@@ -150,7 +152,7 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
             </p>
           </div>
 
-          <div className="bg-card text-card-foreground rounded-2xl p-8 shadow-lg border border-border/20" style={{ backgroundColor: '#1a1a2e', borderColor: '#2d2d44' }}>
+          <Card className="p-8" style={{ backgroundColor: '#1a1a2e', borderColor: '#2d2d44' }}>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
               {GENRES && GENRES.length > 0 ? GENRES.map(genre => (
                 <button
@@ -187,7 +189,7 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
                 Continue with {selectedGenre}
               </button>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     );
@@ -209,7 +211,7 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
           </div>
 
           {/* Main Card */}
-          <div className="bg-card text-card-foreground rounded-2xl p-8 shadow-lg border border-border/20">
+          <Card className="p-8">
             {/* Logo Display */}
             {logo && (
               <div className="mb-8 p-6 bg-muted/30 rounded-xl border border-border/20">
@@ -311,7 +313,7 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
             <p className="text-xs text-muted-foreground text-center mt-4">
               Select at least 2 musicians to proceed • You can customize their roles next
             </p>
-          </div>
+          </Card>
         </div>
       </div>
     );
@@ -351,7 +353,7 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
         </div>
 
         {/* Main Card */}
-        <div className="bg-card text-card-foreground rounded-2xl p-8 shadow-lg border border-border/20">
+        <Card className="p-8">
           {/* Logo Display */}
           {logo && (
             <div className="mb-8 p-6 bg-muted/30 rounded-xl border border-border/20">
@@ -530,7 +532,7 @@ const BandCreation = ({ onComplete, bandName, logo }) => {
               Minimum 2 members required • You can customize their roles here
             </p>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
     );

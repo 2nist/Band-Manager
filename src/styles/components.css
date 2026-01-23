@@ -1,0 +1,65 @@
+/* Component-level utility groups using @apply for quick POC */
+.btn-base {
+  @apply px-4 py-2 rounded-md font-semibold text-sm inline-flex items-center justify-center bg-primary text-primary-foreground;
+  transition: transform 180ms cubic-bezier(.2,.8,.2,1), box-shadow 160ms, opacity 120ms;
+  box-shadow: var(--shadow-sm);
+  will-change: transform;
+}
+
+/* Slightly smaller lift on hover for subtler motion */
+@media (prefers-reduced-motion: no-preference) {
+  .btn-base:hover {
+    transform: translateY(-2px) scale(1.01);
+  }
+  .btn-base:active {
+    transform: translateY(0) scale(0.99);
+  }
+}
+
+.btn-base:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 6px rgba(var(--primary-rgb), 0.12), var(--shadow-sm);
+}
+
+.btn-base[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.card {
+  @apply bg-[color:var(--color-card-bg)] rounded-lg shadow-md p-4;
+  transition: transform 220ms cubic-bezier(.2,.8,.2,1), box-shadow 200ms, border-color 180ms;
+  will-change: transform;
+  --card-gap: 0.75rem;
+}
+
+/* Add consistent vertical rhythm inside cards */
+.card > * + * {
+  margin-top: var(--card-gap);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 30px rgba(2,6,23,0.35);
+  }
+}
+
+.input-base {
+  @apply w-full px-3 py-2 rounded-md border border-border bg-input text-foreground;
+  transition: box-shadow 150ms ease, transform 120ms ease;
+}
+
+.input-base:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 6px rgba(var(--primary-rgb), 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-base, .card {
+    transition: none !important;
+    transform: none !important;
+  }
+}

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { STUDIO_TIERS } from '../../utils/constants';
+import Card from '../../ui/Card';
+import Button from '../../ui/Button';
 
 export default function AlbumBuilderModal({ 
   isOpen, 
@@ -51,7 +53,7 @@ export default function AlbumBuilderModal({
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-1000" onClick={onClose}>
-      <div className="bg-card rounded-lg p-8 max-w-3xl w-11/12 max-h-[90vh] overflow-y-auto border-2 border-primary/30" onClick={(e) => e.stopPropagation()}>
+      <Card className="rounded-lg p-8 max-w-3xl w-11/12 max-h-[90vh] overflow-y-auto border-2 border-primary/30" onClick={(e) => e.stopPropagation()}>
         <h2 className="mb-3 text-foreground text-xl font-bold">Build Album</h2>
         <p className="mb-6 text-muted-foreground">
           Select 8-12 songs to compile into an album. Albums provide sustained streaming revenue and boost your overall reputation.
@@ -121,16 +123,16 @@ export default function AlbumBuilderModal({
             )}
 
             <div className="flex gap-3 justify-end">
-              <button 
-                className="flex-1 px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded font-medium transition-colors" 
+              <Button
+                className="flex-1 px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded font-medium transition-colors"
                 onClick={() => {
                   setSelectedSongs([]);
                   onClose();
                 }}
               >
                 Cancel
-              </button>
-              <button 
+              </Button>
+              <Button
                 className={`flex-1 px-4 py-2 rounded font-medium transition-colors ${
                   selectedSongs.length >= 8 && selectedSongs.length <= 12
                     ? 'bg-secondary hover:bg-secondary/90 text-secondary-foreground'
@@ -140,11 +142,11 @@ export default function AlbumBuilderModal({
                 disabled={selectedSongs.length < 8 || selectedSongs.length > 12}
               >
                 Release Album ({selectedSongs.length} songs)
-              </button>
+              </Button>
             </div>
           </>
         )}
-      </div>
+      </Card>
     </div>
   );
 }
