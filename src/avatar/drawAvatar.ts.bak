@@ -1,0 +1,157 @@
+/**
+ * Canvas Composition Engine
+ * 
+ * Handles drawing avatar layers to canvas with jitter and opacity variations.
+ */
+
+import type { AvatarConfig, AvatarFeature, AvatarLayer } from './avatarConfig';
+import { jitter, randomFloat } from './rng';
+
+/**
+ * Load image from path
+ * @param path - Image path
+ * @returns Promise resolving to HTMLImageElement
+ */
+export async function loadImage(path: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    if (!path) {
+      // Empty path means no image (e.g., 'none' feature)
+      const emptyImg = new Image();
+      emptyImg.width = 0;
+      emptyImg.height = 0;
+      resolve(emptyImg);
+      return;
+    }
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => {
+      console.warn(`Failed to load avatar asset: ${path}`);
+      // Return empty image instead of rejecting
+      const emptyImg = new Image();
+      emptyImg.width = 0;
+      emptyImg.height = 0;
+      resolve(emptyImg);
+    };
+    img.src = path;
+  });
+}
+
+/**
+ * Draw a single layer with jitter
+ * @param ctx - Canvas rendering context
+ * @param img - Image to draw
+ * @param layer - Layer configuration
+ * @param rng - Random number generator for jitter
+ */
+export function drawLayer(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement,
+  layer: AvatarLayer,
+  rng: () => number
+): void {
+  // Skip if image has no dimensions (empty/placeholder)
+  if (img.width === 0 || img.height === 0) {
+    return;
+  }
+
+  const canvasWidth = ctx.canvas.width;
+  const canvasHeight = ctx.canvas.height;
+  const centerX = canvasWidth / 2;
+  const centerY = canvasHeight / 2;
+
+  // Calculate jitter values
+  const jitterX = jitter(rng, layer.jitter.x);
+  const jitterY = jitter(rng, layer.jitter.y);
+  const jitterRot = jitter(rng, layer.jitter.rotation);
+  const opacity = randomFloat(
+    rng,
+    layer.jitter.opacity[0],
+    layer.jitter.opacity[1]
+  );
+
+  // Calculate position (centered with jitter)
+  const x = centerX - img.width / 2 + jitterX;
+  const y = centerY - img.height / 2 + jitterY;
+
+  // Save context state
+  ctx.save();
+
+  // Apply opacity
+  ctx.globalAlpha = opacity;
+
+  // Apply rotation around center
+  ctx.translate(centerX, centerY);
+  ctx.rotate(jitterRot);
+  ctx.translate(-centerX, -centerY);
+
+  // Draw image
+  ctx.drawImage(img, x, y);
+
+  // Restore context state
+  ctx.restore();
+}
+
+/**
+ * Draw complete avatar from feature selections
+ * @param ctx - Canvas rendering context
+ * @param config - Avatar configuration
+ * @param selections - Map of layer name to selected feature
+ * @param rng - Random number generator for jitter
+ */
+export async function drawAvatar(
+  ctx: CanvasRenderingContext2D,
+  config: AvatarConfig,
+  selections: Map<string, AvatarFeature>,
+  rng: () => number
+): Promise<void> {
+  // Clear canvas
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+  // Set canvas size
+  ctx.canvas.width = config.canvasSize;
+  ctx.canvas.height = config.canvasSize;
+
+  // Set background to white (for police sketch aesthetic)
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+  // Draw layers in order
+  for (const layer of config.layers) {
+    const feature = selections.get(layer.name);
+    if (!feature) {
+      continue;
+    }
+
+    // Load and draw feature
+    const img = await loadImage(feature.path);
+    drawLayer(ctx, img, layer, rng);
+  }
+}
+
+/**
+ * Generate avatar as data URL for caching
+ * @param canvas - Canvas element
+ * @returns Data URL string
+ */
+export function canvasToDataURL(canvas: HTMLCanvasElement): string {
+  return canvas.toDataURL('image/png');
+}
+
+/**
+ * Generate avatar as blob for download
+ * @param canvas - Canvas element
+ * @returns Promise resolving to Blob
+ */
+export function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) {
+        resolve(blob);
+      } else {
+        reject(new Error('Failed to convert canvas to blob'));
+      }
+    }, 'image/png');
+  });
+}

@@ -174,17 +174,130 @@ export const useGameState = () => {
    * @param {string} type - Entry type: 'info', 'success', 'warning', 'error'
    * @param {*} data - Optional data to attach to log entry
    */
-  const addLog = (message, type = 'info', data = null) => {
+  const addLog = (message, type = 'info', data = null, options = {}) => {
+    // Enhanced log entry with emotional tone, narrative weight, category, and icon
     const logEntry = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
       timestamp: new Date().toISOString(),
       week: state.week,
       message,
       type,
-      data
+      data,
+      // Enhanced fields
+      emotional_tone: options.emotional_tone || detectEmotionalTone(message, type),
+      narrative_weight: options.narrative_weight || detectNarrativeWeight(message, type),
+      category: options.category || detectCategory(message, type),
+      icon: options.icon || detectIcon(type, options.category),
+      persistent: options.persistent || (options.narrative_weight === 'critical' || options.narrative_weight === 'high')
     };
     
     setGameLog(prevLog => [logEntry, ...prevLog].slice(0, 500)); // Keep last 500 entries
+  };
+
+  /**
+   * Detect emotional tone from message and type
+   */
+  const detectEmotionalTone = (message, type) => {
+    const messageLower = message.toLowerCase();
+    
+    if (messageLower.includes('death') || messageLower.includes('died') || messageLower.includes('fatal')) {
+      return 'tragic';
+    }
+    if (messageLower.includes('arrest') || messageLower.includes('raid') || messageLower.includes('police')) {
+      return 'ominous';
+    }
+    if (messageLower.includes('success') || messageLower.includes('won') || messageLower.includes('achieved')) {
+      return 'positive';
+    }
+    if (messageLower.includes('failed') || messageLower.includes('lost') || messageLower.includes('disaster')) {
+      return 'negative';
+    }
+    if (messageLower.includes('warning') || messageLower.includes('danger') || messageLower.includes('risk')) {
+      return 'ominous';
+    }
+    
+    // Default based on type
+    if (type === 'error' || type === 'warning') return 'ominous';
+    if (type === 'success') return 'positive';
+    return 'neutral';
+  };
+
+  /**
+   * Detect narrative weight from message and type
+   */
+  const detectNarrativeWeight = (message, type) => {
+    const messageLower = message.toLowerCase();
+    const criticalKeywords = ['death', 'arrest', 'overdose', 'fatal', 'criminal', 'betrayal', 'scandal'];
+    const highKeywords = ['addiction', 'corruption', 'breakdown', 'crisis', 'intervention'];
+    
+    if (criticalKeywords.some(keyword => messageLower.includes(keyword))) {
+      return 'critical';
+    }
+    if (highKeywords.some(keyword => messageLower.includes(keyword))) {
+      return 'high';
+    }
+    if (type === 'error' || type === 'warning') {
+      return 'medium';
+    }
+    return 'low';
+  };
+
+  /**
+   * Detect category from message and type
+   */
+  const detectCategory = (message, type) => {
+    const messageLower = message.toLowerCase();
+    
+    if (messageLower.includes('drug') || messageLower.includes('addiction') || messageLower.includes('substance')) {
+      return 'substance_abuse';
+    }
+    if (messageLower.includes('corruption') || messageLower.includes('bribe') || messageLower.includes('criminal')) {
+      return 'corruption';
+    }
+    if (messageLower.includes('violence') || messageLower.includes('fight') || messageLower.includes('attack')) {
+      return 'violence';
+    }
+    if (messageLower.includes('relationship') || messageLower.includes('affair') || messageLower.includes('romance')) {
+      return 'relationship';
+    }
+    if (messageLower.includes('mental') || messageLower.includes('breakdown') || messageLower.includes('stress')) {
+      return 'mental_health';
+    }
+    if (messageLower.includes('gig') || messageLower.includes('show') || messageLower.includes('performance')) {
+      return 'performance';
+    }
+    if (messageLower.includes('money') || messageLower.includes('deal') || messageLower.includes('contract')) {
+      return 'business';
+    }
+    
+    return 'general';
+  };
+
+  /**
+   * Detect icon from type and category
+   */
+  const detectIcon = (type, category) => {
+    if (category) {
+      const iconMap = {
+        substance_abuse: 'substance_warning',
+        corruption: 'corruption_alert',
+        violence: 'violence_warning',
+        relationship: 'relationship_icon',
+        mental_health: 'mental_health_icon',
+        performance: 'performance_icon',
+        business: 'business_icon'
+      };
+      if (iconMap[category]) return iconMap[category];
+    }
+    
+    const typeIconMap = {
+      error: 'error_icon',
+      warning: 'warning_icon',
+      success: 'success_icon',
+      info: 'info_icon'
+    };
+    
+    return typeIconMap[type] || 'info_icon';
   };
 
   /**

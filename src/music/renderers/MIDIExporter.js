@@ -3,6 +3,13 @@
  * 
  * Exports drums, harmony, and melody as separate MIDI tracks.
  * Compatible with DAWs and TrackDraft project import.
+ * 
+ * Drum mapping uses EMGD Paper mapping (simplified):
+ * - Kick: 36 (Bass Drum 1)
+ * - Snare: 38 (Acoustic Snare - all Roland variants map here)
+ * - Hi-Hat: 42 (Closed) / 46 (Open)
+ * 
+ * See src/music/utils/EMGDDrumMapping.js for full Roland TD-11 to Paper mapping.
  */
 
 export class MIDIExporter {
@@ -61,11 +68,14 @@ export class MIDIExporter {
     const secondsPerBeat = 60 / tempo;
     const ticksPerBeat = 480; // Standard PPQN
 
-    // Drum note mapping (GM standard)
+    // Drum note mapping (EMGD Paper mapping - simplified for realistic patterns)
+    // Maps to the simplified Paper mapping used in E-GMD dataset
+    // Kick: 36 (Roland/GM/Paper), Snare: 38 (Roland variants -> Paper 38), Hi-Hat: 42/46
     const drumNotes = {
-      kick: 36,    // Acoustic Bass Drum
-      snare: 38,   // Acoustic Snare
-      hihat: 42    // Closed Hi-Hat
+      kick: 36,        // Bass Drum 1 (Paper mapping)
+      snare: 38,       // Acoustic Snare (Paper mapping - all Roland snare variants map here)
+      hihat: 42,       // Closed Hi-Hat (Paper mapping)
+      hihatOpen: 46    // Open Hi-Hat (Paper mapping)
     };
 
     // Add kick drum notes
@@ -94,7 +104,7 @@ export class MIDIExporter {
       });
     }
 
-    // Add hi-hat notes
+    // Add hi-hat notes (closed)
     if (pattern.hihat) {
       pattern.hihat.forEach(beatTime => {
         track.events.push({
@@ -103,6 +113,19 @@ export class MIDIExporter {
           velocity: 70,
           tick: Math.round(beatTime * ticksPerBeat),
           duration: Math.round(0.25 * ticksPerBeat)
+        });
+      });
+    }
+
+    // Add open hi-hat notes (if pattern has separate open hi-hats)
+    if (pattern.hihatOpen) {
+      pattern.hihatOpen.forEach(beatTime => {
+        track.events.push({
+          type: 'note',
+          note: drumNotes.hihatOpen,
+          velocity: 80, // Slightly louder for open hi-hat
+          tick: Math.round(beatTime * ticksPerBeat),
+          duration: Math.round(0.5 * ticksPerBeat) // Longer duration for open
         });
       });
     }

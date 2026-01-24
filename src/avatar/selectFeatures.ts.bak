@@ -1,0 +1,118 @@
+/**
+ * Feature Selection Logic
+ * 
+ * Handles weighted selection of avatar features based on seed and archetype.
+ */
+
+import { pick, pickWeighted, type AvatarFeature, type AvatarConfig } from './avatarConfig';
+import type { rng } from './rng';
+
+/**
+ * Select a feature for a layer
+ * @param rng - Seeded random number generator
+ * @param features - Available features for the layer
+ * @param archetype - Optional archetype for weighted selection
+ * @returns Selected feature
+ */
+export function selectFeature(
+  rng: () => number,
+  features: AvatarFeature[],
+  archetype?: string
+): AvatarFeature {
+  if (features.length === 0) {
+    throw new Error('No features available for selection');
+  }
+
+  // Filter out 'none' features if they exist
+  const validFeatures = features.filter(f => f.id !== 'none' || f.path === '');
+  
+  if (validFeatures.length === 0) {
+    // Only 'none' features available
+    return features[0];
+  }
+
+  // If archetype weighting is needed, use weighted selection
+  // For now, use simple weighted selection based on feature weights
+  const weightedFeatures: [AvatarFeature, number][] = validFeatures.map(f => [
+    f,
+    f.weight || 1
+  ]);
+
+  return pickWeighted(rng, weightedFeatures);
+}
+
+/**
+ * Select features for all layers
+ * @param rng - Seeded random number generator
+ * @param config - Avatar configuration
+ * @param archetype - Optional archetype for weighted selection
+ * @returns Map of layer name to selected feature
+ */
+export function selectAllFeatures(
+  rng: () => number,
+  config: AvatarConfig,
+  archetype?: string
+): Map<string, AvatarFeature> {
+  const selections = new Map<string, AvatarFeature>();
+
+  for (const layer of config.layers) {
+    // Skip optional layers based on probability
+    if (!layer.required && rng() < 0.3) {
+      // 30% chance to skip optional layers
+      const noneFeature = layer.features.find(f => f.id === 'none');
+      if (noneFeature) {
+        selections.set(layer.name, noneFeature);
+        continue;
+      }
+    }
+
+    const feature = selectFeature(rng, layer.features, archetype);
+    selections.set(layer.name, feature);
+  }
+
+  return selections;
+}
+
+/**
+ * Generate feature selections with archetype bias
+ * @param rng - Seeded random number generator
+ * @param config - Avatar configuration
+ * @param archetype - Archetype name (e.g., 'drummer', 'guitarist')
+ * @returns Map of layer name to selected feature
+ */
+export function selectFeaturesWithArchetype(
+  rng: () => number,
+  config: AvatarConfig,
+  archetype: string
+): Map<string, AvatarFeature> {
+  const selections = new Map<string, AvatarFeature>();
+  const archetypeWeights = config.archetypes?.[archetype] || {};
+
+  for (const layer of config.layers) {
+    // Apply archetype weights to features
+    const weightedFeatures: [AvatarFeature, number][] = layer.features.map(f => {
+      let weight = f.weight || 1;
+      
+      // Apply archetype multiplier if category matches
+      if (f.category && archetypeWeights[f.category]) {
+        weight *= archetypeWeights[f.category];
+      }
+      
+      return [f, weight];
+    });
+
+    // Skip optional layers
+    if (!layer.required && rng() < 0.3) {
+      const noneFeature = layer.features.find(f => f.id === 'none');
+      if (noneFeature) {
+        selections.set(layer.name, noneFeature);
+        continue;
+      }
+    }
+
+    const feature = pickWeighted(rng, weightedFeatures);
+    selections.set(layer.name, feature);
+  }
+
+  return selections;
+}

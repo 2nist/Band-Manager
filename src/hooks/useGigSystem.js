@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { TRANSPORT_TIERS } from '../utils/constants';
-import { randomFrom, clampMorale } from '../utils/helpers';
+import { clampMorale, randomFrom } from '../utils/helpers';
+import { getGigPerformanceCopy } from '../utils/enhancedCopy';
 
 /**
  * useGigSystem - Complete gig booking and performance system
@@ -142,11 +143,47 @@ export function useGigSystem(gameState, updateGameState, addLog) {
       }))
     });
 
+    const narrativeCopy = getGigPerformanceCopy(performanceQuality, {
+      venue: venue.name,
+      attendance,
+      pay: totalRevenue,
+      fame: totalFameGain
+    });
     addLog(
-      `Played ${venue.name} to ${attendance} fans. Performance Quality: ${performanceQuality}%. ` +
-      `Revenue: $${totalRevenue.toLocaleString()} (+${totalFameGain} fame). ` +
-      `Travel: -$${travelCost}`
+      travelCost > 0
+        ? `${narrativeCopy} Travel: -$${travelCost}`
+        : narrativeCopy
     );
+
+    // Trigger enhanced dialogue event after gig (especially in first-person / enhanced-dialogue scenarios)
+    const scenario = gameState.selectedScenario;
+    const isFirstPerson = scenario?.specialRules?.firstPersonMode;
+    const isEnhancedFocus = scenario?.specialRules?.enhancedDialogueFocus;
+    let gigEventChance = 0.2;
+    if (isFirstPerson) gigEventChance = 0.6;
+    else if (isEnhancedFocus) gigEventChance = 0.4;
+
+    if (Math.random() < gigEventChance) {
+      const eventContext = {
+        type: 'post_gig',
+        venue: venue.name,
+        performanceQuality,
+        attendance,
+        revenue: totalRevenue,
+        fameGain: totalFameGain
+      };
+      updateGameState({ pendingGigEvent: eventContext });
+      return {
+        success: true,
+        gig,
+        attendance,
+        revenue: totalRevenue,
+        fame: totalFameGain,
+        quality: performanceQuality,
+        triggerEnhancedEvent: true,
+        eventContext
+      };
+    }
 
     return {
       success: true,
@@ -156,7 +193,7 @@ export function useGigSystem(gameState, updateGameState, addLog) {
       fame: totalFameGain,
       quality: performanceQuality
     };
-  }, [gameState.transportTier, gameState.money, gameState.fame, gameState.morale, gameState.bandMembers, gameState.gearTier, gameState.gigHistory, gameState.gigEarnings, gameState.totalEarnings, gameState.week, updateGameState, addLog]);
+  }, [gameState.transportTier, gameState.money, gameState.fame, gameState.morale, gameState.bandMembers, gameState.gearTier, gameState.gigHistory, gameState.gigEarnings, gameState.totalEarnings, gameState.week, gameState.selectedScenario, updateGameState, addLog]);
 
   // ==================== TOUR MANAGEMENT ====================
 

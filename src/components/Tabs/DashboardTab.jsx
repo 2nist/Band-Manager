@@ -36,12 +36,17 @@ export const DashboardTab = ({
       case 'write-song':
         modalState?.openWriteSongModal?.();
         break;
-      case 'book-gig':
-        const venues = gameLogic?.getAvailableVenues?.();
+      case 'book-gig': {
+        const venues = gigSystem?.getAvailableVenues?.() || gameLogic?.getAvailableVenues?.();
         if (venues?.length > 0) {
-          gameLogic?.bookGig?.(venues[0].id);
+          if (gigSystem?.bookGig) {
+            gigSystem.bookGig(venues[0].id);
+          } else {
+            gameLogic?.bookGig?.(venues[0].id);
+          }
         }
         break;
+      }
       case 'practice-band':
         if (gameState?.state?.bandMembers?.length > 0) {
           bandManagement?.practiceMember?.(gameState.state.bandMembers[0].id);

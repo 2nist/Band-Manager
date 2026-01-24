@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { ChevronLeft, Copy, RotateCcw } from 'lucide-react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
@@ -26,6 +26,12 @@ export const LogoDesigner = ({
   onComplete,
   onBack 
 }) => {
+  // Initialize default background color if not set
+  useEffect(() => {
+    if (!logoState.logoBgColor) {
+      onLogoChange({ logoBgColor: '#000000' });
+    }
+  }, []); // Only run on mount
   const FONT_OPTIONS = [
     { name: 'Metal Mania', family: 'Metal Mania' },
     { name: 'New Rocker', family: 'New Rocker' },
@@ -151,7 +157,8 @@ export const LogoDesigner = ({
               </label>
               <button
                 onClick={() => setShowFontGallery(!showFontGallery)}
-                className="w-full px-3 py-2 bg-input border border-border rounded text-foreground text-left hover:border-primary/50 transition-all text-sm"
+                className="w-full px-3 py-2 bg-input border border-border rounded text-left hover:border-primary/50 transition-all text-sm"
+                style={{ color: '#000000' }}
               >
                 {logoState.logoFont || 'Metal Mania'} {showFontGallery ? '▼' : '▶'}
               </button>
@@ -202,9 +209,10 @@ export const LogoDesigner = ({
                 value={logoState.logoWeight || 700}
                 onChange={(e) => handleLogoChange({ logoWeight: Number(e.target.value) })}
                 className="w-full px-2 py-1.5 bg-input border border-border rounded text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                style={{ color: '#000000' }}
               >
                 {[400, 500, 600, 700, 800, 900].map((w) => (
-                  <option key={w} value={w} className="bg-background">
+                  <option key={w} value={w} style={{ backgroundColor: '#ffffff', color: '#000000' }}>
                     {w}
                   </option>
                 ))}
@@ -300,12 +308,12 @@ export const LogoDesigner = ({
               <div className="flex gap-2 items-center">
                 <input
                   type="color"
-                  value={logoState.logoBgColor || '#1a1a2e'}
+                  value={logoState.logoBgColor || '#000000'}
                   onChange={(e) => handleLogoChange({ logoBgColor: e.target.value })}
                   className="w-12 h-8 rounded cursor-pointer border border-border"
                 />
                 <span className="text-xs font-mono">
-                  {logoState.logoBgColor || '#1a1a2e'}
+                  {logoState.logoBgColor || '#000000'}
                 </span>
               </div>
             </div>
@@ -343,20 +351,36 @@ export const LogoDesigner = ({
               <label className="text-xs font-semibold text-muted-foreground block mb-2">
                 Shadow Effect
               </label>
-              <div className="flex gap-2">
-                {['none', 'soft', 'strong'].map((sfx) => (
-                  <button
-                    key={sfx}
-                    onClick={() => handleLogoChange({ logoShadow: sfx })}
-                    className={`flex-1 px-2 py-1.5 rounded text-xs font-semibold transition-all ${
-                      logoState.logoShadow === sfx
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                    }`}
-                  >
-                    {sfx}
-                  </button>
-                ))}
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  {['none', 'soft', 'strong'].map((sfx) => (
+                    <button
+                      key={sfx}
+                      onClick={() => handleLogoChange({ logoShadow: sfx })}
+                      className={`flex-1 px-2 py-1.5 rounded text-xs font-semibold transition-all ${
+                        logoState.logoShadow === sfx
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                      }`}
+                    >
+                      {sfx}
+                    </button>
+                  ))}
+                </div>
+                {logoState.logoShadow && logoState.logoShadow !== 'none' && (
+                  <div className="flex gap-2 items-center">
+                    <label className="text-xs font-semibold text-muted-foreground">Shadow Color</label>
+                    <input
+                      type="color"
+                      value={logoState.logoShadowColor || '#000000'}
+                      onChange={(e) => handleLogoChange({ logoShadowColor: e.target.value })}
+                      className="w-12 h-8 rounded cursor-pointer border border-border"
+                    />
+                    <span className="text-xs font-mono">
+                      {logoState.logoShadowColor || '#000000'}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 

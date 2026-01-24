@@ -10,135 +10,56 @@ export const STEPS = {
 
 export const SCENARIOS = [
   {
-    id: 'sandbox',
-    name: 'Sandbox Mode',
-    description: 'Free play with no specific goals. Build your band however you want!',
+    id: 'band-manager',
+    name: 'Band Manager',
+    description: 'Manage your band from the top. Make strategic decisions, build your roster, write songs, book gigs, and guide your band to success. Full management control.',
     initialMoney: 1000,
     initialFame: 0,
-    goals: [],
-    specialRules: {}
+    goals: [
+      { id: 'success', type: 'reachFame', target: 200, label: 'Reach 200 Fame' },
+      { id: 'songs', type: 'totalSongs', target: 10, label: 'Release 10 Songs' },
+      { id: 'survive', type: 'surviveWeeks', target: 50, label: 'Manage for 50 Weeks' }
+    ],
+    specialRules: { 
+      managementMode: true,
+      fullControl: true
+    }
   },
   {
-    id: 'indie-hustle',
-    name: 'Indie Hustle',
-    description: 'Start with just $500. Goal: Reach 1 million total streams while staying independent (no label deals).',
+    id: 'band-leader',
+    name: 'Band Leader',
+    description: 'Start your own band as the leader. Create your character, name your band, and audition members. Experience the journey from your perspective as the band leader.',
+    initialMoney: 1000,
+    initialFame: 0,
+    goals: [
+      { id: 'build', type: 'bandSize', target: 4, label: 'Build a 4+ Member Band' },
+      { id: 'success', type: 'reachFame', target: 100, label: 'Reach 100 Fame' },
+      { id: 'survive', type: 'surviveWeeks', target: 50, label: 'Lead for 50 Weeks' }
+    ],
+    specialRules: { 
+      bandLeaderMode: true,
+      firstPersonNarrative: true,
+      characterCreation: true,
+      auditionRequired: true,
+      enhancedDialogueFocus: true
+    }
+  },
+  {
+    id: 'band-member',
+    name: 'Band Member',
+    description: 'Experience life as a member of an established band. Focus on dialogue, choices, and relationships. Pre-made band included.',
     initialMoney: 500,
-    initialFame: 0,
+    initialFame: 25,
     goals: [
-      { id: 'streams', type: 'totalStreams', target: 1000000, label: '1M Total Streams' },
-      { id: 'independent', type: 'stayIndependent', target: true, label: 'Stay Independent' }
+      { id: 'survive', type: 'surviveWeeks', target: 50, label: 'Survive 50 Weeks in the Band' },
+      { id: 'relationships', type: 'maintainRelationships', target: true, label: 'Maintain Band Relationships' }
     ],
-    specialRules: { mustStayIndependent: true }
-  },
-  {
-    id: 'major-label-dream',
-    name: 'Major Label Dream',
-    description: 'Get signed to a major label and release a #1 album on the charts.',
-    initialMoney: 2000,
-    initialFame: 50,
-    goals: [
-      { id: 'majorLabel', type: 'signMajorLabel', target: true, label: 'Sign Major Label Deal' },
-      { id: 'numberOne', type: 'numberOneAlbum', target: true, label: '#1 Album on Charts' }
-    ],
-    specialRules: {}
-  },
-  {
-    id: 'world-tour',
-    name: 'World Tour Challenge',
-    description: 'Complete tours in at least 4 different geographic regions (US, UK, Europe, Asia).',
-    initialMoney: 1500,
-    initialFame: 30,
-    goals: [
-      { id: 'tours', type: 'tourRegions', target: 4, label: 'Tour 4 Different Regions' }
-    ],
-    specialRules: {}
-  },
-  {
-    id: 'viral-sensation',
-    name: 'Viral Sensation',
-    description: 'Go viral on TikTok and reach 50 million total streams within 6 months (24 weeks).',
-    initialMoney: 800,
-    initialFame: 20,
-    goals: [
-      { id: 'viral', type: 'goViral', target: true, label: 'Go Viral on TikTok' },
-      { id: 'streams', type: 'totalStreams', target: 50000000, label: '50M Total Streams' },
-      { id: 'time', type: 'withinWeeks', target: 24, label: 'Within 24 Weeks' }
-    ],
-    specialRules: { timeLimit: 24 }
-  },
-  {
-    id: 'legacy-builder',
-    name: 'Legacy Builder',
-    description: 'Maintain success for 100+ weeks and build a lasting career with multiple hits.',
-    initialMoney: 1200,
-    initialFame: 40,
-    goals: [
-      { id: 'weeks', type: 'surviveWeeks', target: 100, label: 'Reach Week 100' },
-      { id: 'fame', type: 'maintainFame', target: 150, label: 'Maintain 150+ Fame' },
-      { id: 'hits', type: 'totalHits', target: 10, label: '10+ Popular Songs' }
-    ],
-    specialRules: {}
-  },
-  {
-    id: 'social-media-star',
-    name: 'Social Media Star',
-    description: 'Build your career through social media. Reach 500k followers across all platforms and get featured on major playlists.',
-    initialMoney: 600,
-    initialFame: 10,
-    goals: [
-      { id: 'followers', type: 'socialFollowers', target: 500000, label: '500K Total Followers' },
-      { id: 'playlists', type: 'playlistPlacements', target: 10, label: '10 Major Playlist Placements' }
-    ],
-    specialRules: { socialMediaBoost: 1.5 }
-  },
-  {
-    id: 'one-hit-wonder',
-    name: 'One Hit Wonder Challenge',
-    description: 'Try to avoid being a one-hit wonder. Get 3 songs into the top 10 and maintain fame above 200 for 20 weeks.',
-    initialMoney: 1500,
-    initialFame: 60,
-    goals: [
-      { id: 'top10s', type: 'topTenHits', target: 3, label: '3 Songs in Top 10' },
-      { id: 'fame', type: 'maintainFame', target: 200, label: 'Maintain 200+ Fame' },
-      { id: 'weeks', type: 'surviveWeeks', target: 20, label: 'Maintain for 20 Weeks' }
-    ],
-    specialRules: {}
-  },
-  {
-    id: 'underground-legend',
-    name: 'Underground Legend',
-    description: 'Build a cult following without mainstream success. Stay independent, reach 100k fans, but keep fame under 100.',
-    initialMoney: 300,
-    initialFame: 0,
-    goals: [
-      { id: 'fans', type: 'totalFans', target: 100000, label: '100K Fans' },
-      { id: 'independent', type: 'stayIndependent', target: true, label: 'Stay Independent' },
-      { id: 'fame', type: 'keepFameLow', target: 100, label: 'Fame Under 100' }
-    ],
-    specialRules: { mustStayIndependent: true, maxFame: 100 }
-  },
-  {
-    id: 'comeback-story',
-    name: 'The Comeback',
-    description: 'Start with high fame but no money. Rebuild your career from the ashes. Get back to 200+ fame and $10k.',
-    initialMoney: 50,
-    initialFame: 150,
-    goals: [
-      { id: 'fame', type: 'reachFame', target: 200, label: 'Reach 200 Fame' },
-      { id: 'money', type: 'saveMoney', target: 10000, label: 'Save $10,000' }
-    ],
-    specialRules: {}
-  },
-  {
-    id: 'studio-perfectionist',
-    name: 'Studio Perfectionist',
-    description: 'Focus on studio work. Release 5 albums with average quality above 80. No touring until you hit this goal.',
-    initialMoney: 2000,
-    initialFame: 30,
-    goals: [
-      { id: 'albums', type: 'highQualityAlbums', target: 5, label: '5 Albums with 80+ Quality' }
-    ],
-    specialRules: { noTouring: true }
+    specialRules: { 
+      firstPersonMode: true,
+      preMadeBand: true,
+      enhancedDialogueFocus: true,
+      simplifiedUI: true
+    }
   }
 ];
 
@@ -474,7 +395,7 @@ export const initialState = {
   totalAlbumSales: 0,
   totalMerchandise: 0,
   logoFont: 'Arial',
-  logoBgColor: '#1a1a2e',
+  logoBgColor: '#000000',
   logoTextColor: '#ff6b6b',
   socialMedia: {
     tiktok: { followers: 0, engagementRate: 0, lastPost: 0 },

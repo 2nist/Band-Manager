@@ -4,8 +4,9 @@
  * Allows player to generate songs with choice of genre and style
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Music, Loader, AlertCircle } from 'lucide-react';
+import { getGenreProfile } from '../music/profiles/GENRE_AUDIO_PROFILES.js';
 
 export const SongGenerationPanel = ({ 
   gameState, 
@@ -31,24 +32,50 @@ export const SongGenerationPanel = ({
     setError(null);
 
     try {
-      // This would be called with the actual useMusicGeneration hook
-      // For now, we just call the callback
+      // Call the callback with genre - parent component will handle generation
       if (onSongGenerated) {
         await onSongGenerated(selectedGenre);
       }
     } catch (err) {
       setError(err.message);
+      console.error('Song generation error:', err);
     } finally {
       setIsGenerating(false);
     }
   };
 
-  // Check if band is capable of generating
+  // Check if band can generate (no skill requirement - anyone can write songs)
   const bandSkill = gameState.bandMembers?.reduce((sum, m) => sum + (m.skill || 50), 0) / (gameState.bandMembers?.length || 1) || 50;
-  const hasRequiredSkill = bandSkill >= 30;
   const hasRequiredMoney = gameState.money >= cost;
 
-  const canGenerate = hasRequiredSkill && hasRequiredMoney && !disabled && !isGenerating;
+  const canGenerate = hasRequiredMoney && !disabled && !isGenerating;
+  
+  // Get genre profile for skill predictions
+  const genreProfile = useMemo(() => getGenreProfile(selectedGenre), [selectedGenre]);
+  
+  // Calculate expected performance impact for each member
+  const memberPerformancePredictions = useMemo(() => {
+    if (!gameState.bandMembers) return [];
+    
+    return gameState.bandMembers.map(member => {
+      const role = member.role || member.type || member.instrument;
+      const genreConfig = genreProfile[role] || {};
+      const requiredPrecision = genreConfig.timing_precision || 0.8;
+      const memberPrecision = (member.skill || 50) / 100;
+      
+      return {
+        member,
+        role,
+        timingPrecision: Math.round((member.skill * 0.6 + (member.reliability || 50) * 0.4)),
+        noteAccuracy: member.skill || 50,
+        creativeInput: member.creativity || 50,
+        genreMatch: Math.min(100, Math.round((memberPrecision / requiredPrecision) * 100)),
+        expectedQuality: Math.round(
+          (member.skill * 0.4 + (member.reliability || 50) * 0.3 + (member.morale || 50) * 0.3)
+        )
+      };
+    });
+  }, [gameState.bandMembers, genreProfile]);
 
   return (
     <div style={{
@@ -66,22 +93,84 @@ export const SongGenerationPanel = ({
 
       {/* Status Checks */}
       <div style={{ marginBottom: '15px', fontSize: '0.9em' }}>
-        {!hasRequiredSkill && (
-          <div style={{ color: '#f00', marginBottom: '5px' }}>
-            ❌ Band skill too low (minimum 30, you have {Math.round(bandSkill)})
-          </div>
-        )}
         {!hasRequiredMoney && (
           <div style={{ color: '#f00', marginBottom: '5px' }}>
             ❌ Insufficient studio time budget (minimum ${cost}, you have ${gameState.money})
           </div>
         )}
-        {hasRequiredSkill && hasRequiredMoney && (
+        {hasRequiredMoney && (
           <div style={{ color: '#0f0', marginBottom: '5px' }}>
-            ✅ Ready to record
+            ✅ Ready to record (Band skill: {Math.round(bandSkill)}/100)
           </div>
         )}
       </div>
+
+      {/* Member Skill Impact Preview */}
+      {gameState.bandMembers && gameState.bandMembers.length > 0 && (
+        <div style={{ 
+          marginBottom: '15px', 
+          padding: '12px',
+          backgroundColor: 'rgba(0, 255, 255, 0.05)',
+          border: '1px solid rgba(0, 255, 255, 0.2)',
+          borderRadius: '4px'
+        }}>
+          <div style={{ 
+            fontSize: '0.85em', 
+            fontWeight: 'bold', 
+            color: '#0ff', 
+            marginBottom: '10px' 
+          }}>
+            Expected Performance Impact ({selectedGenre.toUpperCase()})
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {memberPerformancePredictions.map((pred, idx) => (
+              <div 
+                key={idx}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  fontSize: '0.8em',
+                  padding: '6px',
+                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                  borderRadius: '3px'
+                }}
+              >
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 'bold', color: '#fff' }}>
+                    {pred.member.firstName || pred.member.name || pred.role} ({pred.role})
+                  </div>
+                  <div style={{ fontSize: '0.75em', color: '#aaa', marginTop: '2px' }}>
+                    Timing: {pred.timingPrecision}% • Accuracy: {pred.noteAccuracy}% • Genre Match: {pred.genreMatch}%
+                  </div>
+                </div>
+                <div style={{ 
+                  padding: '4px 8px',
+                  borderRadius: '3px',
+                  backgroundColor: pred.expectedQuality >= 70 ? 'rgba(0, 255, 0, 0.2)' : 
+                                   pred.expectedQuality >= 50 ? 'rgba(255, 255, 0, 0.2)' : 
+                                   'rgba(255, 0, 0, 0.2)',
+                  color: pred.expectedQuality >= 70 ? '#0f0' : 
+                         pred.expectedQuality >= 50 ? '#ff0' : '#f00',
+                  fontWeight: 'bold',
+                  fontSize: '0.9em'
+                }}>
+                  {pred.expectedQuality}%
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ 
+            marginTop: '10px', 
+            fontSize: '0.75em', 
+            color: '#888',
+            fontStyle: 'italic'
+          }}>
+            * Performance quality reflects skill, reliability, and morale. Genre match shows how well 
+            member skills align with {selectedGenre} requirements.
+          </div>
+        </div>
+      )}
 
       {/* Genre Selection */}
       <div style={{ marginBottom: '15px' }}>

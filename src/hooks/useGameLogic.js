@@ -415,6 +415,10 @@ export function useGameLogic(gameState, updateGameState, addLog, data = {}) {
     const advance = Math.floor(basePayout * advanceMultiplier);
     const totalPayout = advance + Math.floor(revenue * 0.6); // Band gets 60% of ticket sales
     
+    const isFirstPersonMode = gameState.selectedScenario?.specialRules?.firstPersonMode;
+    const gigEventChance = isFirstPersonMode ? 0.6 : 0.2; // Higher chance in first-person mode
+    const shouldTriggerEvent = Math.random() < gigEventChance;
+    
     advanceWeek(
       (s) => {
         const gig = {
@@ -427,7 +431,14 @@ export function useGameLogic(gameState, updateGameState, addLog, data = {}) {
           ticketRevenue: Math.floor(revenue * 0.6),
           advance,
           totalRevenue: totalPayout,
-          fameGain: Math.floor(attendance / 50)
+          fameGain: Math.floor(attendance / 50),
+          triggerEnhancedEvent: shouldTriggerEvent,
+          eventContext: {
+            type: 'post_gig',
+            venue: venue.name,
+            attendance,
+            revenue: totalPayout
+          }
         };
 
         return {
@@ -438,13 +449,14 @@ export function useGameLogic(gameState, updateGameState, addLog, data = {}) {
           fame: s.fame + Math.floor(attendance / 50),
           gigHistory: [...(s.gigHistory || []), gig],
           gigEarnings: (s.gigEarnings || 0) + totalPayout,
-          totalEarnings: (s.totalEarnings || 0) + totalPayout
+          totalEarnings: (s.totalEarnings || 0) + totalPayout,
+          pendingGigEvent: shouldTriggerEvent ? gig.eventContext : null
         };
       },
       `Played ${venue.name} with ${attendance} fans. Revenue: $${totalPayout}. Travel: -$${travelCost}`,
       'gig'
     );
-  }, [gameState.fame, gameState.money, gameState.transportTier, addLog]);
+  }, [gameState.fame, gameState.money, gameState.transportTier, gameState.selectedScenario, addLog]);
 
   // ==================== EQUIPMENT UPGRADES ====================
 

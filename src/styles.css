@@ -197,7 +197,7 @@
   }
 
   /* Theme: YACHT_ROCK - Light, ocean vibes, summery */
-  .theme-yacht-rock:root {
+  html.theme-yacht-rock {
     --background: 80.0000 33.3333% 96.4706%;
     --foreground: 0 0% 0%;
     --card: 0 0% 100%;
@@ -2107,5 +2107,134 @@ html {
 
 .flicker {
   animation: flicker 4s ease-in-out infinite;
+}
+
+/* Welcome screen: TOP 20 – Tilt Neon, old blue neon, low glow, random flicker */
+.welcome-logo-neon {
+  color: #00b8e6;
+  text-shadow:
+    0 0 4px #00d4ff,
+    0 0 10px #00d4ff,
+    0 0 16px #0099cc;
+  filter: drop-shadow(0 0 2px rgba(0, 212, 255, 0.6));
+  animation: neonRandomFlicker 3.8s steps(1) infinite;
+}
+
+@keyframes neonRandomFlicker {
+  0%, 100% {
+    opacity: 1;
+    text-shadow: 0 0 4px #00d4ff, 0 0 10px #00d4ff, 0 0 16px #0099cc;
+    filter: drop-shadow(0 0 2px rgba(0, 212, 255, 0.6));
+  }
+  2% {
+    opacity: 0.9;
+    text-shadow: 0 0 3px #00d4ff, 0 0 8px #00d4ff, 0 0 12px #0099cc;
+    filter: drop-shadow(0 0 1px rgba(0, 212, 255, 0.5));
+  }
+  5% {
+    opacity: 1;
+    text-shadow: 0 0 4px #00d4ff, 0 0 10px #00d4ff, 0 0 16px #0099cc;
+    filter: drop-shadow(0 0 2px rgba(0, 212, 255, 0.6));
+  }
+  7% {
+    opacity: 0.86;
+    text-shadow: 0 0 2px #00d4ff, 0 0 6px #00d4ff, 0 0 10px #0099cc;
+    filter: drop-shadow(0 0 1px rgba(0, 212, 255, 0.4));
+  }
+  11% {
+    opacity: 0.94;
+    text-shadow: 0 0 3px #00d4ff, 0 0 9px #00d4ff, 0 0 14px #0099cc;
+    filter: drop-shadow(0 0 1px rgba(0, 212, 255, 0.5));
+  }
+  13% {
+    opacity: 1;
+    text-shadow: 0 0 4px #00d4ff, 0 0 10px #00d4ff, 0 0 16px #0099cc;
+    filter: drop-shadow(0 0 2px rgba(0, 212, 255, 0.6));
+  }
+  19% {
+    opacity: 0.88;
+    text-shadow: 0 0 2px #00d4ff, 0 0 7px #00d4ff, 0 0 11px #0099cc;
+    filter: drop-shadow(0 0 1px rgba(0, 212, 255, 0.45));
+  }
+  23% {
+    opacity: 0.92;
+    text-shadow: 0 0 3px #00d4ff, 0 0 8px #00d4ff, 0 0 13px #0099cc;
+    filter: drop-shadow(0 0 1px rgba(0, 212, 255, 0.5));
+  }
+  29% {
+    opacity: 1;
+    text-shadow: 0 0 4px #00d4ff, 0 0 10px #00d4ff, 0 0 16px #0099cc;
+    filter: drop-shadow(0 0 2px rgba(0, 212, 255, 0.6));
+  }
+  31% {
+    opacity: 0.9;
+    text-shadow: 0 0 3px #00d4ff, 0 0 7px #00d4ff, 0 0 12px #0099cc;
+    filter: drop-shadow(0 0 1px rgba(0, 212, 255, 0.5));
+  }
+  37% {
+    opacity: 0.85;
+    text-shadow: 0 0 2px #00d4ff, 0 0 6px #00d4ff, 0 0 10px #0099cc;
+    filter: drop-shadow(0 0 1px rgba(0, 212, 255, 0.4));
+  }
+  41% {
+    opacity: 1;
+    text-shadow: 0 0 4px #00d4ff, 0 0 10px #00d4ff, 0 0 16px #0099cc;
+    filter: drop-shadow(0 0 2px rgba(0, 212, 255, 0.6));
+  }
+  47% {
+    opacity: 0.91;
+    text-shadow: 0 0 3px #00d4ff, 0 0 8px #00d4ff, 0 0 13px #0099cc;
+    filter: drop-shadow(0 0 1px rgba(0, 212, 255, 0.5));
+  }
+  53% {
+    opacity: 0.87;
+    text-shadow: 0 0 2px #00d4ff, 0 0 7px #00d4ff, 0 0 11px #0099cc;
+    filter: drop-shadow(0 0 1px rgba(0, 212, 255, 0.45));
+  }
+  59% {
+    opacity: 1;
+    text-shadow: 0 0 4px #00d4ff, 0 0 10px #00d4ff, 0 0 16px #0099cc;
+    filter: drop-shadow(0 0 2px rgba(0, 212, 255, 0.6));
+  }
+  61% {
+    opacity: 0.89;
+    text-shadow: 0 0 3px #00d4ff, 0 0 6px #00d4ff, 0 0 10px #0099cc;
+    filter: drop-shadow(0 0 1px rgba(0, 212, 255, 0.4));
+  }
+  67% {
+    opacity: 0.93;
+    text-shadow: 0 0 3px #00d4ff, 0 0 9px #00d4ff, 0 0 14px #0099cc;
+    filter: drop-shadow(0 0 1px rgba(0, 212, 255, 0.5));
+  }
+  71% {
+    opacity: 1;
+    text-shadow: 0 0 4px #00d4ff, 0 0 10px #00d4ff, 0 0 16px #0099cc;
+    filter: drop-shadow(0 0 2px rgba(0, 212, 255, 0.6));
+  }
+  73% {
+    opacity: 0.86;
+    text-shadow: 0 0 2px #00d4ff, 0 0 7px #00d4ff, 0 0 11px #0099cc;
+    filter: drop-shadow(0 0 1px rgba(0, 212, 255, 0.45));
+  }
+  79% {
+    opacity: 0.92;
+    text-shadow: 0 0 3px #00d4ff, 0 0 8px #00d4ff, 0 0 12px #0099cc;
+    filter: drop-shadow(0 0 1px rgba(0, 212, 255, 0.5));
+  }
+  83% {
+    opacity: 1;
+    text-shadow: 0 0 4px #00d4ff, 0 0 10px #00d4ff, 0 0 16px #0099cc;
+    filter: drop-shadow(0 0 2px rgba(0, 212, 255, 0.6));
+  }
+  89% {
+    opacity: 0.88;
+    text-shadow: 0 0 2px #00d4ff, 0 0 6px #00d4ff, 0 0 10px #0099cc;
+    filter: drop-shadow(0 0 1px rgba(0, 212, 255, 0.4));
+  }
+  97% {
+    opacity: 0.95;
+    text-shadow: 0 0 3px #00d4ff, 0 0 9px #00d4ff, 0 0 14px #0099cc;
+    filter: drop-shadow(0 0 1px rgba(0, 212, 255, 0.5));
+  }
 }
 

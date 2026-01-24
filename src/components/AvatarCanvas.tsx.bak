@@ -1,0 +1,156 @@
+/**
+ * AvatarCanvas Component
+ * 
+ * React component for rendering procedural avatars using canvas.
+ */
+
+import React, { useEffect, useRef, useState } from 'react';
+import { seededRNG } from '../avatar/rng.js';
+import { defaultAvatarConfig } from '../avatar/avatarConfig.js';
+import { selectAllFeatures, selectFeaturesWithArchetype } from '../avatar/selectFeatures.js';
+import { drawAvatar, canvasToDataURL } from '../avatar/drawAvatar.js';
+
+/**
+ * AvatarCanvas Component Props
+ * @typedef {Object} AvatarCanvasProps
+ * @property {number|string} seed - Seed for deterministic generation
+ * @property {string} [archetype] - Archetype for weighted selection (e.g., 'drummer', 'guitarist', 'vocalist')
+ * @property {number} [size] - Canvas size in pixels (default: 512)
+ * @property {string} [className] - Additional CSS classes
+ * @property {Function} [onGenerated] - Callback with generated avatar data URL
+ */
+
+/**
+ * AvatarCanvas - Procedural avatar generator component
+ * @param {Object} props - Component props
+ * @param {number|string} props.seed - Seed for deterministic generation
+ * @param {string} [props.archetype] - Archetype for weighted selection
+ * @param {number} [props.size] - Canvas size in pixels
+ * @param {string} [props.className] - Additional CSS classes
+ * @param {Function} [props.onGenerated] - Callback with generated avatar data URL
+ */
+export function AvatarCanvas({
+  seed,
+  archetype,
+  size = 512,
+  className = '',
+  onGenerated
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [cachedDataURL, setCachedDataURL] = useState<string | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      setError('Failed to get canvas context');
+      return;
+    }
+
+    // Check cache first (simple in-memory cache)
+    // In production, use IndexedDB or similar
+    const cacheKey = `avatar_${seed}_${archetype || 'default'}`;
+    const cached = sessionStorage.getItem(cacheKey);
+    
+    if (cached) {
+      const img = new Image();
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        setCachedDataURL(cached);
+        onGenerated?.(cached);
+      };
+      img.src = cached;
+      return;
+    }
+
+    // Generate new avatar
+    setIsGenerating(true);
+    setError(null);
+
+    const generate = async () => {
+      try {
+        // Create seeded RNG
+        const rng = seededRNG(seed);
+
+        // Select features
+        const selections = archetype
+          ? selectFeaturesWithArchetype(rng, defaultAvatarConfig, archetype)
+          : selectAllFeatures(rng, defaultAvatarConfig);
+
+        // Draw avatar
+        await drawAvatar(ctx, defaultAvatarConfig, selections, rng);
+
+        // Cache result
+        const dataURL = canvasToDataURL(canvas);
+        sessionStorage.setItem(cacheKey, dataURL);
+        setCachedDataURL(dataURL);
+        onGenerated?.(dataURL);
+      } catch (err) {
+        console.error('Avatar generation error:', err);
+        setError(err instanceof Error ? err.message : 'Failed to generate avatar');
+      } finally {
+        setIsGenerating(false);
+      }
+    };
+
+    generate();
+  }, [seed, archetype, onGenerated]);
+
+  return (
+    <div className={`avatar-canvas-wrapper ${className}`} style={{ position: 'relative' }}>
+      <canvas
+        ref={canvasRef}
+        width={size}
+        height={size}
+        className="avatar-canvas"
+        style={{
+          display: 'block',
+          maxWidth: '100%',
+          height: 'auto',
+          imageRendering: 'crisp-edges' // Better for pixel art style
+        }}
+      />
+      {isGenerating && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'rgba(0, 0, 0, 0.7)',
+            color: 'white',
+            padding: '8px 16px',
+            borderRadius: '4px',
+            fontSize: '12px'
+          }}
+        >
+          Generating...
+        </div>
+      )}
+      {error && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'rgba(255, 0, 0, 0.7)',
+            color: 'white',
+            padding: '8px 16px',
+            borderRadius: '4px',
+            fontSize: '12px'
+          }}
+        >
+          {error}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default AvatarCanvas;

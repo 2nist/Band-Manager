@@ -1,0 +1,171 @@
+/**
+ * Avatar Configuration
+ * 
+ * Defines available features, layers, and generation rules for procedural avatars.
+ */
+
+export interface AvatarFeature {
+  id: string;
+  path: string;
+  weight?: number; // Default weight for selection
+  category?: string; // For archetype-based selection
+}
+
+export interface AvatarLayer {
+  name: string;
+  features: AvatarFeature[];
+  required: boolean; // If false, feature may be skipped
+  jitter: {
+    x: number; // Max pixel jitter in X
+    y: number; // Max pixel jitter in Y
+    rotation: number; // Max rotation jitter in radians
+    opacity: [number, number]; // Opacity range [min, max]
+  };
+}
+
+export interface AvatarConfig {
+  canvasSize: number;
+  layers: AvatarLayer[];
+  archetypes?: {
+    [archetype: string]: {
+      [category: string]: number; // Weight multipliers for categories
+    };
+  };
+}
+
+/**
+ * Default avatar configuration
+ * Assumes assets are in public/avatar/assets/ directory
+ */
+export const defaultAvatarConfig: AvatarConfig = {
+  canvasSize: 512,
+  layers: [
+    {
+      name: 'paper',
+      features: [
+        { id: 'paper_1', path: '/avatar/assets/paper/paper_1.png', weight: 1 }
+      ],
+      required: true,
+      jitter: { x: 0, y: 0, rotation: 0, opacity: [1, 1] } // No jitter for background
+    },
+    {
+      name: 'head',
+      features: [
+        { id: 'head_1', path: '/avatar/assets/heads/head_1.png', weight: 1 },
+        { id: 'head_2', path: '/avatar/assets/heads/head_2.png', weight: 1 },
+        { id: 'head_3', path: '/avatar/assets/heads/head_3.png', weight: 1 },
+        { id: 'head_4', path: '/avatar/assets/heads/head_4.png', weight: 1 },
+        { id: 'head_5', path: '/avatar/assets/heads/head_5.png', weight: 1 }
+      ],
+      required: true,
+      jitter: { x: 2, y: 2, rotation: 0.01, opacity: [0.95, 1.0] }
+    },
+    {
+      name: 'eyes',
+      features: [
+        { id: 'eyes_1', path: '/avatar/assets/eyes/eyes_1.png', weight: 1 },
+        { id: 'eyes_2', path: '/avatar/assets/eyes/eyes_2.png', weight: 1 },
+        { id: 'eyes_3', path: '/avatar/assets/eyes/eyes_3.png', weight: 1 },
+        { id: 'eyes_4', path: '/avatar/assets/eyes/eyes_4.png', weight: 1 },
+        { id: 'eyes_5', path: '/avatar/assets/eyes/eyes_5.png', weight: 1 }
+      ],
+      required: true,
+      jitter: { x: 2, y: 2, rotation: 0.01, opacity: [0.92, 1.0] }
+    },
+    {
+      name: 'nose',
+      features: [
+        { id: 'nose_1', path: '/avatar/assets/noses/nose_1.png', weight: 1 },
+        { id: 'nose_2', path: '/avatar/assets/noses/nose_2.png', weight: 1 },
+        { id: 'nose_3', path: '/avatar/assets/noses/nose_3.png', weight: 1 },
+        { id: 'nose_4', path: '/avatar/assets/noses/nose_4.png', weight: 1 }
+      ],
+      required: true,
+      jitter: { x: 2, y: 2, rotation: 0.01, opacity: [0.92, 1.0] }
+    },
+    {
+      name: 'mouth',
+      features: [
+        { id: 'mouth_1', path: '/avatar/assets/mouths/mouth_1.png', weight: 1 },
+        { id: 'mouth_2', path: '/avatar/assets/mouths/mouth_2.png', weight: 1 },
+        { id: 'mouth_3', path: '/avatar/assets/mouths/mouth_3.png', weight: 1 },
+        { id: 'mouth_4', path: '/avatar/assets/mouths/mouth_4.png', weight: 1 },
+        { id: 'mouth_5', path: '/avatar/assets/mouths/mouth_5.png', weight: 1 }
+      ],
+      required: true,
+      jitter: { x: 2, y: 2, rotation: 0.01, opacity: [0.92, 1.0] }
+    },
+    {
+      name: 'facialHair',
+      features: [
+        { id: 'none', path: '', weight: 3 }, // Higher weight for no facial hair
+        { id: 'beard_1', path: '/avatar/assets/facialHair/beard_1.png', weight: 1 },
+        { id: 'beard_2', path: '/avatar/assets/facialHair/beard_2.png', weight: 1 },
+        { id: 'mustache_1', path: '/avatar/assets/facialHair/mustache_1.png', weight: 1 }
+      ],
+      required: false,
+      jitter: { x: 2, y: 2, rotation: 0.01, opacity: [0.90, 1.0] }
+    },
+    {
+      name: 'hair',
+      features: [
+        { id: 'hair_1', path: '/avatar/assets/hair/hair_1.png', weight: 1 },
+        { id: 'hair_2', path: '/avatar/assets/hair/hair_2.png', weight: 1 },
+        { id: 'hair_3', path: '/avatar/assets/hair/hair_3.png', weight: 1 },
+        { id: 'hair_4', path: '/avatar/assets/hair/hair_4.png', weight: 1 },
+        { id: 'hair_5', path: '/avatar/assets/hair/hair_5.png', weight: 1 },
+        { id: 'hair_6', path: '/avatar/assets/hair/hair_6.png', weight: 1 }
+      ],
+      required: true,
+      jitter: { x: 3, y: 3, rotation: 0.02, opacity: [0.92, 1.0] }
+    },
+    {
+      name: 'accessories',
+      features: [
+        { id: 'none', path: '', weight: 5 }, // Much higher weight for no accessories
+        { id: 'glasses_1', path: '/avatar/assets/accessories/glasses_1.png', weight: 1 },
+        { id: 'glasses_2', path: '/avatar/assets/accessories/glasses_2.png', weight: 1 },
+        { id: 'hat_1', path: '/avatar/assets/accessories/hat_1.png', weight: 1 }
+      ],
+      required: false,
+      jitter: { x: 2, y: 2, rotation: 0.01, opacity: [0.90, 1.0] }
+    },
+    {
+      name: 'shading',
+      features: [
+        { id: 'shading_1', path: '/avatar/assets/shading/shading_1.png', weight: 1 },
+        { id: 'shading_2', path: '/avatar/assets/shading/shading_2.png', weight: 1 }
+      ],
+      required: false,
+      jitter: { x: 1, y: 1, rotation: 0, opacity: [0.85, 0.95] } // Subtle shading
+    }
+  ],
+  archetypes: {
+    drummer: {
+      wild_hair: 2.0, // Drummers more likely to have wild hair
+      accessories: 1.5
+    },
+    guitarist: {
+      facial_hair: 1.3,
+      accessories: 1.2
+    },
+    vocalist: {
+      expressive_features: 1.4
+    }
+  }
+};
+
+/**
+ * Get feature list for a layer
+ */
+export function getLayerFeatures(config: AvatarConfig, layerName: string): AvatarFeature[] {
+  const layer = config.layers.find(l => l.name === layerName);
+  return layer?.features || [];
+}
+
+/**
+ * Get layer configuration
+ */
+export function getLayerConfig(config: AvatarConfig, layerName: string): AvatarLayer | undefined {
+  return config.layers.find(l => l.name === layerName);
+}

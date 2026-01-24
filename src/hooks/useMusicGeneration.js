@@ -6,6 +6,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { MusicGenerator, ToneRenderer } from '../music';
+import { EnhancedSongGenerator } from '../music/EnhancedSongGenerator.js';
 import { MIDIExporter } from '../music/renderers/MIDIExporter';
 
 export const useMusicGeneration = () => {
@@ -55,8 +56,12 @@ export const useMusicGeneration = () => {
       useCache = true,
       cacheKey = null,
       onComplete = null,
-      onError = null
+      onError = null,
+      songName = null // Support songName from options
     } = options;
+
+    // Get song title from options or use default
+    const finalSongTitle = songTitle || songName || `${gameState.bandName} - Week ${gameState.week}`;
 
     // Generate cache key if not provided
     const key = cacheKey || `${gameState.bandName}-${gameState.week}-${genre}`;
@@ -72,19 +77,33 @@ export const useMusicGeneration = () => {
     setGenerationError(null);
 
     try {
-      // Generate song and normalize structure (await async call)
-      const generatedSong = await MusicGenerator.generateSong(gameState, genre, {
-        seed: key,
-        songName: songTitle || `${gameState.bandName} - Week ${gameState.week}`,
-        ...options
-      });
+      // Use enhanced generator if enabled (default: true for skill-responsive generation)
+      const useEnhanced = options.useEnhanced !== false;
+      
+      let generatedSong;
+      if (useEnhanced && gameState.bandMembers && gameState.bandMembers.length > 0) {
+        // Use enhanced generator with skill and genre processing
+        // Pass genre explicitly to ensure proper profile matching
+        const enhancedGenerator = new EnhancedSongGenerator(gameState, genre);
+        generatedSong = await enhancedGenerator.generateEnhancedSong(
+          finalSongTitle,
+          { seed: key, ...options }
+        );
+      } else {
+        // Fallback to standard generator
+        generatedSong = await MusicGenerator.generateSong(gameState, genre, {
+          seed: key,
+          songName: finalSongTitle,
+          ...options
+        });
+      }
 
       // Normalize song structure for consistency
       const song = {
         ...generatedSong,
         // Add game-friendly properties
-        title: songTitle || generatedSong.metadata?.name || 'Untitled',
-        name: songTitle || generatedSong.metadata?.name || 'Untitled',
+        title: finalSongTitle || generatedSong.metadata?.name || 'Untitled',
+        name: finalSongTitle || generatedSong.metadata?.name || 'Untitled',
         genre: genre,
         quality: Math.round(generatedSong.analysis?.qualityScore || 0),
         originality: Math.round(generatedSong.analysis?.originalityScore || 0),

@@ -41,17 +41,25 @@ export const LandingPage = ({
       key={`${currentTheme}-${isDarkMode}`}
       className="min-h-screen text-foreground flex flex-col items-center justify-center p-4 relative overflow-hidden transition-colors duration-300"
       style={{
-        backgroundColor: 'var(--background)'
+        backgroundColor: '#000000'
       }}
     >
+      {/* Top-left spotlight – white, bright */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse 75% 60% at 0% 0%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.22) 20%, rgba(255, 255, 255, 0.08) 45%, transparent 70%)'
+        }}
+      />
+
       {/* Animated background stars */}
-      <div className="absolute inset-0 opacity-30 pointer-events-none">
+      <div className="absolute inset-0 opacity-20 pointer-events-none">
         {[...Array(40)].map((_, i) => (
           <div
             key={i}
             className="absolute w-1 h-1 rounded-full animate-pulse"
             style={{
-              backgroundColor: 'var(--secondary)',
+              backgroundColor: 'rgba(255, 255, 255, 0.6)',
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
               animationDelay: `${Math.random() * 3}s`
@@ -60,16 +68,11 @@ export const LandingPage = ({
         ))}
       </div>
 
-      {/* Geometric background pattern */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary via-transparent to-secondary" />
-      </div>
-
-      {/* Grid pattern overlay */}
+      {/* Grid pattern overlay – very subtle */}
       <div 
-        className="absolute inset-0 opacity-5 pointer-events-none"
+        className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{
-          backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(var(--primary-rgb), .2) 25%, rgba(var(--primary-rgb), .2) 26%, transparent 27%, transparent 74%, rgba(var(--primary-rgb), .2) 75%, rgba(var(--primary-rgb), .2) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(var(--primary-rgb), .2) 25%, rgba(var(--primary-rgb), .2) 26%, transparent 27%, transparent 74%, rgba(var(--primary-rgb), .2) 75%, rgba(var(--primary-rgb), .2) 76%, transparent 77%, transparent)',
+          backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, 0.3) 25%, rgba(255, 255, 255, 0.3) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, 0.3) 75%, rgba(255, 255, 255, 0.3) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, 0.3) 25%, rgba(255, 255, 255, 0.3) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, 0.3) 75%, rgba(255, 255, 255, 0.3) 76%, transparent 77%, transparent)',
           backgroundSize: '50px 50px'
         }}
       />
@@ -86,66 +89,17 @@ export const LandingPage = ({
         }}
       />
 
-      {/* Top Right - Theme/Dark Mode Controls */}
-      <div className="absolute top-3 right-3 z-20 flex gap-1.5">
-        {/* Dark Mode Toggle */}
-        <button
-          onClick={toggleDarkMode}
-          className="p-1.5 rounded-lg border-2 transition-all duration-300"
-          style={{
-            borderColor: 'var(--primary)',
-            backgroundColor: 'rgba(var(--card-rgb), 0.6)',
-            color: 'var(--primary)',
-            boxShadow: isDarkMode 
-              ? '0 0 20px var(--primary)' 
-              : '0 0 10px var(--primary)'
-          }}
-          title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-        >
-          {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-        </button>
-
-        {/* Theme Dropdown */}
-        <select
-          value={currentTheme}
-          onChange={(e) => setTheme(e.target.value)}
-          className="px-2 py-1.5 rounded-lg border-2 transition-all duration-300 cursor-pointer"
-          style={{
-            borderColor: 'var(--secondary)',
-            backgroundColor: 'rgba(var(--card-rgb), 0.6)',
-            color: 'var(--secondary)',
-            fontSize: '0.75rem',
-            fontWeight: 'bold',
-            letterSpacing: '0.1em'
-          }}
-        >
-          {availableThemes && availableThemes.map(theme => (
-            <option key={theme} value={theme}>
-              {THEME_NAMES[theme] || theme.replace('-', ' ').toUpperCase()}
-            </option>
-          ))}
-        </select>
-      </div>
-
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center">
-        {/* Header with neon glow */}
+        {/* Header with neon glow - TOP 20, Tilt Neon, neon blue, random flicker */}
         <div className="text-center mb-8">
           <h1 
-            className="text-7xl font-black mb-2 tracking-widest relative flicker"
+            className="welcome-logo-neon text-7xl font-black mb-2 tracking-widest relative"
             style={{
-              color: 'var(--primary)',
-              textShadow: `
-                0 0 10px var(--primary),
-                0 0 20px var(--primary),
-                0 0 30px var(--primary),
-                0 0 40px var(--primary)
-              `,
-              letterSpacing: '0.05em',
-              fontFamily: 'monospace'
+              fontFamily: "'Tilt Neon', sans-serif"
             }}
           >
-            GIGMASTER
+            TOP 20
           </h1>
           <div 
             className="text-sm tracking-widest mt-1.5"
@@ -157,7 +111,7 @@ export const LandingPage = ({
               `
             }}
           >
-            RISE TO STARDOM
+            RISE & FALL
           </div>
         </div>
 
@@ -416,7 +370,7 @@ export const LandingPage = ({
 
       {/* Footer */}
       <p className="mt-8 text-sm text-center font-mono relative z-10" style={{ color: 'var(--muted)' }}>
-        GIGMASTER © 2026 • CHASING DREAMS IN THE MUSIC INDUSTRY
+        TOP 20 Music Industry Simulator 2026
       </p>
     </div>
   );

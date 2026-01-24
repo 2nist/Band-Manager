@@ -1,4 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
+import {
+  progressChain,
+  getChainStage,
+  getChainContinuationEvents,
+  shouldAutoProgressChain
+} from '../utils/consequenceChains';
 
 /**
  * useConsequenceSystem Hook
@@ -38,6 +44,16 @@ export const useConsequenceSystem = (gameState) => {
       return saved ? JSON.parse(saved) : initializePsychology();
     } catch {
       return initializePsychology();
+    }
+  });
+
+  // Chain tracking state
+  const [chainState, setChainState] = useState(() => {
+    try {
+      const saved = localStorage.getItem('gigmaster_chains');
+      return saved ? JSON.parse(saved) : { active_chains: [], currentWeek: 0 };
+    } catch {
+      return { active_chains: [], currentWeek: 0 };
     }
   });
 
@@ -505,6 +521,89 @@ export const useConsequenceSystem = (gameState) => {
     localStorage.setItem('gigmaster_psychology', JSON.stringify(psychologicalEvolution));
   }, [psychologicalEvolution]);
 
+  /**
+   * Track progression of a consequence chain
+   * @param {string} chainType - Chain type identifier
+   * @param {string} stage - Current stage
+   * @param {string} trigger - Trigger that caused progression
+   */
+  const trackChainProgression = useCallback((chainType, stage, trigger) => {
+    setChainState(prev => {
+      const updated = { ...prev };
+      const activeChains = updated.active_chains || [];
+      
+      const existingChain = activeChains.find(c => c.chainId === chainType);
+      
+      if (existingChain) {
+        // Update existing chain
+        const updatedChains = activeChains.map(c => 
+          c.chainId === chainType 
+            ? { ...c, currentStage: stage, lastTrigger: trigger, lastProgressWeek: gameState.week }
+            : c
+        );
+        updated.active_chains = updatedChains;
+      } else {
+        // Start new chain
+        updated.active_chains = [
+          ...activeChains,
+          {
+            chainId: chainType,
+            currentStage: stage,
+            startWeek: gameState.week,
+            lastProgressWeek: gameState.week,
+            lastTrigger: trigger
+          }
+        ];
+      }
+      
+      updated.currentWeek = gameState.week;
+      localStorage.setItem('gigmaster_chains', JSON.stringify(updated));
+      return updated;
+    });
+  }, [gameState.week]);
+
+  /**
+   * Get events that should be generated based on active chains
+   * @returns {Array<string>} Event IDs to generate
+   */
+  const getChainEvents = useCallback(() => {
+    const continuationEvents = [];
+    
+    if (!chainState.active_chains) return continuationEvents;
+    
+    chainState.active_chains.forEach(activeChain => {
+      const chainEvents = getChainContinuationEvents({
+        active_chains: [activeChain],
+        currentWeek: chainState.currentWeek
+      });
+      continuationEvents.push(...chainEvents);
+    });
+    
+    return continuationEvents;
+  }, [chainState]);
+
+  /**
+   * Check if any chains should auto-progress based on time
+   * @returns {Array<Object>} Chains that should progress
+   */
+  const checkChainAutoProgress = useCallback(() => {
+    const chainsToProgress = [];
+    
+    if (!chainState.active_chains) return chainsToProgress;
+    
+    chainState.active_chains.forEach(activeChain => {
+      if (shouldAutoProgressChain(activeChain.chainId, activeChain, gameState.week)) {
+        chainsToProgress.push({
+          chainId: activeChain.chainId,
+          currentStage: activeChain.currentStage,
+          weeksInStage: gameState.week - (activeChain.lastProgressWeek || activeChain.startWeek || 0)
+        });
+      }
+    });
+    
+    return chainsToProgress;
+  }, [chainState, gameState.week]);
+
   return {
     // State
     consequences,
@@ -529,10 +628,15 @@ export const useConsequenceSystem = (gameState) => {
     // Utilities
     clearOldConsequences,
 
+    // Chain tracking
+    trackChainProgression,
+    getChainEvents,
+    checkChainAutoProgress,
+    chainState,
+
     // Data access
     getActiveConsequences: () => consequences.active,
     getDormantConsequences: () => consequences.dormant,
-    getFactionInfluencedEvents,
     getFactionStanding: (factionId) => factions[factionId]?.currentStanding || 0,
     getFactionStatus: (factionId) => {
       const standing = factions[factionId]?.currentStanding || 0;

@@ -361,14 +361,52 @@ export const shouldShowEvent = (event, enhancedFeatures) => {
     return true; // If enhanced features disabled, show all events
   }
   
-  // Check maturity level
-  if (event.enhanced?.maturityLevel === 'mature' && enhancedFeatures.maturityLevel === 'teen') {
+  // Check maturity level - support both event.maturityLevel and event.enhanced.maturityLevel
+  const eventMaturityLevel = event.maturityLevel || event.enhanced?.maturityLevel;
+  const eventCategory = event.category || event.enhanced?.category;
+  const contentWarnings = event.contentWarnings || event.enhanced?.contentWarnings || [];
+  
+  // Allow psychological themes even in teen mode (they're less graphic)
+  const isPsychologicalTheme = eventCategory === 'psychological_horror' || eventCategory === 'psychological_themes';
+  
+  if (eventMaturityLevel === 'mature' && enhancedFeatures.maturityLevel === 'teen' && !isPsychologicalTheme) {
+    console.log('[Enhanced Dialogue] Event blocked by maturity level:', event.title, {
+      eventMaturity: eventMaturityLevel,
+      userMaturity: enhancedFeatures.maturityLevel,
+      category: eventCategory
+    });
     return false;
   }
   
-  // Check content preferences
-  if (event.enhanced?.contentWarnings?.length > 0) {
-    const hasBlockedContent = event.enhanced.contentWarnings.some(warning => {
+  // Check content preferences - support both event.category and event.enhanced.category
+  
+  // Check category-based blocking
+  if (eventCategory) {
+    // Map event categories to content preference keys
+    const categoryMap = {
+      'substance_abuse': 'substance_abuse',
+      'sexual_content': 'sexual_content',
+      'criminal_activity': 'criminal_activity',
+      'corruption': 'criminal_activity', // Corruption events map to criminal_activity preference
+      'violence': 'violence',
+      'psychological_horror': 'psychological_themes', // Psychological horror maps to psychological_themes
+      'psychological_themes': 'psychological_themes'
+    };
+    
+    const preferenceKey = categoryMap[eventCategory];
+    if (preferenceKey && !enhancedFeatures.contentPreferences?.[preferenceKey]) {
+      console.log('[Enhanced Dialogue] Event blocked by category:', event.title, {
+        category: eventCategory,
+        preferenceKey,
+        enabled: enhancedFeatures.contentPreferences?.[preferenceKey]
+      });
+      return false;
+    }
+  }
+  
+  // Check content warnings
+  if (contentWarnings.length > 0) {
+    const hasBlockedContent = contentWarnings.some(warning => {
       if (warning === 'drug_use' && !enhancedFeatures.contentPreferences?.substance_abuse) return true;
       if (warning === 'sexual_content' && !enhancedFeatures.contentPreferences?.sexual_content) return true;
       if ((warning === 'legal_trouble' || warning.includes('criminal')) && !enhancedFeatures.contentPreferences?.criminal_activity) return true;
@@ -376,9 +414,17 @@ export const shouldShowEvent = (event, enhancedFeatures) => {
       return false;
     });
     
-    if (hasBlockedContent) return false;
+    if (hasBlockedContent) {
+      console.log('[Enhanced Dialogue] Event blocked by content warnings:', event.title, contentWarnings);
+      return false;
+    }
   }
   
+  console.log('[Enhanced Dialogue] Event approved:', event.title, {
+    maturity: eventMaturityLevel,
+    category: eventCategory,
+    warnings: contentWarnings
+  });
   return true;
 };
 

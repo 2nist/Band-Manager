@@ -8,7 +8,7 @@
  * - Minimal logic (300 lines vs 6,117 original)
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import './styles.css';
 
 // Initialize Tone.js for audio synthesis
@@ -52,9 +52,10 @@ import {
 } from './hooks';
 
 // Import page components
-import { LandingPage, GamePage, LogoDesigner, BandCreation, ScenarioSelection } from './pages';
+import { LandingPage, GamePage, LogoDesigner, BandCreation, ScenarioSelection, CharacterCreation, AvatarCreation, AuditionFlow } from './pages';
 import { EnhancedEventModal } from './components/EnhancedEventModal';
 import { VictoryScreen } from './components/VictoryScreen';
+import { initializeFirstPersonMode } from './utils/preMadeBand';
 
 // Import modals
 import WriteSongModal from './components/Modals/WriteSongModal';
@@ -76,6 +77,9 @@ import BandStatsModal from './components/Modals/BandStatsModal';
  * - useConsequenceSystem: Phase 2 consequence tracking (NEW)
  */
 function App() {
+  // Ref to store GamePage's handleEventChoice handler
+  const gamePageEventChoiceHandlerRef = useRef(null);
+  
   // Initialize theme system
   const themeSystem = useTheme();
 
@@ -101,12 +105,12 @@ function App() {
   // Controls feature toggles and content preferences for mature content
   const [enhancedFeatures, setEnhancedFeatures] = useState({
     enabled: true, // Toggle enhanced dialogue features on/off
-    maturityLevel: 'teen', // 'teen' or 'mature' - affects which events can appear
+    maturityLevel: 'mature', // 'teen' or 'mature' - affects which events can appear (changed to 'mature' to allow enhanced dialogue events)
     contentPreferences: {
       substance_abuse: false, // Drug/alcohol themed events
       sexual_content: false, // Sexual/romance themed events
       criminal_activity: false, // Crime/law-breaking themed events
-      psychological_themes: true, // Psychological stress, depression, etc.
+      psychological_themes: true, // Psychological stress, depression, etc. (ENABLED - this allows psychological_horror events)
       violence: false, // Violence themed events
       explicit_language: false // Profanity in dialogue
     }
@@ -224,22 +228,170 @@ function App() {
         <ScenarioSelection
           bandName={gameState.state?.bandName || 'Your Band'}
           onSelectScenario={(scenario) => {
-            gameState.updateGameState({
-              selectedScenario: scenario,
-              money: scenario.initialMoney,
-              fame: scenario.initialFame,
-              week: 0
-            });
-            gameState.setStep('logo');
+            const isFirstPersonMode = scenario.specialRules?.firstPersonMode; // Band Member
+            const isBandLeaderMode = scenario.specialRules?.bandLeaderMode; // Band Leader
+            const isManagementMode = scenario.specialRules?.managementMode; // Band Manager
+            
+            if (isFirstPersonMode) {
+              // Band Member Mode: logo -> pre-made band -> game
+              gameState.updateGameState({
+                selectedScenario: scenario,
+                money: scenario.initialMoney,
+                fame: scenario.initialFame,
+                week: 0
+              });
+              gameState.setStep('logo');
+            } else if (isBandLeaderMode) {
+              // Band Leader Mode: logo -> character creation -> avatar -> auditions -> game
+              gameState.updateGameState({
+                selectedScenario: scenario,
+                money: scenario.initialMoney,
+                fame: scenario.initialFame,
+                week: 0
+              });
+              gameState.setStep('logo');
+            } else if (isManagementMode) {
+              // Band Manager Mode: normal flow (logo -> band creation -> game)
+              gameState.updateGameState({
+                selectedScenario: scenario,
+                money: scenario.initialMoney,
+                fame: scenario.initialFame,
+                week: 0
+              });
+              gameState.setStep('logo');
+            } else {
+              // Fallback: normal mode (shouldn't happen with only 3 scenarios)
+              gameState.updateGameState({
+                selectedScenario: scenario,
+                money: scenario.initialMoney,
+                fame: scenario.initialFame,
+                week: 0
+              });
+              gameState.setStep('logo');
+            }
           }}
           onBack={() => gameState.setStep('landing')}
+        />
+      ) : gameState.step === 'characterCreation' ? (
+        <CharacterCreation
+          gameState={gameState}
+          onComplete={(characterData) => {
+            gameState.updateGameState({
+              bandName: gameState.state?.bandName || characterData.bandName, // Preserve existing band name
+              leaderName: characterData.leaderName,
+              leaderRole: characterData.leaderRole,
+              bandMembers: [characterData.playerCharacter], // Start with just the leader
+              bandLeaderMode: true,
+              firstPersonNarrative: true
+            });
+            gameState.setStep('avatarCreation');
+          }}
+          onBack={() => gameState.setStep('logo')}
+        />
+      ) : gameState.step === 'avatarCreation' ? (
+        <AvatarCreation
+          gameState={gameState}
+          mode={gameState.state?.selectedScenario?.specialRules?.bandLeaderMode ? 'leader' :
+                gameState.state?.selectedScenario?.specialRules?.managementMode ? 'manager' :
+                gameState.state?.selectedScenario?.specialRules?.firstPersonMode ? 'member' : 'leader'}
+          onComplete={(avatarConfig) => {
+            const isBandLeaderMode = gameState.state?.selectedScenario?.specialRules?.bandLeaderMode;
+            const isManagementMode = gameState.state?.selectedScenario?.specialRules?.managementMode;
+            const isFirstPersonMode = gameState.state?.selectedScenario?.specialRules?.firstPersonMode;
+            
+            if (isBandLeaderMode) {
+              // Update player character (leader) with avatar
+              const members = gameState.state?.bandMembers || [];
+              if (members.length > 0 && members[0].isLeader) {
+                const updatedMembers = [...members];
+                updatedMembers[0] = {
+                  ...updatedMembers[0],
+                  avatarConfig: avatarConfig
+                };
+                gameState.updateGameState({ bandMembers: updatedMembers });
+              }
+              gameState.setStep('auditions');
+            } else if (isManagementMode) {
+              // Save manager avatar and proceed to band creation
+              gameState.updateGameState({ 
+                managerAvatarConfig: avatarConfig,
+                managerName: gameState.state?.managerName || 'You'
+              });
+              gameState.setStep('bandCreation');
+            } else if (isFirstPersonMode) {
+              // Save player character avatar and proceed to pre-made band setup
+              const preMadeBandData = initializeFirstPersonMode('midnight-echoes');
+              // Update the player character in the pre-made band with the avatar
+              const playerMember = preMadeBandData.bandMembers?.find(m => m.name === 'You' || m.isPlayer);
+              if (playerMember) {
+                playerMember.avatarConfig = avatarConfig;
+              } else if (preMadeBandData.bandMembers && preMadeBandData.bandMembers.length > 0) {
+                // If no "You" member, update the first member (assumed to be player)
+                preMadeBandData.bandMembers[0].avatarConfig = avatarConfig;
+                preMadeBandData.bandMembers[0].isPlayer = true;
+              }
+              gameState.updateGameState(preMadeBandData);
+              gameState.setStep('game');
+            }
+          }}
+          onBack={() => {
+            const isBandLeaderMode = gameState.state?.selectedScenario?.specialRules?.bandLeaderMode;
+            if (isBandLeaderMode) {
+              gameState.setStep('characterCreation');
+            } else {
+              gameState.setStep('logo');
+            }
+          }}
+          onSkip={() => {
+            const isBandLeaderMode = gameState.state?.selectedScenario?.specialRules?.bandLeaderMode;
+            const isManagementMode = gameState.state?.selectedScenario?.specialRules?.managementMode;
+            const isFirstPersonMode = gameState.state?.selectedScenario?.specialRules?.firstPersonMode;
+            
+            if (isBandLeaderMode) {
+              gameState.setStep('auditions');
+            } else if (isManagementMode) {
+              gameState.setStep('bandCreation');
+            } else if (isFirstPersonMode) {
+              const preMadeBandData = initializeFirstPersonMode('midnight-echoes');
+              gameState.updateGameState(preMadeBandData);
+              gameState.setStep('game');
+            }
+          }}
+        />
+      ) : gameState.step === 'auditions' ? (
+        <AuditionFlow
+          gameState={gameState}
+          onComplete={() => {
+            // Need at least 2 members (leader + 1 hired)
+            const members = gameState.state?.bandMembers || [];
+            if (members.length < 2) {
+              alert('You need at least one band member to start! Continue auditioning.');
+              return;
+            }
+            gameState.setStep('game');
+          }}
+          onBack={() => gameState.setStep('characterCreation')}
         />
       ) : gameState.step === 'logo' ? (
         <LogoDesigner
           bandName={gameState.state?.bandName || 'Your Band'}
           logoState={gameState.state}
           onLogoChange={(updates) => gameState.updateGameState(updates)}
-          onComplete={() => gameState.setStep('bandCreation')}
+          onComplete={() => {
+            const isFirstPersonMode = gameState.state?.selectedScenario?.specialRules?.firstPersonMode;
+            const isBandLeaderMode = gameState.state?.selectedScenario?.specialRules?.bandLeaderMode;
+            
+            if (isFirstPersonMode) {
+              // Band Member Mode: after logo, create player avatar -> pre-made band -> game
+              gameState.setStep('avatarCreation');
+            } else if (isBandLeaderMode) {
+              // Band Leader Mode: after logo, go to character creation
+              gameState.setStep('characterCreation');
+            } else {
+              // Band Manager Mode: after logo, create manager avatar -> band creation
+              gameState.setStep('avatarCreation');
+            }
+          }}
           onBack={() => gameState.setStep('scenario')}
         />
       ) : gameState.step === 'bandCreation' ? (
@@ -301,6 +453,9 @@ function App() {
           }}
           onQuit={() => gameState.setStep('landing')}
           victoryConditions={victoryConditions}
+          onRegisterEventChoiceHandler={(handler) => {
+            gamePageEventChoiceHandlerRef.current = handler;
+          }}
           onHandleEventChoice={(choice) => {
             // Handle choice through consequence system
             if (choice.factionEffects) {
@@ -368,46 +523,59 @@ function App() {
           psychologicalState={dialogueState?.psychologicalState}
           gameState={gameState?.state || gameState}
           onChoice={(eventId, choiceId, choiceText, impacts) => {
-            // Find the choice object from the event
-            const event = modalState.modalData.eventPopupData;
-            const choice = event?.choices?.find(c => c.id === choiceId);
-            
-            if (!choice) return;
-            
-            // Apply psychological effects from the choice
-            if (choice.psychologicalEffects && dialogueState?.updatePsychologicalState) {
-              const updates = {};
-              Object.entries(choice.psychologicalEffects).forEach(([key, value]) => {
-                if (key === 'stress_level' || key === 'stress') updates.stress_level = value;
-                if (key === 'moral_integrity' || key === 'morality') updates.moral_integrity = value;
-                if (key === 'addiction_risk' || key === 'addiction') updates.addiction_risk = value;
-                if (key === 'paranoia') updates.paranoia = value;
-                if (key === 'depression') updates.depression = value;
-              });
+            // Use GamePage's handleEventChoice if available, otherwise fallback to App's handler
+            if (gamePageEventChoiceHandlerRef.current) {
+              gamePageEventChoiceHandlerRef.current(eventId, choiceId, choiceText, impacts);
+            } else {
+              // Fallback: Find the choice object from the event
+              const event = modalState.modalData.eventPopupData;
+              const choice = event?.choices?.find(c => c.id === choiceId);
               
-              if (Object.keys(updates).length > 0) {
-                dialogueState.updatePsychologicalState(updates);
-                if (gameState?.addLog) {
-                  const effects = Object.entries(updates)
-                    .map(([k, v]) => `${k.replace(/_/g, ' ')} ${v > 0 ? '+' : ''}${v}`)
-                    .join(', ');
-                  gameState.addLog(`Psychological effects: ${effects}`, 'info');
+              if (!choice) return;
+              
+              // Apply psychological effects from the choice
+              if (choice.psychologicalEffects && dialogueState?.updatePsychologicalState) {
+                const updates = {};
+                Object.entries(choice.psychologicalEffects).forEach(([key, value]) => {
+                  if (key === 'stress_level' || key === 'stress') updates.stress_level = value;
+                  if (key === 'moral_integrity' || key === 'morality') updates.moral_integrity = value;
+                  if (key === 'addiction_risk' || key === 'addiction') updates.addiction_risk = value;
+                  if (key === 'paranoia') updates.paranoia = value;
+                  if (key === 'depression') updates.depression = value;
+                });
+                
+                if (Object.keys(updates).length > 0) {
+                  dialogueState.updatePsychologicalState(updates);
+                  if (gameState?.addLog) {
+                    const effects = Object.entries(updates)
+                      .map(([k, v]) => `${k.replace(/_/g, ' ')} ${v > 0 ? '+' : ''}${v}`)
+                      .join(', ');
+                    gameState.addLog(`Psychological effects: ${effects}`, 'info');
+                  }
                 }
               }
+              
+              // Handle through consequence system
+              if (choice.factionEffects) {
+                consequenceSystem.updateFactionStandings(choice);
+              }
+              if (choice.triggerConsequence) {
+                const consequence = choice.triggerConsequence;
+                if (consequence.type === 'active') {
+                  consequenceSystem.addActiveConsequence(consequence);
+                } else if (consequence.type === 'dormant') {
+                  consequenceSystem.addDormantConsequence(consequence);
+                }
+              }
+              
+              // Log the choice made
+              if (gameState?.addLog && choiceText) {
+                gameState.addLog(`You chose: "${choiceText}"`, 'info');
+              }
+              
+              // Close the modal
+              modalState.closeEventPopup();
             }
-            
-            // Handle through consequence system
-            if (onHandleEventChoice) {
-              onHandleEventChoice(choice);
-            }
-            
-            // Log the choice made
-            if (gameState?.addLog && choiceText) {
-              gameState.addLog(`You chose: "${choiceText}"`, 'info');
-            }
-            
-            // Close the modal
-            modalState.closeEventPopup();
           }}
           onClose={() => modalState.closeEventPopup()}
         />

@@ -676,6 +676,7 @@ export class ToneRenderer {
 
   /**
    * Extract member traits from song game context
+   * Enhanced to use skill modifiers from EnhancedSongGenerator
    */
   _extractMemberTraits(song) {
     const gameContext = song?.gameContext || {};
@@ -706,12 +707,40 @@ export class ToneRenderer {
       keyboardist: null
     };
     
+    // Extract enhanced skill modifiers if available
+    const enhancedData = song?.enhanced;
+    const skillModifiers = enhancedData?.memberSkillModifiers || {};
+    
     // Extract traits and tone settings from band members
     bandMembers.forEach(member => {
       const role = member.role || member.type || member.instrument;
-      if (member.traits && this.memberTraits.hasOwnProperty(role)) {
+      
+      // Use enhanced skill modifiers if available, otherwise use member stats
+      if (skillModifiers[role]) {
+        const mods = skillModifiers[role];
+        this.memberTraits[role] = {
+          timing: Math.round(mods.timing_accuracy * 100),
+          precision: Math.round(mods.note_accuracy * 100),
+          dynamics: Math.round(mods.expression_range * 100),
+          consistency: Math.round(mods.consistency * 100),
+          creativity: Math.round(mods.improvisation_factor * 100),
+          performance_quality: Math.round(mods.performance_quality * 100)
+        };
+      } else if (member.traits && this.memberTraits.hasOwnProperty(role)) {
+        // Fallback to existing traits
         this.memberTraits[role] = member.traits;
+      } else {
+        // Generate traits from member stats
+        this.memberTraits[role] = {
+          timing: member.skill || 70,
+          precision: member.skill || 70,
+          dynamics: member.creativity || 60,
+          consistency: member.reliability || 70,
+          creativity: member.creativity || 60,
+          performance_quality: member.morale || 50
+        };
       }
+      
       if (member.toneSettings && this.memberToneSettings.hasOwnProperty(role)) {
         this.memberToneSettings[role] = member.toneSettings;
       }
@@ -749,14 +778,22 @@ export class ToneRenderer {
     // Clear previous notes
     this.scheduledNotes = [];
     
-    // Schedule all notes (with member skill traits applied)
-    this._scheduleDrumPattern(musicalContent.drums, secondsPerBeat);
+    // Schedule harmony and melody first to determine song duration
     this._scheduleHarmonyProgression(musicalContent.harmony, secondsPerBeat);
     this._scheduleMelody(musicalContent.melody, secondsPerBeat);
     
+    // Calculate song duration from scheduled notes
+    const songDuration = this._calculateDuration(secondsPerBeat);
+    
+    // Now schedule drums with looping to match song duration
+    this._scheduleDrumPattern(musicalContent.drums, secondsPerBeat, songDuration);
+    
+    // Recalculate duration after adding drums (should be same or slightly longer)
+    const finalDuration = this._calculateDuration(secondsPerBeat);
+    
     return {
       tempo: bpm,
-      duration: this._calculateDuration(secondsPerBeat),
+      duration: finalDuration,
       scheduledNotes: this.scheduledNotes.length
     };
   }
@@ -934,8 +971,12 @@ export class ToneRenderer {
 
   /**
    * Schedule drum pattern playback with member skill traits
+   * Loops the pattern to match the full song duration
+   * @param {Object} drumData - Drum pattern data
+   * @param {number} secondsPerBeat - Seconds per beat
+   * @param {number} songDuration - Total song duration in seconds (optional, will estimate if not provided)
    */
-  _scheduleDrumPattern(drumData, secondsPerBeat) {
+  _scheduleDrumPattern(drumData, secondsPerBeat, songDuration = null) {
     if (!drumData) {
       console.warn('_scheduleDrumPattern: No drumData provided');
       return;
@@ -975,6 +1016,36 @@ export class ToneRenderer {
         drumData: drumData 
       });
     }
+    
+    // Calculate pattern length in beats (find the maximum beatTime)
+    const allBeatTimes = [
+      ...kick,
+      ...snare,
+      ...hihat,
+      ...(ghostSnare || [])
+    ];
+    const patternLengthBeats = allBeatTimes.length > 0 
+      ? Math.max(...allBeatTimes) + 1 // Add 1 to include the last beat
+      : 4; // Default to 4 beats if no beats found
+    
+    // Calculate pattern length in seconds
+    const patternLengthSeconds = patternLengthBeats * secondsPerBeat;
+    
+    // Determine song duration - use provided duration or estimate from existing notes
+    let targetDuration = songDuration;
+    if (!targetDuration || targetDuration <= 0) {
+      // Estimate from already scheduled notes (melody/harmony)
+      if (this.scheduledNotes.length > 0) {
+        const maxNoteTime = Math.max(...this.scheduledNotes.map(n => (n.time || 0) + (n.duration || 0)));
+        targetDuration = Math.max(maxNoteTime, 60); // At least 1 minute
+      } else {
+        targetDuration = 120; // Default 2 minutes if no other notes
+      }
+    }
+    
+    // Calculate number of loops needed to cover full song
+    const numLoops = Math.ceil(targetDuration / patternLengthSeconds) + 1; // Add 1 extra loop for safety
+    
     const drummerTraits = this.memberTraits.drummer;
     
     // Calculate timing variance (bad timing = more variance)
@@ -989,83 +1060,71 @@ export class ToneRenderer {
     const precisionSkill = drummerTraits?.precision || 75;
     const missChance = (100 - precisionSkill) / 100 * 0.1; // Up to 10% miss chance
 
-    // Schedule kick drum
-    kick.forEach(beatTime => {
+    // Helper function to schedule a single drum hit
+    const scheduleDrumHit = (type, beatTime, loopOffset, baseVelocity) => {
+      // Calculate time within the loop
+      const loopTime = beatTime * secondsPerBeat;
+      const totalTime = loopOffset + loopTime;
+      
       // Apply timing variance
       const timingOffset = (this.traitRNG.next() - 0.5) * timingVariance;
-      const actualTime = Math.max(0, beatTime * secondsPerBeat + timingOffset); // Clamp to 0 to prevent negative times
+      const actualTime = Math.max(0, totalTime + timingOffset);
       
       // Apply dynamics
-      const baseVelocity = 1.0;
       const velocity = dynamicsSkill < 30 
-        ? baseVelocity // No dynamics - always 100%
+        ? baseVelocity // No dynamics - always same velocity
         : baseVelocity * (0.7 + dynamicsRange * 0.3 * this.traitRNG.next());
       
       // Apply precision (miss chance)
       if (this.traitRNG.next() > missChance) {
         this.scheduledNotes.push({
-          type: 'kick',
+          type: type,
           time: actualTime,
           velocity: Math.max(0.1, Math.min(1.0, velocity))
         });
       }
-    });
+    };
 
-    // Schedule snare
-    snare.forEach(beatTime => {
-      const timingOffset = (this.traitRNG.next() - 0.5) * timingVariance;
-      const actualTime = beatTime * secondsPerBeat + timingOffset;
+    // Loop the pattern multiple times to cover the full song
+    for (let loop = 0; loop < numLoops; loop++) {
+      const loopOffset = loop * patternLengthSeconds;
       
-      const baseVelocity = 1.0;
-      const velocity = dynamicsSkill < 30 
-        ? baseVelocity 
-        : baseVelocity * (0.7 + dynamicsRange * 0.3 * this.traitRNG.next());
-      
-      if (this.traitRNG.next() > missChance) {
-        this.scheduledNotes.push({
-          type: 'snare',
-          time: actualTime,
-          velocity: Math.max(0.1, Math.min(1.0, velocity))
-        });
-      }
-    });
-
-    // Schedule hi-hat
-    hihat.forEach(beatTime => {
-      const timingOffset = (this.traitRNG.next() - 0.5) * timingVariance;
-      const actualTime = beatTime * secondsPerBeat + timingOffset;
-      
-      const baseVelocity = 0.7;
-      const velocity = dynamicsSkill < 30 
-        ? baseVelocity 
-        : baseVelocity * (0.5 + dynamicsRange * 0.5 * this.traitRNG.next());
-      
-      if (this.traitRNG.next() > missChance) {
-        this.scheduledNotes.push({
-          type: 'hihat',
-          time: actualTime,
-          velocity: Math.max(0.1, Math.min(1.0, velocity))
-        });
-      }
-    });
-
-    // Schedule ghost snare (quieter)
-    if (ghostSnare) {
-      ghostSnare.forEach(beatTime => {
-        const timingOffset = (this.traitRNG.next() - 0.5) * timingVariance;
-        const actualTime = beatTime * secondsPerBeat + timingOffset;
-        
-        const velocity = 0.4 * (0.7 + dynamicsRange * 0.3 * this.traitRNG.next());
-        
-        if (this.traitRNG.next() > missChance) {
-          this.scheduledNotes.push({
-            type: 'snare',
-            time: actualTime,
-            velocity: Math.max(0.05, Math.min(0.6, velocity))
-          });
-        }
+      // Schedule kick drum
+      kick.forEach(beatTime => {
+        scheduleDrumHit('kick', beatTime, loopOffset, 1.0);
       });
+
+      // Schedule snare
+      snare.forEach(beatTime => {
+        scheduleDrumHit('snare', beatTime, loopOffset, 1.0);
+      });
+
+      // Schedule hi-hat
+      hihat.forEach(beatTime => {
+        scheduleDrumHit('hihat', beatTime, loopOffset, 0.7);
+      });
+
+      // Schedule ghost snare (quieter)
+      if (ghostSnare && ghostSnare.length > 0) {
+        ghostSnare.forEach(beatTime => {
+          const loopTime = beatTime * secondsPerBeat;
+          const totalTime = loopOffset + loopTime;
+          const timingOffset = (this.traitRNG.next() - 0.5) * timingVariance;
+          const actualTime = Math.max(0, totalTime + timingOffset);
+          const velocity = 0.4 * (0.7 + dynamicsRange * 0.3 * this.traitRNG.next());
+          
+          if (this.traitRNG.next() > missChance) {
+            this.scheduledNotes.push({
+              type: 'snare',
+              time: actualTime,
+              velocity: Math.max(0.05, Math.min(0.6, velocity))
+            });
+          }
+        });
+      }
     }
+    
+    console.log(`Scheduled drum pattern: ${numLoops} loops, ${patternLengthBeats} beats per loop, ${patternLengthSeconds.toFixed(2)}s per loop`);
   }
 
   /**
@@ -1181,9 +1240,15 @@ export class ToneRenderer {
         phrase.notes.forEach((noteValue, noteIndex) => {
           const baseDuration = (phrase.durations?.[noteIndex] || 1) * secondsPerBeat;
           
+          // Treat null/undefined/NaN as a rest but still advance time
+          if (noteValue == null || Number.isNaN(noteValue)) {
+            currentTime += baseDuration;
+            return;
+          }
+
           // Apply timing variance
           const timingOffset = (this.traitRNG.next() - 0.5) * timingVariance;
-          const actualTime = currentTime + timingOffset;
+          const actualTime = Math.max(0, currentTime + timingOffset);
           
           // Apply precision (dissonance - wrong notes)
           let actualNoteValue = noteValue;
@@ -1193,6 +1258,10 @@ export class ToneRenderer {
           }
           
           const note = this._scaleDegreeToNote(actualNoteValue, 'C', 'major');
+          if (!note || typeof note !== 'string') {
+            currentTime += baseDuration;
+            return;
+          }
           
           // Apply dynamics
           const baseVelocity = 0.8;
@@ -1288,6 +1357,10 @@ export class ToneRenderer {
           console.warn('Harmony voices not initialized');
           return;
         }
+        if (!note.note) {
+          console.warn('Harmony note missing pitch, skipping', note);
+          return;
+        }
         if (this.harmonyVoices[note.voiceIndex]) {
           // Apply velocity to harmony voices
           const harmonyVolume = -12 + (1 - (note.velocity || 0.8)) * 8;
@@ -1307,6 +1380,10 @@ export class ToneRenderer {
           console.warn('Melody synth not initialized');
           return;
         }
+        if (!note.note) {
+          console.warn('Melody note missing pitch, skipping', note);
+          return;
+        }
         // Apply velocity to melody (guitar)
         const melodyVolume = -8 + (1 - (note.velocity || 0.8)) * 10;
         this.melodySynth.volume.value = melodyVolume;
@@ -1320,6 +1397,10 @@ export class ToneRenderer {
       case 'keyboard':
         if (!this.keyboardSynth) {
           console.warn('Keyboard synth not initialized');
+          return;
+        }
+        if (!note.note) {
+          console.warn('Keyboard note missing pitch, skipping', note);
           return;
         }
         // Apply velocity to keyboard

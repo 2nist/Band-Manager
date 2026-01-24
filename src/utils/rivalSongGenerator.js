@@ -160,17 +160,27 @@ function generateBandPsychology(bandData) {
  */
 function generateSongName(bandData, genre) {
   const genreNames = {
-    rock: ['Thunder Road', 'Electric Storm', 'Rebel Heart', 'Wild Nights', 'Power Drive'],
-    punk: ['Riot', 'Break Free', 'No Rules', 'Chaos Theory', 'Revolution'],
-    metal: ['Dark Descent', 'Iron Will', 'Shadow Realm', 'Eternal Fire', 'Doom'],
-    folk: ['Mountain Song', 'River Road', 'Harvest Moon', 'Prairie Wind', 'Old Times'],
-    jazz: ['Midnight Blues', 'Smooth Groove', 'City Lights', 'Cool Breeze', 'Jazz Night'],
-    pop: ['Shine Bright', 'Dance All Night', 'Summer Love', 'Radio Star', 'Hit Song']
+    rock: ['Thunder Road', 'Electric Storm', 'Rebel Heart', 'Wild Nights', 'Power Drive', 'Rock Anthem', 'Heavy Metal', 'Guitar Hero'],
+    punk: ['Riot', 'Break Free', 'No Rules', 'Chaos Theory', 'Revolution', 'Anarchy', 'Rebel Yell', 'Punk Rock'],
+    metal: ['Dark Descent', 'Iron Will', 'Shadow Realm', 'Eternal Fire', 'Doom', 'Metal Storm', 'Iron Fist', 'Death March'],
+    folk: ['Mountain Song', 'River Road', 'Harvest Moon', 'Prairie Wind', 'Old Times', 'Country Road', 'Homeward Bound', 'Acoustic Dreams'],
+    jazz: ['Midnight Blues', 'Smooth Groove', 'City Lights', 'Cool Breeze', 'Jazz Night', 'Saxophone Dreams', 'Piano Bar', 'Swing Time'],
+    pop: ['Shine Bright', 'Dance All Night', 'Summer Love', 'Radio Star', 'Hit Song', 'Pop Sensation', 'Chart Topper', 'Catchy Tune'],
+    'Synth-Pop': ['Electric Dreams', 'Neon Nights', 'Digital Love', 'Cyber Romance', 'Synthetic Heart', 'Electric Pulse', 'Neon Glow'],
+    'Electro': ['Pulse', 'Circuit Breaker', 'Digital Storm', 'Electric Shock', 'Tech Beat', 'Digital Wave', 'Electric Flow'],
+    'Alternative': ['Breaking Free', 'Edge of Reality', 'Lost in Sound', 'Raw Emotion', 'Alternative Truth', 'Underground', 'Indie Spirit'],
+    'Indie Pop': ['Summer Breeze', 'Golden Hour', 'Soft Glow', 'Gentle Rain', 'Indie Dreams', 'Quiet Storm', 'Soft Focus'],
+    'Electronic': ['Synthetic Wave', 'Digital Pulse', 'Electric Flow', 'Tech Dreams', 'Cyber Space', 'Digital Realm'],
+    'Prog Rock': ['Epic Journey', 'Complex Minds', 'Time Signatures', 'Musical Odyssey', 'Progressive Dreams', 'Complexity'],
+    'Ambient': ['Floating', 'Ethereal', 'Dream State', 'Peaceful Drift', 'Ambient Space', 'Calm Waters'],
+    'Experimental': ['Chaos Theory', 'Abstract Forms', 'Unconventional', 'Avant-Garde', 'Experimental Sound', 'Abstract Art'],
+    'Hard Rock': ['Iron Will', 'Heavy Metal', 'Power Chord', 'Rock Anthem', 'Hard Core', 'Metal Thunder']
   };
 
-  const names = genreNames[genre] || genreNames.rock;
+  const genreKey = genre?.toLowerCase() || 'rock';
+  const names = genreNames[genreKey] || genreNames[Object.keys(genreNames).find(k => genreKey.includes(k.toLowerCase()))] || genreNames.rock;
   const randomName = names[Math.floor(Math.random() * names.length)];
-  return `${bandData.name} - ${randomName}`;
+  return randomName; // Return just the song name, not with band name
 }
 
 /**

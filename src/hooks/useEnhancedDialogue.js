@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { detectArchetypeFromChoices } from '../utils/psychologicalProfiles';
 
 /**
  * useEnhancedDialogue - Psychological state and consequence tracking for gritty events
@@ -50,8 +51,8 @@ export const useEnhancedDialogue = (gameState, updateGameState) => {
       reputation_modifiers: {}
     },
     
-    // Faction reputation
-    faction_standing: {
+    // Faction reputation (using plural for consistency with other systems)
+    faction_standings: {
       underground_scene: 0,      // -100 to 100
       industry_insiders: 0,
       mainstream_media: 0,
@@ -143,37 +144,63 @@ export const useEnhancedDialogue = (gameState, updateGameState) => {
    * Detect player archetype based on choice history
    */
   const detectPlayerArchetype = useCallback((choiceHistory) => {
-    const moralChoices = choiceHistory.filter(c => c.type === 'moral');
-    const riskChoices = choiceHistory.filter(c => c.type === 'risk');
-    const loyaltyChoices = choiceHistory.filter(c => c.type === 'loyalty');
-    
-    const moralScore = moralChoices.reduce((sum, c) => sum + (c.ethical ? 1 : -1), 0);
-    const riskScore = riskChoices.reduce((sum, c) => sum + (c.risky ? 1 : -1), 0);
-    const loyaltyScore = loyaltyChoices.reduce((sum, c) => sum + (c.loyal ? 1 : -1), 0);
+    // Use enhanced archetype detection from psychologicalProfiles
+    const detectedArchetype = detectArchetypeFromChoices(choiceHistory, psychologicalState);
     
     let primary = 'survivor';
     let secondary = null;
     
-    if (moralScore < -30 && riskScore > 20) {
-      primary = 'rebel';
-    } else if (moralScore < -50 && psychologicalState.moral_integrity < 30) {
-      primary = 'villain';
-    } else if (riskScore < -20) {
-      primary = 'cautious';
-    } else if (loyaltyScore > 30) {
-      primary = 'loyalist';
-    } else if (psychologicalState.addiction_risk > 70) {
-      primary = 'addict';
-    } else if (psychologicalState.paranoia > 60) {
-      primary = 'paranoid';
+    if (detectedArchetype) {
+      primary = detectedArchetype.id;
+      
+      // Determine secondary based on psychological state
+      if (psychologicalState.moral_integrity > 70 && primary !== 'moral_compass') {
+        secondary = 'moral_compass';
+      } else if (psychologicalState.addiction_risk > 60 && primary !== 'self_destructive') {
+        secondary = 'self_destructive';
+      } else if (psychologicalState.stress_level < 40 && primary !== 'survivor') {
+        secondary = 'survivor';
+      }
+    } else {
+      // Fallback to legacy detection for compatibility
+      const moralChoices = choiceHistory.filter(c => c.type === 'moral');
+      const riskChoices = choiceHistory.filter(c => c.type === 'risk');
+      const loyaltyChoices = choiceHistory.filter(c => c.type === 'loyalty');
+      
+      const moralScore = moralChoices.reduce((sum, c) => sum + (c.ethical ? 1 : -1), 0);
+      const riskScore = riskChoices.reduce((sum, c) => sum + (c.risky ? 1 : -1), 0);
+      const loyaltyScore = loyaltyChoices.reduce((sum, c) => sum + (c.loyal ? 1 : -1), 0);
+      
+      if (moralScore < -30 && riskScore > 20) {
+        primary = 'risk_seeker';
+      } else if (moralScore < -50 && psychologicalState.moral_integrity < 30) {
+        primary = 'self_destructive';
+      } else if (riskScore < -20) {
+        primary = 'people_pleaser';
+      } else if (loyaltyScore > 30) {
+        primary = 'pragmatist';
+      } else if (psychologicalState.addiction_risk > 70) {
+        primary = 'self_destructive';
+      } else if (psychologicalState.paranoia > 60) {
+        primary = 'people_pleaser';
+      }
+      
+      if (Math.abs(moralScore) > 20) {
+        secondary = moralScore > 0 ? 'moral_compass' : 'pragmatist';
+      }
     }
     
-    // Secondary archetype
-    if (Math.abs(moralScore) > 20) {
-      secondary = moralScore > 0 ? 'saint' : 'sellout';
-    }
+    setNarrativeState(prev => ({
+      ...prev,
+      player_archetype: {
+        primary,
+        secondary,
+        detected: detectedArchetype,
+        reputation_modifiers: {}
+      }
+    }));
     
-    return { primary, secondary };
+    return { primary, secondary, detected: detectedArchetype };
   }, [psychologicalState]);
 
   /**
@@ -182,9 +209,9 @@ export const useEnhancedDialogue = (gameState, updateGameState) => {
   const updateFactionReputation = useCallback((faction, change) => {
     setNarrativeState(prev => ({
       ...prev,
-      faction_standing: {
-        ...prev.faction_standing,
-        [faction]: Math.max(-100, Math.min(100, prev.faction_standing[faction] + change))
+      faction_standings: {
+        ...prev.faction_standings || {},
+        [faction]: Math.max(-100, Math.min(100, (prev.faction_standings?.[faction] || 0) + change))
       }
     }));
   }, []);
@@ -356,6 +383,52 @@ export const useEnhancedDialogue = (gameState, updateGameState) => {
   }, [gameState.week]);
 
   /**
+   * Get current stage of an active narrative arc
+   * @param {string} arcType - Arc type identifier
+   * @returns {string|null} Current stage or null if arc not active
+   */
+  const getCurrentArcStage = useCallback((arcType) => {
+    const storyline = narrativeState.ongoing_storylines?.find(s => s.type === arcType);
+    return storyline?.stage || null;
+  }, [narrativeState]);
+
+  /**
+   * Progress an arc to the next stage
+   * @param {string} arcType - Arc type identifier
+   * @param {string} newStage - New stage to progress to
+   */
+  const progressArc = useCallback((arcType, newStage) => {
+    setNarrativeState(prev => {
+      const updated = { ...prev };
+      const storylines = updated.ongoing_storylines || [];
+      
+      const existingIndex = storylines.findIndex(s => s.type === arcType);
+      
+      if (existingIndex >= 0) {
+        // Update existing arc
+        storylines[existingIndex] = {
+          ...storylines[existingIndex],
+          stage: newStage,
+          last_progress_week: gameState.week
+        };
+      } else {
+        // Start new arc
+        storylines.push({
+          type: arcType,
+          stage: newStage,
+          start_week: gameState.week,
+          last_progress_week: gameState.week
+        });
+      }
+      
+      return {
+        ...updated,
+        ongoing_storylines: storylines
+      };
+    });
+  }, [gameState.week]);
+
+  /**
    * Get consequences preview
    */
   const getConsequencesPreview = useCallback((choice) => {
@@ -411,6 +484,10 @@ export const useEnhancedDialogue = (gameState, updateGameState) => {
     escalateAddiction,
     startCorruptionPath,
     escalateCorruption,
+    
+    // Arc management
+    getCurrentArcStage,
+    progressArc,
     
     // Utilities
     getConsequencesPreview,

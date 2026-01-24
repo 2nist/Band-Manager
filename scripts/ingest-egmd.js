@@ -18,6 +18,8 @@ const __dirname = path.dirname(__filename);
 
 // Import processor
 import { EGMDProcessor } from '../src/music/preprocessing/drums/EGMDProcessor.js';
+// Import EMGD drum mapping
+import { mapRolandToDrumType, mapRolandToPaper, getRolandPitchesForDrumType } from '../src/music/utils/EMGDDrumMapping.js';
 
 /**
  * Recursively find all MIDI files in a directory
@@ -114,27 +116,35 @@ function parseMidiFile(filePath) {
           noteOn = velocity > 0;
         }
         
-        // Process drum notes on channel 9
+        // Process drum notes on channel 9 using EMGD mapping
         if (noteOn && channel === 9 && note !== null && velocity > 0) {
           foundDrumEvents = true;
           const beatPosition = currentTick / ticksPerBeat;
           
-          // Map MIDI notes to drum sounds (extended mapping)
-          if (note === 35 || note === 36) {
-            // Kick drum
+          // Use EMGD mapping to categorize drum type
+          const drumType = mapRolandToDrumType(note);
+          
+          if (drumType === 'kick') {
+            // Kick drum (Roland 36 -> Paper 36)
             drumNotes.kick.push(beatPosition);
-          } else if (note === 38 || note === 40) {
-            // Snare drum
+          } else if (drumType === 'snare') {
+            // Snare drum (Roland 38, 40, 37 -> Paper 38)
+            // Use velocity to distinguish ghost notes
             if (velocity < 60) {
               drumNotes.ghostSnare.push(beatPosition);
             } else {
               drumNotes.snare.push(beatPosition);
             }
-          } else if (note === 42 || note === 44 || note === 46 || note === 49) {
-            // Hihat (closed, open, pedal)
+          } else if (drumType === 'hihat') {
+            // Closed hi-hat (Roland 42, 22, 44 -> Paper 42)
+            drumNotes.hihat.push(beatPosition);
+          } else if (drumType === 'hihatOpen') {
+            // Open hi-hat (Roland 46, 26 -> Paper 46)
+            // Treat open hi-hat as regular hi-hat for now (can be extended later)
             drumNotes.hihat.push(beatPosition);
           } else if (note >= 35 && note <= 81) {
-            // Other percussion - try to categorize
+            // Fallback: Other percussion - try to categorize by note range
+            // This handles any unmapped notes
             if (note <= 37) {
               // Low drums - treat as kick
               drumNotes.kick.push(beatPosition);
@@ -176,17 +186,32 @@ function parseMidiFile(filePath) {
             if (note >= 35 && note <= 81 && velocity > 0) {
               const beatPosition = currentTick / ticksPerBeat;
               
-              // Categorize by note range
-              if (note <= 37) {
+              // Use EMGD mapping to categorize drum type
+              const drumType = mapRolandToDrumType(note);
+              
+              if (drumType === 'kick') {
                 drumNotes.kick.push(beatPosition);
-              } else if (note >= 38 && note <= 40) {
+              } else if (drumType === 'snare') {
                 if (velocity < 60) {
                   drumNotes.ghostSnare.push(beatPosition);
                 } else {
                   drumNotes.snare.push(beatPosition);
                 }
-              } else if (note >= 42 && note <= 46) {
+              } else if (drumType === 'hihat' || drumType === 'hihatOpen') {
                 drumNotes.hihat.push(beatPosition);
+              } else {
+                // Fallback categorization by note range
+                if (note <= 37) {
+                  drumNotes.kick.push(beatPosition);
+                } else if (note >= 38 && note <= 40) {
+                  if (velocity < 60) {
+                    drumNotes.ghostSnare.push(beatPosition);
+                  } else {
+                    drumNotes.snare.push(beatPosition);
+                  }
+                } else if (note >= 42 && note <= 46) {
+                  drumNotes.hihat.push(beatPosition);
+                }
               }
             }
           }

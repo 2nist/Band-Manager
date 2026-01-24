@@ -17,24 +17,24 @@ export const GigsTab = ({ gameData, gigSystem, gameState, gameLogic }) => {
   const [showBooking, setShowBooking] = useState(false);
 
   const handleBookGig = (venueId) => {
-    if (gameLogic?.bookGig) {
-      gameLogic.bookGig(venueId);
-      setShowBooking(false);
-      setSelectedVenue(null);
-    } else {
-      const result = gigSystem?.bookGig?.(venueId);
+    if (gigSystem?.bookGig) {
+      const result = gigSystem.bookGig(venueId);
       if (result?.success) {
         setShowBooking(false);
         setSelectedVenue(null);
       }
+    } else if (gameLogic?.bookGig) {
+      gameLogic.bookGig(venueId);
+      setShowBooking(false);
+      setSelectedVenue(null);
     }
   };
 
-  const availableVenues = gameLogic?.getAvailableVenues?.() || gigSystem?.getAvailableVenues?.() || [];
+  const availableVenues = gigSystem?.getAvailableVenues?.() || gameLogic?.getAvailableVenues?.() || [];
   const gigHistory = gameState?.state?.gigHistory || [];
   const gigEarnings = gameState?.state?.gigEarnings || 0;
   const bandMembers = gameState?.state?.bandMembers || [];
-  const currentTour = gameState?.state?.currentTour;
+  const currentTour = gameState?.state?.activeTour || gameState?.state?.currentTour;
 
   return (
     <div>
@@ -100,9 +100,9 @@ export const GigsTab = ({ gameData, gigSystem, gameState, gameLogic }) => {
                     Tier {venue.prestige}
                   </span>
                 </div>
-                <p className="text-sm text-muted-foreground mb-4">{venue.description}</p>
+                {venue.description && <p className="text-sm text-muted-foreground mb-4">{venue.description}</p>}
                 <div className="flex gap-2 items-center">
-                  <span className="text-lg font-bold text-accent">${venue.payday?.toLocaleString()}</span>
+                  <span className="text-lg font-bold text-accent">${(venue.baseRevenue ?? venue.payday)?.toLocaleString()}</span>
                   <Button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -120,10 +120,10 @@ export const GigsTab = ({ gameData, gigSystem, gameState, gameLogic }) => {
           <p className="text-muted-foreground mb-8">No venues available for your current fame level</p>
         )}
 
-        {availableVenues.length > 0 && (
+        {availableVenues.length > 0 && gigSystem?.startTour && (
           <div className="border-t border-border/20 pt-6">
-            <Button onClick={() => gigSystem?.startTour?.(availableVenues.map(v => v.id).slice(0, 4))} className="w-full px-6 py-3 bg-accent text-accent-foreground rounded-lg font-bold">
-              Start National Tour (4 venues, $15,000)
+            <Button onClick={() => gigSystem.startTour({ type: 'national', weeks: 4 })} className="w-full px-6 py-3 bg-accent text-accent-foreground rounded-lg font-bold">
+              Start National Tour (4 weeks, $3,000)
             </Button>
           </div>
         )}
@@ -135,15 +135,17 @@ export const GigsTab = ({ gameData, gigSystem, gameState, gameLogic }) => {
         {gigHistory.length > 0 ? (
           <div className="flex flex-col gap-2">
             {gigHistory.slice(-10).reverse().map((gig, idx) => (
-              <Card key={idx} className="border border-border/20 p-4 rounded-lg flex justify-between items-center hover:border-primary/30 transition-all">
+              <Card key={gig.id || idx} className="border border-border/20 p-4 rounded-lg flex justify-between items-center hover:border-primary/30 transition-all">
                 <div>
-                  <p className="text-foreground font-semibold mb-1">{gig.venue || 'Unknown Venue'}</p>
+                  <p className="text-foreground font-semibold mb-1">{gig.venueName || gig.venue || 'Unknown Venue'}</p>
                   <p className="text-sm text-muted-foreground">Week {gig.week}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-secondary font-bold mb-1">${gig.earnings?.toLocaleString()}</p>
+                  <p className="text-secondary font-bold mb-1">${(gig.totalRevenue ?? gig.earnings)?.toLocaleString()}</p>
                   <p className="text-sm text-muted-foreground">
-                    {gig.success ? 'Great show' : 'Rough night'}
+                    {typeof gig.performanceQuality === 'number'
+                      ? (gig.performanceQuality >= 70 ? 'Great show' : gig.performanceQuality >= 45 ? 'Solid' : 'Rough night')
+                      : (gig.success ? 'Great show' : 'Rough night')}
                   </p>
                 </div>
               </Card>

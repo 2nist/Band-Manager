@@ -67,3 +67,17 @@ export {
   sanitizeSaveData
 } from './saveSystem';
 
+// Rival Song Generation
+export {
+  generateRivalSong,
+  generateRivalSongsForChart,
+  generateSongFromContext
+} from './rivalSongGenerator';
+
+// Rival Album Generation
+export {
+  generateRivalAlbum,
+  generateRivalAlbumsForCharts,
+  ensureRivalHasAlbum
+} from './rivalAlbumGenerator';
+

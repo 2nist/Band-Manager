@@ -47,6 +47,10 @@ export const SongPlaybackPanel = ({
 
   const { reactions, impact } = reactionData || {};
   const analysis = song.analysis || {};
+  const enhanced = song.enhanced || {};
+  const skillInfluence = enhanced.skillInfluence || {};
+  const genreAuthenticity = enhanced.genreAuthenticity || 0;
+  const performanceQuality = enhanced.performanceQuality || 0;
 
   return (
     <div style={{
@@ -131,6 +135,90 @@ export const SongPlaybackPanel = ({
           </div>
         </div>
       </div>
+
+      {/* Enhanced Skill & Genre Data */}
+      {enhanced && Object.keys(enhanced).length > 0 && (
+        <div style={{
+          padding: '15px',
+          borderBottom: '1px solid #333',
+          backgroundColor: 'rgba(0, 255, 255, 0.02)'
+        }}>
+          <h3 style={{ margin: '0 0 12px 0', color: '#0ff', fontSize: '1em' }}>
+            Performance Analysis
+          </h3>
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '10px',
+            marginBottom: '10px'
+          }}>
+            {genreAuthenticity > 0 && (
+              <div style={{
+                backgroundColor: 'rgba(0, 255, 255, 0.1)',
+                border: '1px solid #0ff',
+                borderRadius: '4px',
+                padding: '10px'
+              }}>
+                <div style={{ fontSize: '0.85em', color: '#0ff' }}>Genre Authenticity</div>
+                <div style={{ fontSize: '1.5em', fontWeight: 'bold', color: '#0ff' }}>
+                  {Math.round(genreAuthenticity * 100)}%
+                </div>
+                <div style={{ fontSize: '0.75em', color: '#666' }}>
+                  How well skills match genre requirements
+                </div>
+              </div>
+            )}
+            
+            {performanceQuality > 0 && (
+              <div style={{
+                backgroundColor: 'rgba(0, 255, 0, 0.1)',
+                border: '1px solid #0f0',
+                borderRadius: '4px',
+                padding: '10px'
+              }}>
+                <div style={{ fontSize: '0.85em', color: '#0f0' }}>Performance Quality</div>
+                <div style={{ fontSize: '1.5em', fontWeight: 'bold', color: '#0f0' }}>
+                  {Math.round(performanceQuality * 100)}%
+                </div>
+                <div style={{ fontSize: '0.75em', color: '#666' }}>
+                  Overall band performance level
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {skillInfluence && Object.keys(skillInfluence).length > 0 && (
+            <div style={{ marginTop: '10px' }}>
+              <div style={{ fontSize: '0.85em', color: '#888', marginBottom: '8px' }}>
+                Member Skill Impact:
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {Object.entries(skillInfluence).map(([role, influence]) => (
+                  <div 
+                    key={role}
+                    style={{
+                      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                      padding: '8px',
+                      borderRadius: '4px',
+                      fontSize: '0.8em'
+                    }}
+                  >
+                    <div style={{ fontWeight: 'bold', color: '#fff', marginBottom: '4px' }}>
+                      {role.charAt(0).toUpperCase() + role.slice(1)}
+                    </div>
+                    <div style={{ color: '#aaa', fontSize: '0.85em' }}>
+                      Timing: {Math.round((1 - influence.timing_impact) * 100)}% • 
+                      Accuracy: {Math.round(influence.note_accuracy * 100)}% • 
+                      Creativity: {Math.round(influence.creativity_factor * 100)}%
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Fan Reactions */}
       {reactionData && showReactions && (

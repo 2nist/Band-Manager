@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Music, Users, Zap, TrendingUp, Settings, Save, LogOut, ChevronRight, Palette, Sun, Moon } from 'lucide-react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
@@ -16,6 +16,8 @@ import {
 } from '../components/Tabs';
 import { RightPanel } from '../components/Panels';
 import { useChartSystem } from '../hooks/useChartSystem';
+import { calculateLogoStyle, ensureFontLoaded } from '../utils/helpers';
+import { buildConsequenceEvent } from '../utils/enhancedCopy';
 
 /**
  * GamePage - Main game interface with tabs
@@ -61,7 +63,8 @@ export const GamePage = ({
   setContentPreference,
   setMaturityLevel,
   themeSystem,
-  victoryConditions
+  victoryConditions,
+  onRegisterEventChoiceHandler
 }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [chartTab, setChartTab] = useState('topChart'); // Chart sidebar tab
@@ -105,12 +108,50 @@ export const GamePage = ({
   const triggerEvent = useCallback(() => {
     if (eventGen?.generateEvent) {
       const newEvent = eventGen.generateEvent();
+      console.log('[Enhanced Dialogue] Trigger Event - Generated:', newEvent ? {
+        title: newEvent.title,
+        category: newEvent.category,
+        maturityLevel: newEvent.maturityLevel,
+        hasChoices: !!newEvent.choices?.length
+      } : 'null/undefined');
+      
       if (newEvent && modalState?.openEventPopup) {
+        console.log('[Enhanced Dialogue] Opening event modal:', newEvent.title);
         modalState.openEventPopup(newEvent);
         return newEvent;
+      } else if (!newEvent) {
+        console.warn('[Enhanced Dialogue] Event generation returned null/undefined');
+      } else if (!modalState?.openEventPopup) {
+        console.warn('[Enhanced Dialogue] modalState.openEventPopup is not available');
       }
+    } else {
+      console.warn('[Enhanced Dialogue] eventGen.generateEvent is not available');
     }
   }, [eventGen, modalState]);
+
+  // Check for pending gig events and trigger enhanced dialogue
+  useEffect(() => {
+    const pendingGigEvent = gameState?.state?.pendingGigEvent;
+    if (pendingGigEvent && eventGen?.generateEvent && modalState?.openEventPopup) {
+      // Generate a gig-related enhanced dialogue event
+      const gigEvent = eventGen.generateEvent('random', {
+        type: 'post_gig',
+        venue: pendingGigEvent.venue,
+        attendance: pendingGigEvent.attendance,
+        performanceQuality: pendingGigEvent.performanceQuality,
+        revenue: pendingGigEvent.revenue,
+        fameGain: pendingGigEvent.fameGain
+      });
+      
+      if (gigEvent) {
+        console.log('[Enhanced Dialogue] Triggering post-gig event:', gigEvent.title);
+        modalState.openEventPopup(gigEvent);
+        
+        // Clear the pending event
+        gameState.updateGameState({ pendingGigEvent: null });
+      }
+    }
+  }, [gameState?.state?.pendingGigEvent, eventGen, modalState, gameState]);
 
   // Handle week advancement with consequence processing and event generation
   const handleAdvanceWeek = useCallback(() => {
@@ -121,27 +162,17 @@ export const GamePage = ({
     if (onAdvanceWeek) {
       const { escalations, resurfaced } = onAdvanceWeek();
       
-      // Queue escalations as events
+      // Queue escalations as enhanced dialogue events (modal-compatible)
       if (escalations && escalations.length > 0) {
         escalations.forEach(esc => {
-          weekEvents.push({
-            type: 'consequence',
-            data: esc,
-            title: `Consequence Escalated`,
-            description: esc.description || 'A past decision has caught up with you...'
-          });
+          weekEvents.push(buildConsequenceEvent(esc, 'escalation'));
         });
       }
-      
-      // Queue resurfaced consequences as events
+
+      // Queue resurfaced consequences as enhanced dialogue events
       if (resurfaced && resurfaced.length > 0) {
         resurfaced.forEach(res => {
-          weekEvents.push({
-            type: 'consequence',
-            data: res,
-            title: `Consequence Resurfaced`,
-            description: res.description || 'The past returns to haunt you...'
-          });
+          weekEvents.push(buildConsequenceEvent(res, 'resurfaced'));
         });
       }
     }
@@ -171,15 +202,26 @@ export const GamePage = ({
       rivalCompetition.processWeeklyRivalActivity();
     }
 
-    // Generate a random event from Enhanced Dialogue system based on player psychology
-    // Higher chance if player is under stress or has other risk factors
+    // Generate a random event from Enhanced Dialogue system
+    // Boost chance for enhanced-dialogue scenarios (Band Leader, Band Member) and under stress
+    const scenario = gameState?.state?.selectedScenario;
+    const enhancedDialogueFocus = scenario?.specialRules?.enhancedDialogueFocus;
     const psychState = dialogueState?.psychologicalState || {};
-    const eventTriggerChance = Math.min(0.75, (psychState.stress_level || 0) / 100 * 0.5 + 0.3);
-    
+    const stressFactor = (psychState.stress_level || 0) / 100 * 0.4;
+    const baseChance = enhancedDialogueFocus ? 0.5 : 0.3;
+    const eventTriggerChance = Math.min(0.8, baseChance + stressFactor);
+
     if (Math.random() < eventTriggerChance && eventGen?.generateEvent) {
       const newEvent = eventGen.generateEvent();
       if (newEvent) {
+        console.log('[Enhanced Dialogue] Generated event:', newEvent.title, {
+          category: newEvent.category,
+          maturityLevel: newEvent.maturityLevel,
+          hasChoices: !!newEvent.choices?.length
+        });
         weekEvents.push(newEvent);
+      } else {
+        console.warn('[Enhanced Dialogue] Event generation returned null/undefined');
       }
     }
 
@@ -200,7 +242,13 @@ export const GamePage = ({
       setShowWeeklySummaryModal(true);
     } else if (weekEvents.length > 0 && modalState?.openEventPopup) {
       // Show first event using modalState
-      modalState.openEventPopup(weekEvents[0]);
+      console.log('[Enhanced Dialogue] Showing event in modal:', weekEvents[0].title);
+      // Use setTimeout to ensure state updates are complete
+      setTimeout(() => {
+        modalState.openEventPopup(weekEvents[0]);
+      }, 100);
+    } else if (weekEvents.length === 0) {
+      console.log('[Enhanced Dialogue] No events generated this week');
     }
   }, [onAdvanceWeek, bandManagement, radioCharting, merchandise, sponsorships, labelDeals, rivalCompetition, eventGen, gameState, gameLogic, dialogueState, modalState]);
 
@@ -209,9 +257,12 @@ export const GamePage = ({
     setWeeklySummaryData(null);
     const queued = eventQueueAfterSummaryRef.current || [];
     eventQueueAfterSummaryRef.current = [];
+    setEventQueue(queued);
     if (queued.length > 0 && modalState?.openEventPopup) {
       // Show first queued event using modalState
-      modalState.openEventPopup(queued[0]);
+      setTimeout(() => {
+        modalState.openEventPopup(queued[0]);
+      }, 100);
     }
   }, [modalState]);
 
@@ -275,14 +326,27 @@ export const GamePage = ({
     }
     
     // Remove event from queue and show next one
-    const remainingEvents = eventQueue.slice(1);
-    setEventQueue(remainingEvents);
-    
-    if (remainingEvents.length > 0 && modalState?.openEventPopup) {
-      // Show next event
-      modalState.openEventPopup(remainingEvents[0]);
+    setEventQueue(prevQueue => {
+      const remainingEvents = prevQueue.slice(1);
+      
+      // Show next event if available
+      if (remainingEvents.length > 0 && modalState?.openEventPopup) {
+        // Use setTimeout to ensure modal closes before opening next one
+        setTimeout(() => {
+          modalState.openEventPopup(remainingEvents[0]);
+        }, 100);
+      }
+      
+      return remainingEvents;
+    });
+  }, [dialogueState, gameState, onHandleEventChoice, modalState]);
+
+  // Register handleEventChoice with App so it can be called from the modal
+  useEffect(() => {
+    if (onRegisterEventChoiceHandler) {
+      onRegisterEventChoiceHandler(handleEventChoice);
     }
-  }, [dialogueState, gameState, onHandleEventChoice, modalState, eventQueue]);
+  }, [onRegisterEventChoiceHandler, handleEventChoice]);
 
   // Auto-save every 5 minutes
   useEffect(() => {
@@ -316,6 +380,18 @@ export const GamePage = ({
       </div>
     );
   }
+
+  // Calculate logo style for display (must be before early returns)
+  const logoStyle = useMemo(() => {
+    const logoState = gameState?.state || {};
+    if (logoState.logoFont) {
+      ensureFontLoaded(logoState.logoFont);
+    }
+    return calculateLogoStyle(logoState);
+  }, [gameState?.state]);
+
+  const bandName = gameState?.state?.bandName || 'Your Band';
+  const hasLogo = gameState?.state?.logo || (gameState?.state?.logoFont);
 
   // Ensure gameState.state exists - initialize if missing
   if (!gameState.state) {
@@ -372,16 +448,39 @@ export const GamePage = ({
     <div className="flex min-h-screen bg-background text-foreground" style={{ backgroundColor: backgroundColor, color: foregroundColor }}>
       {/* Main Content Area */}
       <div className="flex flex-col flex-1 min-w-0">
-        {/* Header - Compact */}
-        <Card className="px-4 py-1.5 border-b flex-shrink-0" style={{ borderColor: 'var(--border)' }}>
+        {/* Header - Compact with Logo */}
+        <Card className="px-4 py-2 border-b flex-shrink-0" style={{ borderColor: 'var(--border)' }}>
           <div className="flex items-center justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <h1 className="m-0 text-xl font-bold truncate text-foreground">
-                {gameState?.state?.bandName || 'Your Band'}
-              </h1>
-              <p className="mt-0.5 text-muted-foreground text-xs">
-                Week {gameState?.state?.week || 0}
-              </p>
+            <div className="flex-1 min-w-0 flex items-center gap-3">
+              {/* Logo Display - Prominent */}
+              {hasLogo && (
+                <div
+                  style={{
+                    ...logoStyle,
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    minWidth: '200px',
+                    textAlign: 'center',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  className="flex-shrink-0"
+                >
+                  {bandName}
+                </div>
+              )}
+              {/* Band Name (if no logo) or as fallback */}
+              <div className="flex-1 min-w-0">
+                {!hasLogo && (
+                  <h1 className="m-0 text-xl font-bold truncate text-foreground">
+                    {bandName}
+                  </h1>
+                )}
+                <p className="mt-0.5 text-muted-foreground text-xs">
+                  Week {gameState?.state?.week || 0}
+                </p>
+              </div>
             </div>
             
             {/* Stats - Compact */}
@@ -636,6 +735,7 @@ const TabContent = ({
       return <LogTab 
         gameData={gameData} 
         gameState={gameState}
+        gameLog={gameState?.gameLog}
       />;
     default:
       return null;

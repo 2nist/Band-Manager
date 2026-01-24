@@ -8,6 +8,6 @@
     "remove-bg": "node scripts/remove-bg.js --input outputs/eyes"
   },
   "dependencies": {
-    "node-fetch": "^3.3.1"
+    "node-fetch": "^3.3.2"
   }
 }

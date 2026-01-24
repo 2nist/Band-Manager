@@ -187,13 +187,32 @@ export const InventoryTab = ({ gameData, recordingSystem, gameState, gameLogic, 
                         alert('Enter a song name');
                         return;
                       }
+                      
+                      // Check funds before generating
+                      if (gameState?.state?.money < recordCost) {
+                        alert(`Not enough money to record (need $${recordCost})`);
+                        return;
+                      }
+                      
                       setIsGenerating(true);
                       try {
-                        const song = await musicGeneration.generateSong({
-                          title: songName,
-                          genre: genre,
-                          gameState: gameState?.state || {}
-                        });
+                        // Generate song with enhanced generator (skill & genre-responsive)
+                        // The useMusicGeneration hook will automatically use EnhancedSongGenerator
+                        // when bandMembers are present
+                        const gameStateForGeneration = {
+                          ...gameState?.state,
+                          genre: genre.toLowerCase() // Ensure lowercase for genre profiles
+                        };
+                        
+                        const song = await musicGeneration.generateSong(
+                          gameStateForGeneration,
+                          genre.toLowerCase(),
+                          {
+                            songName: songName,
+                            useEnhanced: true // Explicitly enable enhanced generation
+                          }
+                        );
+                        
                         if (song) {
                           setGeneratedSong(song);
                           setShowPlaybackPanel(true);
