@@ -146,16 +146,21 @@ export function generateAuditionCandidate(role, options = {}) {
   if (traits.groove > 80) strengths.push('Groovy');
   if (traits.technique > 80) strengths.push('Technical');
   
+  const candidateName = name || generateRandomName(role, seed);
+  const roleArchetype = { drummer: 'drummer', guitarist: 'guitarist', 'lead-guitar': 'guitarist', 'rhythm-guitar': 'guitarist', bassist: 'guitarist', vocalist: 'vocalist', keyboardist: 'synth-nerd', synth: 'synth-nerd', producer: 'producer' }[String(role)] ?? undefined;
+
   return {
     id: `candidate_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-    name: name || generateRandomName(role, seed),
+    name: candidateName,
     role,
     overallSkill: Math.round(overallSkill),
     traits,
     quirks,
     strengths,
     auditioned: false,
-    hired: false
+    hired: false,
+    avatarSeed: candidateName,
+    avatarArchetype: roleArchetype
   };
 }
 

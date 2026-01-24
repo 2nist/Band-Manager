@@ -99,7 +99,8 @@ export const buildMember = (role, personalities = []) => {
   
   // Generate avatar config based on name and personality
   const avatarConfig = generateAvatarConfig(fullName, personality);
-  
+  const roleArchetype = { drummer: 'drummer', guitarist: 'guitarist', 'lead-guitar': 'guitarist', 'rhythm-guitar': 'guitarist', bassist: 'guitarist', vocalist: 'vocalist', keyboardist: 'synth-nerd', synth: 'synth-nerd', producer: 'producer', vocal: 'vocalist', guitar: 'guitarist', bass: 'guitarist', drums: 'drummer', keyboard: 'synth-nerd', production: 'producer' }[String(role)] ?? undefined;
+
   return {
     id,
     role,
@@ -110,8 +111,9 @@ export const buildMember = (role, personalities = []) => {
     stats,
     name: fullName,
     avatarSeed: fullName,
+    avatarArchetype: roleArchetype,
     avatarStyle: 'avataaars',
-    avatarConfig: avatarConfig // Store config for customization
+    avatarConfig: avatarConfig
   };
 };
 
@@ -125,11 +127,23 @@ export const calculateLogoStyle = (logoState) => {
   const bg = logoState.logoGradient
     ? `linear-gradient(135deg, ${logoState.logoBgColor}, ${logoState.logoBgColor2 || logoState.logoBgColor})`
     : logoState.logoBgColor;
-  const shadow = logoState.logoShadow === 'soft'
-    ? '0 2px 6px rgba(0,0,0,0.35)'
-    : logoState.logoShadow === 'strong'
-      ? '0 4px 12px rgba(0,0,0,0.5)'
-      : 'none';
+  // Calculate shadow with custom color support
+  let shadow = 'none';
+  if (logoState.logoShadow && logoState.logoShadow !== 'none') {
+    const shadowColor = logoState.logoShadowColor || '#000000';
+    // Convert hex to rgba for shadow
+    const hexToRgba = (hex, alpha) => {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
+    if (logoState.logoShadow === 'soft') {
+      shadow = `0 2px 6px ${hexToRgba(shadowColor, 0.35)}`;
+    } else if (logoState.logoShadow === 'strong') {
+      shadow = `0 4px 12px ${hexToRgba(shadowColor, 0.5)}`;
+    }
+  }
   const outline = logoState.logoOutline
     ? `${logoState.logoOutlineWidth || 1}px ${logoState.logoOutlineColor || '#000'}`
     : null;

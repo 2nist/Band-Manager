@@ -13,6 +13,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { AlertTriangle, Skull, Heart, Shield, Eye, EyeOff, Clock, X } from 'lucide-react';
+import { AvatarDisplay } from './AvatarDisplay.jsx';
 
 export const EnhancedEventModal = ({ 
   isOpen,
@@ -404,9 +405,17 @@ function EventHeader({ event, psychologicalState }) {
           padding: '12px',
           background: 'rgba(255, 255, 255, 0.05)',
           borderRadius: '4px',
-          borderLeft: '3px solid #0ff'
+          borderLeft: '3px solid #0ff',
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '12px'
         }}>
-          <p style={{ margin: 0, color: 'hsl(var(--foreground))', fontStyle: 'italic' }}>
+          <AvatarDisplay
+            entity={{ name: event.character.name, avatarSeed: event.character.avatarSeed ?? event.character.name, archetype: event.character.archetype }}
+            size="md"
+            alt={event.character.name}
+          />
+          <p style={{ margin: 0, flex: 1, color: 'hsl(var(--foreground))', fontStyle: 'italic' }}>
             <strong style={{ color: 'hsl(var(--primary))' }}>{event.character.name}</strong>: {event.character.dialogue || event.character.speech}
           </p>
         </div>
@@ -641,13 +650,23 @@ function CharacterDialogue({ character, psychologicalState }) {
       padding: '16px',
       background: 'rgba(0, 255, 255, 0.1)',
       borderRadius: '8px',
-      borderLeft: '3px solid #0ff'
+      borderLeft: '3px solid #0ff',
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: '12px'
     }}>
-      <div style={{ fontWeight: 'bold', color: 'hsl(var(--primary))', marginBottom: '8px' }}>
-        {character.name}
-      </div>
-      <div style={{ color: 'hsl(var(--foreground))', fontStyle: 'italic' }}>
-        "{dialogues[currentDialogueIndex]}"
+      <AvatarDisplay
+        entity={{ name: character.name, avatarSeed: character.avatarSeed ?? character.name, archetype: character.archetype }}
+        size="md"
+        alt={character.name}
+      />
+      <div style={{ flex: 1 }}>
+        <div style={{ fontWeight: 'bold', color: 'hsl(var(--primary))', marginBottom: '8px' }}>
+          {character.name}
+        </div>
+        <div style={{ color: 'hsl(var(--foreground))', fontStyle: 'italic' }}>
+          "{dialogues[currentDialogueIndex]}"
+        </div>
       </div>
     </div>
   );

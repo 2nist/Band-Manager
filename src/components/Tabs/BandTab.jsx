@@ -5,7 +5,10 @@ import Button from '../../ui/Button';
 import { AuditionPanel } from '../AuditionPanel.jsx';
 import { RehearsalPanel } from '../RehearsalPanel.jsx';
 import { MemberToneSettingsPanel } from '../MemberToneSettingsPanel.jsx';
+import { InstrumentCustomizer } from '../InstrumentCustomizer/InstrumentCustomizer.jsx';
+import { AvatarDisplay } from '../AvatarDisplay.jsx';
 import { generateSkillTraits } from '../../utils/memberSkillTraits.js';
+import { getAvatarArchetype } from '../../avatar/avatarUtils.js';
 
 /**
  * BandTab.jsx - Band roster and member management
@@ -29,6 +32,7 @@ export const BandTab = ({
   const [showRehearsal, setShowRehearsal] = useState(false);
   const [showToneSettings, setShowToneSettings] = useState(false);
   const [toneSettingsMember, setToneSettingsMember] = useState(null);
+  const [showInstrumentCustomizer, setShowInstrumentCustomizer] = useState(false);
 
   const MUSICIAN_ROLES = [
     { id: 'vocal', name: 'Vocalist', cost: 500 },
@@ -68,15 +72,18 @@ export const BandTab = ({
         seed: Date.now()
       });
       
+      const name = `New ${roleData.name}`;
       const newMember = {
         id: Date.now().toString(),
-        name: `New ${roleData.name}`,
+        name,
         type: mappedRole,
         role: mappedRole,
         skill: overallSkill,
         overallSkill: overallSkill * 10,
         morale: 80,
-        traits: traits
+        traits,
+        avatarSeed: name,
+        avatarArchetype: getAvatarArchetype({ role: mappedRole })
       };
       
       gameState?.updateGameState?.({
@@ -104,7 +111,7 @@ export const BandTab = ({
   };
 
   const handlePracticeMember = (memberId) => {
-    const cost = 100;
+    const cost = 500; // $500 = 1 skill point gain
     const money = gameState?.state?.money || 0;
     
     if (money < cost) {
@@ -113,14 +120,40 @@ export const BandTab = ({
     }
 
     if (bandManagement?.practiceMember) {
-      bandManagement.practiceMember(memberId);
+      const result = bandManagement.practiceMember(memberId, cost);
+      if (result?.success) {
+        // Force UI update by refreshing member list
+        const members = gameState?.state?.bandMembers || [];
+        const member = members.find(m => m.id === memberId);
+        if (member) {
+          gameState?.updateGameState?.({
+            bandMembers: members.map(m => 
+              m.id === memberId ? { ...m, skill: result.member.skill } : m
+            )
+          });
+        }
+      }
+    } else {
+      // Fallback if bandManagement not available
+      const members = gameState?.state?.bandMembers || [];
+      const memberIndex = members.findIndex(m => m.id === memberId);
+      if (memberIndex !== -1) {
+        const member = members[memberIndex];
+        const skillGain = 1; // $500 = 1 skill point
+        const updatedMembers = [...members];
+        updatedMembers[memberIndex] = {
+          ...member,
+          skill: Math.min(10, (member.skill || 5) + skillGain),
+          morale: Math.min(100, (member.morale || 80) + 3)
+        };
+        gameState?.updateGameState?.({
+          bandMembers: updatedMembers,
+          money: money - cost
+        });
+        gameState?.addLog?.(`${member.name} practiced: Skill +${skillGain}, Morale +3. -$${cost}`);
+      }
     }
 
-    gameState?.updateGameState?.({
-      money: money - cost
-    });
-
-    gameState?.addLog?.(`Band practiced. Member skills improved. -$${cost}`);
     onAdvanceWeek?.();
   };
 
@@ -173,8 +206,9 @@ export const BandTab = ({
               onClick={() => setSelectedMember(selectedMember?.id === member.id ? null : member)}
               className="p-4 transition-all border-2 rounded-lg cursor-pointer border-primary/30 hover:border-primary/60"
             >
-              <div className="flex items-start justify-between mb-2">
-                <div>
+              <div className="flex items-start gap-3 mb-2">
+                <AvatarDisplay entity={member} size="sm" alt={member.name} />
+                <div className="min-w-0 flex-1">
                   <h4 className="font-semibold text-foreground">{member.name}</h4>
                   <p className="text-sm text-muted-foreground">Role: <span className="font-medium text-primary">{member.type}</span></p>
                 </div>
@@ -183,15 +217,22 @@ export const BandTab = ({
               {/* Stats */}
               <div className="mb-3 space-y-2 text-sm">
                 <div>
-                  <div className="mb-1 text-muted-foreground">Skill ({member.skill || 5}/10)</div>
-                  <div className="h-2 overflow-hidden rounded bg-input">
-                    <div className="h-full bg-secondary" style={{ width: `${(member.skill || 5) * 10}%` }} />
+                  <div className="mb-1 flex items-center justify-between">
+                    <span className="text-muted-foreground font-medium">Skill Rating</span>
+                    <span className="text-secondary font-bold text-base">{member.skill || 5}/10</span>
                   </div>
+                  <div className="h-3 overflow-hidden rounded bg-input">
+                    <div className="h-full bg-secondary transition-all" style={{ width: `${(member.skill || 5) * 10}%` }} />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">Practice to increase skill</p>
                 </div>
                 <div>
-                  <div className="mb-1 text-muted-foreground">Morale ({member.morale || 80}%)</div>
-                  <div className="h-2 overflow-hidden rounded bg-input">
-                    <div className="h-full bg-accent" style={{ width: `${member.morale || 80}%` }} />
+                  <div className="mb-1 flex items-center justify-between">
+                    <span className="text-muted-foreground font-medium">Morale</span>
+                    <span className="text-accent font-bold text-base">{member.morale || 80}%</span>
+                  </div>
+                  <div className="h-3 overflow-hidden rounded bg-input">
+                    <div className="h-full bg-accent transition-all" style={{ width: `${member.morale || 80}%` }} />
                   </div>
                 </div>
               </div>
@@ -338,6 +379,34 @@ export const BandTab = ({
             />
           </div>
         </div>
+      )}
+
+      {/* Instrument Customizer Modal */}
+      {showInstrumentCustomizer && (
+        <InstrumentCustomizer
+          bandMembers={members}
+          currentGenre={gameState?.state?.genre || 'Rock'}
+          gameState={gameState?.state || gameState}
+          isOpen={showInstrumentCustomizer}
+          onClose={() => setShowInstrumentCustomizer(false)}
+          onConfigChange={(role, config) => {
+            // Save configs to member data
+            const currentMembers = gameState?.state?.bandMembers || [];
+            const updatedMembers = currentMembers.map(m => {
+              const memberRole = m.role || m.type;
+              if (memberRole === role) {
+                return {
+                  ...m,
+                  instrumentConfig: config
+                };
+              }
+              return m;
+            });
+            gameState?.updateGameState?.({
+              bandMembers: updatedMembers
+            });
+          }}
+        />
       )}
     </div>
   );

@@ -10,6 +10,7 @@ import { Music, Play, Pause, Users, X, Check, AlertCircle } from 'lucide-react';
 import { generateAuditionCandidate, getSkillDescription, ROLE_TRAITS } from '../utils/memberSkillTraits.js';
 import { ToneRenderer } from '../music/renderers/ToneRenderer.js';
 import { MusicGenerator } from '../music/MusicGenerator.js';
+import { AvatarDisplay } from './AvatarDisplay.jsx';
 
 const ROLES = [
   { id: 'drummer', name: '🥁 Drummer' },
@@ -144,7 +145,9 @@ export const AuditionPanel = ({ gameState, onHireMember, onClose }) => {
       skill: currentCandidate.overallSkill,
       traits: currentCandidate.traits,
       morale: 75,
-      energy: 100
+      energy: 100,
+      avatarSeed: currentCandidate.avatarSeed ?? currentCandidate.name,
+      avatarArchetype: currentCandidate.avatarArchetype
     };
     
     if (onHireMember) {
@@ -265,8 +268,9 @@ export const AuditionPanel = ({ gameState, onHireMember, onClose }) => {
                   transition: 'all 0.2s'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                  <AvatarDisplay entity={candidate} size="sm" alt={candidate.name} />
+                  <div style={{ flex: 1 }}>
                     <h4 style={{ margin: '0 0 5px 0', color: '#0ff' }}>{candidate.name}</h4>
                     <p style={{ margin: '5px 0', fontSize: '0.9em', color: '#888' }}>
                       Overall Skill: {candidate.overallSkill}/100
@@ -301,9 +305,12 @@ export const AuditionPanel = ({ gameState, onHireMember, onClose }) => {
           borderRadius: '8px',
           marginBottom: '20px'
         }}>
-          <h3 style={{ margin: '0 0 15px 0', color: '#0ff' }}>
-            Auditioning: {currentCandidate.name}
-          </h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '15px' }}>
+            <AvatarDisplay entity={currentCandidate} size="lg" alt={currentCandidate.name} />
+            <h3 style={{ margin: 0, color: '#0ff' }}>
+              Auditioning: {currentCandidate.name}
+            </h3>
+          </div>
 
           {/* Skill Traits */}
           <div style={{ marginBottom: '20px' }}>
